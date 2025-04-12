@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "MICROCMS_API_KEY": "@microcms-api-key",
+    "MICROCMS_SERVICE_DOMAIN": "@microcms-service-domain"
+  },
+  "build": {
+    "env": {
+      "VITE_MICROCMS_API_URL": "@vite-microcms-api-url"
+    }
+  }
+} 
