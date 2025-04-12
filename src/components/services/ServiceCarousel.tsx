@@ -49,11 +49,10 @@ export const ServiceCarousel = ({ currentService, allServices }: ServiceCarousel
           {otherServices.map((service) => (
             <ServiceCard
               key={service.id}
+              id={service.id}
               title={service.title}
               description={service.description}
-              icon={service.icon}
-              link={`/services/${service.slug}`}
-              compact={true}
+              icon={service.icon as unknown as string}
             />
           ))}
         </HStack>

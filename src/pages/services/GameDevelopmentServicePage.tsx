@@ -13,7 +13,6 @@ import {
   ComparisonSection,
   RequirementsSection,
   WhyNowSection,
-  TabSection,
   UseCasesSection,
   FAQSection,
   CTASection

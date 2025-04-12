@@ -837,17 +837,26 @@ const StudyAbroadConsultingServicePage: React.FC = () => {
                   {
                     title: "語学留学",
                     description: "実践的な語学力を身につけ、グローバルなコミュニケーション力を向上させます。",
-                    icon: FaLanguage
+                    icon: FaLanguage,
+                    path: "/services/language-study",
+                    color: "blue.400",
+                    reason: "語学力向上は留学の重要な目的です"
                   },
                   {
                     title: "短期留学",
                     description: "限られた時間で効率的に語学力と国際感覚を養います。",
-                    icon: FaBriefcase
+                    icon: FaBriefcase,
+                    path: "/services/short-term-study",
+                    color: "green.400",
+                    reason: "時間や予算に制約がある方に最適です"
                   },
                   {
                     title: "大学留学",
                     description: "海外の大学で学び、グローバルな視点と専門知識を習得します。",
-                    icon: FaUniversity
+                    icon: FaUniversity,
+                    path: "/services/university-study",
+                    color: "purple.400",
+                    reason: "専門分野の学位取得を目指す方に最適です"
                   }
                 ]}
               />

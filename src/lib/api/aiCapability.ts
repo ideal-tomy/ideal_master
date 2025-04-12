@@ -32,7 +32,7 @@ export const fetchAICapabilities = async () => {
       category: c.category,
       categoryLength: c.category.length,
       // 文字コードも確認
-      charCodes: Array.from(c.category).map(char => char.charCodeAt(0))
+      charCodes: Array.from(c.category).map((char: string) => char.charCodeAt(0))
     })));
 
     return data;

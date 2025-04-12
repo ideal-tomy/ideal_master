@@ -27,7 +27,13 @@
     },
 
     /* 一時的なエラー緩和のための設定 */
-    "noEmitOnError": false
+    "noEmitOnError": false,
+
+    "esModuleInterop": true,
+
+    "types": ["node", "react", "react-dom"],
+    "typeRoots": ["./node_modules/@types"],
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

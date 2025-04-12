@@ -23,7 +23,7 @@ const ServiceFeature: React.FC<ServiceFeatureProps> = ({
     <Box
       as={motion.div}
       whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3 } as any}
       p={5}
       borderRadius="lg"
       bg="rgba(0, 10, 40, 0.4)"

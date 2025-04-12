@@ -867,66 +867,78 @@ const AIServicePage: React.FC = () => {
                 <SimpleGrid 
                   columns={{ base: 1, md: 2 }} 
                   spacing={8}
-                  as={motion.div}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                 >
-                  <Box 
-                    p={6} 
-                    bg="rgba(0, 0, 40, 0.4)" 
-                    borderRadius="lg"
-                    borderLeft="4px solid"
-                    borderColor="cyan.400"
-                    boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
-                    as={motion.div}
-                    whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                    transition={{ type: "spring", duration: 0.2 }}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                   >
-                    <Heading as="h3" size="md" mb={4} color="cyan.300">市場動向とビジネス変革</Heading>
-                    <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaChartLine} color="cyan.300" mt={1} mr={3} />
-                        <Text>大手企業からスタートアップまで、AIへの投資が急増しており、市場が急速に拡大中</Text>
-                      </ListItem>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaGlobeAsia} color="cyan.300" mt={1} mr={3} />
-                        <Text>データ駆動型意思決定の重要性が高まり、AIを活用した分析が競争優位性の源泉に</Text>
-                      </ListItem>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaUsers} color="cyan.300" mt={1} mr={3} />
-                        <Text>顧客はパーソナライズされた体験を期待しており、AIによる個別化が標準に</Text>
-                      </ListItem>
-                    </UnorderedList>
-                  </Box>
+                    <Box 
+                      p={6} 
+                      bg="rgba(0, 0, 40, 0.4)" 
+                      borderRadius="lg"
+                      borderLeft="4px solid"
+                      borderColor="cyan.400"
+                      boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                    >
+                      <motion.div
+                        whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
+                        transition={{ type: "spring", duration: 0.2 }}
+                      >
+                        <Heading as="h3" size="md" mb={4} color="cyan.300">市場動向とビジネス変革</Heading>
+                        <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaChartLine} color="cyan.300" mt={1} mr={3} />
+                            <Text>大手企業からスタートアップまで、AIへの投資が急増しており、市場が急速に拡大中</Text>
+                          </ListItem>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaGlobeAsia} color="cyan.300" mt={1} mr={3} />
+                            <Text>データ駆動型意思決定の重要性が高まり、AIを活用した分析が競争優位性の源泉に</Text>
+                          </ListItem>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaUsers} color="cyan.300" mt={1} mr={3} />
+                            <Text>顧客はパーソナライズされた体験を期待しており、AIによる個別化が標準に</Text>
+                          </ListItem>
+                        </UnorderedList>
+                      </motion.div>
+                    </Box>
+                  </motion.div>
                   
-                  <Box 
-                    p={6} 
-                    bg="rgba(0, 0, 40, 0.4)" 
-                    borderRadius="lg"
-                    borderLeft="4px solid"
-                    borderColor="purple.400"
-                    boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
-                    as={motion.div}
-                    whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                    transition={{ type: "spring", duration: 0.2 }}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                   >
-                    <Heading as="h3" size="md" mb={4} color="purple.300">技術革新と競争優位性</Heading>
-                    <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaCubes} color="purple.300" mt={1} mr={3} />
-                        <Text>大規模言語モデルやディープラーニングの進化により、AIの適用範囲が急速に拡大</Text>
-                      </ListItem>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaFlagCheckered} color="purple.300" mt={1} mr={3} />
-                        <Text>先行企業がAIを活用した業務効率化や新サービス開発で優位性を確立し始めている</Text>
-                      </ListItem>
-                      <ListItem display="flex" alignItems="flex-start">
-                        <Icon as={FaLightbulb} color="purple.300" mt={1} mr={3} />
-                        <Text>AIによる自動化と高度な分析で、人的リソースを創造的業務に集中させることが可能に</Text>
-                      </ListItem>
-                    </UnorderedList>
-                  </Box>
+                    <Box 
+                      p={6} 
+                      bg="rgba(0, 0, 40, 0.4)" 
+                      borderRadius="lg"
+                      borderLeft="4px solid"
+                      borderColor="purple.400"
+                      boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                    >
+                      <motion.div
+                        whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
+                        transition={{ type: "spring", duration: 0.2 }}
+                      >
+                        <Heading as="h3" size="md" mb={4} color="purple.300">技術革新と競争優位性</Heading>
+                        <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaCubes} color="purple.300" mt={1} mr={3} />
+                            <Text>大規模言語モデルやディープラーニングの進化により、AIの適用範囲が急速に拡大</Text>
+                          </ListItem>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaFlagCheckered} color="purple.300" mt={1} mr={3} />
+                            <Text>先行企業がAIを活用した業務効率化や新サービス開発で優位性を確立し始めている</Text>
+                          </ListItem>
+                          <ListItem display="flex" alignItems="flex-start">
+                            <Icon as={FaLightbulb} color="purple.300" mt={1} mr={3} />
+                            <Text>AIによる自動化と高度な分析で、人的リソースを創造的業務に集中させることが可能に</Text>
+                          </ListItem>
+                        </UnorderedList>
+                      </motion.div>
+                    </Box>
+                  </motion.div>
                 </SimpleGrid>
                 
                 <Box 
@@ -973,55 +985,13 @@ const AIServicePage: React.FC = () => {
               tabs={[
                 {
                   title: "開発",
-                  cards: [
-                    {
-                      title: "機械学習モデル開発",
-                      description: "ビジネスニーズに合わせた機械学習モデルの設計と開発",
-                      technologies: ["TensorFlow", "PyTorch", "Scikit-learn"],
-                      icon: FaRocket,
-                      detailedDescription: "企業の課題やニーズに最適な機械学習モデルを設計・開発します。予測分析、分類、クラスタリング、異常検知など、様々なタスクに対応したカスタムモデルを構築し、ビジネスプロセスの最適化や意思決定支援を実現します。最新のフレームワークと手法を活用し、高精度かつ効率的なAIソリューションを提供します。"
-                    },
-                    {
-                      title: "自然言語処理",
-                      description: "テキストデータの分析、生成、翻訳などのNLPソリューション",
-                      technologies: ["BERT", "GPT", "Transformers"],
-                      icon: FaUsers,
-                      detailedDescription: "テキストデータを理解・生成・変換するAI技術を活用し、チャットボット、感情分析、文書要約、多言語翻訳、コンテンツ生成など、様々な自然言語処理ソリューションを提供します。最新の大規模言語モデルを活用し、人間のような自然な言語理解と生成を実現します。"
-                    },
-                    {
-                      title: "画像認識システム",
-                      description: "深層学習を用いた画像認識・分類システムの開発",
-                      technologies: ["OpenCV", "CNNs", "YOLO"],
-                      icon: FaChartLine,
-                      detailedDescription: "ディープラーニングを活用した高精度な画像認識・分類システムを開発します。物体検出、顔認識、画像分類、セグメンテーションなど、視覚的なデータ処理を自動化し、製造業の品質管理、小売業の在庫管理、セキュリティシステムなど、様々な業界での応用を可能にします。"
-                    }
-                  ]
+                  content: <></>,
+                  cards: serviceCards.development
                 },
                 {
                   title: "コンサルティング",
-                  cards: [
-                    {
-                      title: "AI戦略コンサルティング",
-                      description: "ビジネス目標に合わせたAI導入戦略の策定",
-                      technologies: ["戦略立案", "ロードマップ作成", "KPI設定"],
-                      icon: FaLightbulb,
-                      detailedDescription: "企業のビジネス目標やニーズに基づいて、最適なAI導入戦略を策定します。市場分析、競合調査、技術評価を通じて、AIがもたらす価値を最大化するためのロードマップを作成し、段階的な導入計画と明確なKPIを設定します。経営層からの理解と支持を得るための支援も行います。"
-                    },
-                    {
-                      title: "データ分析コンサルティング",
-                      description: "データ収集、前処理、分析手法の最適化支援",
-                      technologies: ["データマイニング", "統計分析", "可視化"],
-                      icon: FaChartLine,
-                      detailedDescription: "企業が保有するデータの価値を最大化するための分析基盤を構築します。データの収集方法、前処理手順、分析手法の最適化を支援し、ビジネスインサイトを導き出すためのデータパイプラインを確立します。データの品質向上、統合、可視化まで、包括的なサポートを提供します。"
-                    },
-                    {
-                      title: "AI実装支援",
-                      description: "AI導入プロジェクトの実装と運用サポート",
-                      technologies: ["プロジェクト管理", "チーム構築", "技術支援"],
-                      icon: FaRocket,
-                      detailedDescription: "AI導入プロジェクトの計画から実装、運用までを包括的にサポートします。適切な技術選定、開発チームの構築、プロジェクト管理、品質保証など、成功に不可欠な要素をカバーし、スムーズなAI導入を実現します。導入後の運用体制構築や継続的な改善プロセスの確立も支援します。"
-                    }
-                  ]
+                  content: <></>,
+                  cards: serviceCards.consulting
                 }
               ]}
               itemVariants={itemVariants}

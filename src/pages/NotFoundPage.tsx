@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Box, Container, Heading, Text, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { Link as RouterLink } from 'react-router-dom'
@@ -6,6 +6,7 @@ import * as THREE from 'three'
 
 const NotFoundPage: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
   // Three.jsu306eu521du671fu5316u3068u30a2u30cbu30e1u30fcu30b7u30e7u30f3
   useEffect(() => {
@@ -124,22 +125,24 @@ const NotFoundPage: React.FC = () => {
       }
       particlesMesh.geometry.attributes.position.needsUpdate = true
       
-      // u30deu30a6u30b9u4f4du7f6eu306bu5fdcu3058u305fu52d5u304d
-      if (window.mouseX) {
-        blackHole.rotation.y = window.mouseX * 0.0001
-        blackHole.rotation.x = window.mouseY * 0.0001
-        ring.rotation.x = Math.PI / 2 + window.mouseY * 0.0001
-        ring.rotation.y = window.mouseX * 0.0001
-      }
+      // マウス位置に応じた動き
+      blackHole.rotation.y = mousePosition.x * 0.0001
+      blackHole.rotation.x = mousePosition.y * 0.0001
+      ring.rotation.x = Math.PI / 2 + mousePosition.y * 0.0001
+      ring.rotation.y = mousePosition.x * 0.0001
       
       renderer.render(scene, camera)
     }
     
-    // u30deu30a6u30b9u4f4du7f6eu306eu8ffdu8de1
-    window.addEventListener('mousemove', (event) => {
-      window.mouseX = event.clientX - window.innerWidth / 2
-      window.mouseY = event.clientY - window.innerHeight / 2
-    })
+    // マウス位置の追跡
+    const handleMouseMove = (event: MouseEvent) => {
+      setMousePosition({
+        x: event.clientX - window.innerWidth / 2,
+        y: event.clientY - window.innerHeight / 2
+      })
+    }
+    
+    window.addEventListener('mousemove', handleMouseMove)
     
     // u30a6u30a3u30f3u30c9u30a6u30eau30b5u30a4u30bau6642u306eu51e6u7406
     const handleResize = () => {
@@ -155,7 +158,7 @@ const NotFoundPage: React.FC = () => {
     // u30afu30eau30fcu30f3u30a2u30c3u30d7
     return () => {
       window.removeEventListener('resize', handleResize)
-      window.removeEventListener('mousemove', () => {})
+      window.removeEventListener('mousemove', handleMouseMove)
       if (canvasRef.current) {
         canvasRef.current.removeChild(renderer.domElement)
       }
@@ -169,7 +172,7 @@ const NotFoundPage: React.FC = () => {
       particlesGeometry.dispose()
       particlesMaterial.dispose()
     }
-  }, [])
+  }, [mousePosition])
   
   return (
     <Box
@@ -290,3 +293,4 @@ const NotFoundPage: React.FC = () => {
 }
 
 export default NotFoundPage
+

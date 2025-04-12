@@ -15,13 +15,14 @@ export interface RelatedService {
 }
 
 interface RelatedServicesSectionProps {
+  title?: string;
   services: RelatedService[];
 }
 
 /**
  * 関連サービスへの導線を表示するコンポーネント
  */
-const RelatedServicesSection: React.FC<RelatedServicesSectionProps> = ({ services }) => {
+const RelatedServicesSection: React.FC<RelatedServicesSectionProps> = ({ title = "関連サービス", services }) => {
   const navigate = useNavigate();
   const bgGradient = useColorModeValue(
     'linear(to-b, rgba(5, 5, 20, 0.7), rgba(10, 10, 40, 0.8))',
@@ -52,7 +53,7 @@ const RelatedServicesSection: React.FC<RelatedServicesSectionProps> = ({ service
           bgClip="text"
           fontFamily="Playfair Display"
         >
-          関連サービス
+          {title}
         </Heading>
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: services.length > 2 ? 3 : 2 }} spacing={8}>
@@ -62,7 +63,7 @@ const RelatedServicesSection: React.FC<RelatedServicesSectionProps> = ({ service
               as={motion.div}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 } as any}
               viewport={{ once: true }}
               p={6}
               borderRadius="lg"

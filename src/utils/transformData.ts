@@ -1,4 +1,6 @@
 // src/utils/transformData.ts
+import { AICapabilityDetail } from '../types/capability';
+
 export const transformCapabilityData = (rawData: any): AICapabilityDetail => {
     return {
       id: rawData.id,

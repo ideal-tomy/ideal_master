@@ -53,6 +53,7 @@ interface AICapabilityGroup {
   description: string; // 説明文
   categories: string[];// 関連カテゴリ
   keywords: string[];  // 振り分けキーワード
+  capabilities?: AICapability[]; // 紐づくケイパビリティ
 }
 
 const aiCapabilityGroups: AICapabilityGroup[] = [
@@ -595,7 +596,7 @@ const matchCategory = (cmsCategory: string, groupCategory: string): boolean => {
   
   // カテゴリオブジェクトを探す
   const categoryObj = Object.values(AI_CATEGORIES).find(cat => 
-    cat.id === groupCategory || cat.aliases.includes(cmsCategory)
+    cat.id === groupCategory || (Array.isArray(cat.aliases) && cat.aliases.includes(cmsCategory))
   );
   
   // カテゴリが見つかった場合、IDが一致するかチェック

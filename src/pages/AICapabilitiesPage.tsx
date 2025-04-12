@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Heading, Text, Link } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import { getCapabilities } from '../lib/api/capabilities';
 import { AICapability } from '../types/capability';
 import AICapabilitySection from '../components/ai-capabilities/AICapabilitySection';
@@ -209,8 +210,9 @@ export default function AICapabilitiesPage() {
       ))}
 
       {capabilities.map(cap => (
-        <Link 
+        <ChakraLink 
           key={cap.id}
+          as={RouterLink}
           to={`/tools/${cap.id}`}
           onClick={() => {
             console.log('Clicked link:', {
@@ -225,7 +227,7 @@ export default function AICapabilitiesPage() {
             <Text>{cap.title}</Text>
             <Text>{cap.description}</Text>
           </Box>
-        </Link>
+        </ChakraLink>
       ))}
     </Container>
   );

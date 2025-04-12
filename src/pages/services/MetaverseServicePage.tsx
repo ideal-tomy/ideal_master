@@ -631,7 +631,7 @@ const MetaverseServicePage: React.FC = () => {
                     as={motion.div}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
+                    transition={{ type: "spring", delay: 0.3, duration: 0.5 } as any}
                   >
                     <Box 
                       p={6} 
@@ -642,7 +642,7 @@ const MetaverseServicePage: React.FC = () => {
                       boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
                       as={motion.div}
                       whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                      transition={{ type: "spring", duration: 0.2 }}
+                      transition={{ type: "spring", duration: 0.2 } as any}
                     >
                       <Heading as="h3" size="md" mb={4} color="cyan.300">市場動向と消費者変化</Heading>
                       <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
@@ -670,7 +670,7 @@ const MetaverseServicePage: React.FC = () => {
                       boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
                       as={motion.div}
                       whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                      transition={{ type: "spring", duration: 0.2 }}
+                      transition={{ type: "spring", duration: 0.2 } as any}
                     >
                       <Heading as="h3" size="md" mb={4} color="purple.300">技術革新と競争優位性</Heading>
                       <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>

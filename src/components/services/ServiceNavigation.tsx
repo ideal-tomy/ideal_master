@@ -9,7 +9,12 @@ interface Service {
   icon: React.ElementType;
 }
 
-export const ServiceNavigation = ({ currentServiceId }: { currentServiceId: string }) => {
+interface ServiceNavigationProps {
+  currentServiceId: string;
+  services: Service[];
+}
+
+export const ServiceNavigation = ({ currentServiceId, services }: ServiceNavigationProps) => {
   const { isOpen, onToggle } = useDisclosure();
 
   // 現在のページを除外した他のサービス一覧
@@ -72,8 +77,7 @@ export const ServiceNavigation = ({ currentServiceId }: { currentServiceId: stri
                 id={service.id}
                 title={service.title}
                 description={service.description}
-                icon={service.icon}
-                variant="compact" // コンパクトバージョンのカードスタイル
+                icon={service.icon as unknown as string}
               />
             </Box>
           ))}

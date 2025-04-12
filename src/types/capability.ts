@@ -23,10 +23,21 @@ export interface AICapability {
   detail13?: string;  // まとめ
   gallery?: {
     url: string;
+    title?: string;
+    description?: string;
   }[];
   relatedCases?: {
     id: string;
     title: string;
+    thumbnail: {
+      url: string;
+    };
+  }[];
+  difficultyLevel?: number; // 1-5の値を想定
+  relatedCapabilities?: {
+    id: string;
+    title: string;
+    description: string;
     thumbnail: {
       url: string;
     };
@@ -46,3 +57,37 @@ export interface AICapabilityResponse {
 
 // 単一のAICapabilityを返すレスポンス型
 export interface SingleAICapabilityResponse extends AICapability {}
+
+// 詳細な機能情報を扱うための型
+export interface AICapabilityDetail {
+  id: string;
+  title: string;
+  summary: string;
+  industries: Array<{ name: string; description: string }>;
+  roles: Array<{ name: string; description: string }>;
+  challenges: Array<{ title: string; description: string }>;
+  metrics: {
+    scale: string[];
+    organizationSize: string;
+  };
+  useCases: Array<{
+    title: string;
+    description: string;
+    example?: string;
+  }>;
+  effects: {
+    quantitative: Array<{ metric: string; value: string }>;
+    qualitative: string[];
+  };
+  tools: Array<{ name: string; description: string }>;
+  implementation: {
+    steps: string[];
+    duration: string;
+    cost: string;
+    difficulty: number;
+    resources: string;
+    roi: string;
+  };
+  cautions: string[];
+  relatedFeatures: Array<{ title: string; description: string }>;
+}

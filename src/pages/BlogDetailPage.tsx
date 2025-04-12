@@ -4,6 +4,21 @@ import { motion } from 'framer-motion'
 import { Link, useParams } from 'react-router-dom'
 import { FaCalendarAlt, FaUser, FaFacebook, FaTwitter, FaLinkedin, FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
+// ブログ記事の型定義
+interface BlogPost {
+  id: string;
+  title: string;
+  content?: string;
+  excerpt: string;
+  author: string;
+  authorPosition: string;
+  authorImage: string;
+  date: string;
+  image: string;
+  categories: string[];
+  relatedPosts: string[];
+}
+
 // ブログ詳細ページコンポーネント
 const BlogDetailPage: React.FC = () => {
   // URLパラメータからブログIDを取得
@@ -34,7 +49,7 @@ const BlogDetailPage: React.FC = () => {
 
   // ブログ記事データ（プレースホルダー）
   // 実際のプロジェクトではAPIから取得する
-  const blogPosts = {
+  const blogPosts: Record<string, BlogPost> = {
     'ai-trends-2023': {
       id: 'ai-trends-2023',
       title: '2023年のAI技術トレンド：企業が注目すべき5つの革新',
@@ -140,7 +155,7 @@ const BlogDetailPage: React.FC = () => {
   }
 
   // 現在の記事データを取得
-  const post = blogPosts[blogId as keyof typeof blogPosts]
+  const post = blogPosts[blogId as keyof typeof blogPosts] as BlogPost | undefined;
 
   // 関連記事データを取得
   const relatedPostsData = post?.relatedPosts.map(id => blogPosts[id as keyof typeof blogPosts]) || []
@@ -294,7 +309,7 @@ const BlogDetailPage: React.FC = () => {
                   mb: 2
                 }
               }}
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: post.content || post.excerpt || '' }}
             />
           </Box>
 

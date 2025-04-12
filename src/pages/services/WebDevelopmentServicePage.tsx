@@ -83,7 +83,7 @@ const WebDevelopmentServicePage: React.FC = () => {
       
       <ServicePageContainer>
         <VStack spacing={16} as={motion.div} variants={containerVariants} initial="hidden" animate="visible">
-            
+        <Box>
             {/* サービス概要 */}
             <Box 
               as={motion.div}
@@ -99,7 +99,7 @@ const WebDevelopmentServicePage: React.FC = () => {
             >
               <Heading as="h2" size="xl" mb={6} textAlign="center" color="white">
                 ウェブ技術の可能性
-          </Heading>
+              </Heading>
               <Text fontSize="lg" mb={6} color="whiteAlpha.900">
                 ウェブサイトは単なる情報発信の手段ではなく、ビジネスの成長を支える重要なプラットフォームです。IDEALでは最先端の技術と創造的なアイデアを組み合わせ、クライアント様のビジョンに合わせた独自のウェブソリューションを提供します。
               </Text>
@@ -701,8 +701,8 @@ const WebDevelopmentServicePage: React.FC = () => {
                           <Text>データ分析とマーケティングの統合</Text>
                         </ListItem>
                       </UnorderedList>
-              </Box>
-            </SimpleGrid>
+                    </Box>
+                  </SimpleGrid>
                   
                   <Box 
                     mt={8} 
@@ -720,8 +720,8 @@ const WebDevelopmentServicePage: React.FC = () => {
                         今ウェブサイトを刷新しない企業は、デジタル時代の競争に取り残されるリスクがあります。当社のウェブ開発サービスで、将来を見据えたデジタル戦略を今始めましょう。
                       </Text>
                     </Flex>
-          </Box>
-          
+                  </Box>
+                  
                   <Center mt={8}>
                     <Button 
                       as={RouterLink} 
@@ -738,191 +738,194 @@ const WebDevelopmentServicePage: React.FC = () => {
                     </Button>
                   </Center>
                 </Flex>
-          </Box>
+              </Box>
+            </Box>
         </Box>
         
-              {/* 技術提供セクション */}
-            <Box width="100%" as={motion.div} variants={itemVariants}>
-              <ServiceTabSection
-                title="技術提供"
-                tabs={[
+        {/* 技術提供セクション */}
+        <Box width="100%" as={motion.div} variants={itemVariants}>
+          <ServiceTabSection
+            title="技術提供"
+            tabs={[
+              {
+                title: "フロントエンド開発",
+                content: <></>,
+                cards: [
                   {
-                    title: "フロントエンド開発",
-                    cards: [
-                      {
-                        title: "React開発",
-                        description: "高速でインタラクティブなユーザーインターフェースの実装",
-                        technologies: ["React", "Redux", "Next.js", "TypeScript"],
-                        icon: FaRocket,
-                        detailedDescription: "Reactを用いた高速でインタラクティブなユーザーインターフェースの実装。コンポーネントベースの開発と状態管理を最適化し、スムーズなユーザー体験を提供します。TypeScriptによる型安全性とNext.jsによるパフォーマンス最適化を実現します。"
-                      },
-                      {
-                        title: "Vue.js開発",
-                        description: "シンプルで直感的なフロントエンド開発",
-                        technologies: ["Vue.js", "Vuex", "Nuxt.js", "TypeScript"],
-                        icon: FaUsers,
-                        detailedDescription: "Vue.jsを用いたシンプルで直感的なフロントエンド開発。小規模から大規模なアプリケーションまで柔軟に対応し、パフォーマンスと使いやすさを両立します。Vuexによる状態管理とNuxt.jsによるサーバーサイドレンダリングを活用します。"
-                      },
-                      {
-                        title: "CSSフレームワーク",
-                        description: "モダンでレスポンシブなデザインの実現",
-                        technologies: ["Tailwind CSS", "Bootstrap", "Chakra UI", "Material-UI"],
-                        icon: FaChartLine,
-                        detailedDescription: "Tailwind CSSやBootstrapなどのCSSフレームワークを使用し、モダンでレスポンシブなデザインを実現します。プロジェクトに最適な手法で美しく使いやすいUIを実現します。CSS-in-JSライブラリとの統合も可能です。"
-                      }
-                    ]
+                    title: "React開発",
+                    description: "高速でインタラクティブなユーザーインターフェースの実装",
+                    technologies: ["React", "Redux", "Next.js", "TypeScript"],
+                    icon: FaRocket,
+                    detailedDescription: "Reactを用いた高速でインタラクティブなユーザーインターフェースの実装。コンポーネントベースの開発と状態管理を最適化し、スムーズなユーザー体験を提供します。TypeScriptによる型安全性とNext.jsによるパフォーマンス最適化を実現します。"
                   },
                   {
-                    title: "バックエンド開発",
-                    cards: [
-                      {
-                        title: "Node.js開発",
-                        description: "高速でスケーラブルなバックエンドシステムの構築",
-                        technologies: ["Node.js", "Express", "NestJS", "TypeScript"],
-                        icon: FaLightbulb,
-                        detailedDescription: "Node.jsを用いた高速でスケーラブルなバックエンドシステムの構築。ExpressやNestJSフレームワークを活用し、RESTful APIやGraphQLによるデータの受け渡し、非同期処理を最適化します。TypeScriptによる型安全性も確保します。"
-                      },
-                      {
-                        title: "データベース設計",
-                        description: "最適なデータベース設計と実装",
-                        technologies: ["MySQL", "PostgreSQL", "MongoDB", "Redis"],
-                        icon: FaChartLine,
-                        detailedDescription: "プロジェクトの要件に合わせた最適なデータベースを選定し、データの正確性と信頼性を確保するデータベース設計を行います。関係データベースやNoSQLなど、用途に応じた適切なデータベースを選択し、データの関係性と効率的なクエリ実行を考慮した設計を提供します。"
-                      },
-                      {
-                        title: "クラウドインフラ",
-                        description: "スケーラブルなインフラストラクチャの構築",
-                        technologies: ["AWS", "Google Cloud", "Azure", "Vercel"],
-                        icon: FaRocket,
-                        detailedDescription: "AWS、Google Cloud、Azureなどのクラウドサービスを活用し、スケーラブルで高可用性のインフラストラクチャを構築します。自動スケーリング、負荷分散、セキュリティ対策を含めた完全なインフラ環境を提供します。Vercelによる高速なデプロイメントもサポートします。"
-                      }
-                    ]
+                    title: "Vue.js開発",
+                    description: "シンプルで直感的なフロントエンド開発",
+                    technologies: ["Vue.js", "Vuex", "Nuxt.js", "TypeScript"],
+                    icon: FaUsers,
+                    detailedDescription: "Vue.jsを用いたシンプルで直感的なフロントエンド開発。小規模から大規模なアプリケーションまで柔軟に対応し、パフォーマンスと使いやすさを両立します。Vuexによる状態管理とNuxt.jsによるサーバーサイドレンダリングを活用します。"
+                  },
+                  {
+                    title: "CSSフレームワーク",
+                    description: "モダンでレスポンシブなデザインの実現",
+                    technologies: ["Tailwind CSS", "Bootstrap", "Chakra UI", "Material-UI"],
+                    icon: FaChartLine,
+                    detailedDescription: "Tailwind CSSやBootstrapなどのCSSフレームワークを使用し、モダンでレスポンシブなデザインを実現します。プロジェクトに最適な手法で美しく使いやすいUIを実現します。CSS-in-JSライブラリとの統合も可能です。"
                   }
-                ]}
-                itemVariants={itemVariants}
-              />
-            </Box>
-
-            {/* FAQ セクション */}
-            <Box 
-              as={motion.div}
-              variants={itemVariants}
-              w="100%"
-              p={10}
-              borderRadius="xl"
-              bg="rgba(10, 10, 26, 0.8)"
-              backdropFilter="blur(10px)"
-              boxShadow="0 0 30px rgba(0, 184, 212, 0.3)"
-              borderWidth="1px"
-              borderColor="neonBlue"
-            >
-              <Heading as="h2" size="xl" mb={6} textAlign="center" color="white">
-                よくある質問
-              </Heading>
-              <Accordion allowToggle>
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} border="none" mb={4}>
-                    <AccordionButton 
-                      bg="rgba(0, 0, 20, 0.3)" 
-                      color="white" 
-                      p={4} 
-                      borderRadius="md"
-                      _hover={{ bg: 'rgba(0, 184, 212, 0.2)' }}
-                    >
-                      <Box flex="1" textAlign="left" fontWeight="bold">
-                        {faq.question}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                    <AccordionPanel pb={4} pt={4} bg="rgba(0, 0, 20, 0.2)" color="whiteAlpha.800">
-                      {faq.answer}
-                    </AccordionPanel>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </Box>
-
-            {/* 関連サービスセクション */}
-            <Box 
-              as={motion.div}
-              variants={itemVariants}
-              w="100%"
-              mb={8}
-            >
-              <RelatedServicesSection 
-                services={[
+                ]
+              },
+              {
+                title: "バックエンド開発",
+                content: <></>,
+                cards: [
                   {
-                    title: "モバイルアプリ開発",
-                    description: "モバイルファーストの時代に、ユーザー体験を重視したモバイルアプリを開発",
-                    path: "/services/app-development",
-                    icon: FaMobile,
-                    color: "teal.400",
-                    reason: "モバイルアプリとウェブ開発は密接に連携し、クロスプラットフォームなユーザー体験を提供することが重要です"
+                    title: "Node.js開発",
+                    description: "高速でスケーラブルなバックエンドシステムの構築",
+                    technologies: ["Node.js", "Express", "NestJS", "TypeScript"],
+                    icon: FaLightbulb,
+                    detailedDescription: "Node.jsを用いた高速でスケーラブルなバックエンドシステムの構築。ExpressやNestJSフレームワークを活用し、RESTful APIやGraphQLによるデータの受け渡し、非同期処理を最適化します。TypeScriptによる型安全性も確保します。"
                   },
                   {
-                    title: "AIソリューション",
-                    description: "AI技術を活用し、ビジネスに革新をもたらすソリューションを提供",
-                    path: "/services/ai-blockchain",
-                    icon: FaRobot,
-                    color: "blue.400",
-                    reason: "AI技術をウェブサイトに組み込むことで、パーソナライゼーションやデータ分析などの高度な機能を実現できます"
+                    title: "データベース設計",
+                    description: "最適なデータベース設計と実装",
+                    technologies: ["MySQL", "PostgreSQL", "MongoDB", "Redis"],
+                    icon: FaChartLine,
+                    detailedDescription: "プロジェクトの要件に合わせた最適なデータベースを選定し、データの正確性と信頼性を確保するデータベース設計を行います。関係データベースやNoSQLなど、用途に応じた適切なデータベースを選択し、データの関係性と効率的なクエリ実行を考慮した設計を提供します。"
                   },
                   {
-                    title: "ゲーム開発",
-                    description: "ユーザー体験を重視したゲームを開発し、ビジネスに新たな価値を創造",
-                    path: "/services/game-development",
-                    icon: FaGamepad,
-                    color: "green.400",
-                    reason: "ゲーム開発で培ったインタラクティブなユーザー体験のノウハウは、ウェブサイトのエンゲージメント向上にも応用できます"
+                    title: "クラウドインフラ",
+                    description: "スケーラブルなインフラストラクチャの構築",
+                    technologies: ["AWS", "Google Cloud", "Azure", "Vercel"],
+                    icon: FaRocket,
+                    detailedDescription: "AWS、Google Cloud、Azureなどのクラウドサービスを活用し、スケーラブルで高可用性のインフラストラクチャを構築します。自動スケーリング、負荷分散、セキュリティ対策を含めた完全なインフラ環境を提供します。Vercelによる高速なデプロイメントもサポートします。"
                   }
-                ]}
-              />
-            </Box>
+                ]
+              }
+            ]}
+            itemVariants={itemVariants}
+          />
+        </Box>
 
-            {/* CTA セクション */}
-            <Box 
-              as={motion.div}
-              variants={itemVariants}
-              p={10}
-              borderRadius="xl"
-              bg="rgba(26, 43, 94, 0.5)"
-              backdropFilter="blur(8px)"
-              boxShadow="0 0 30px rgba(0, 184, 212, 0.3)"
-              borderWidth="1px"
-              borderColor="neonBlue"
-              textAlign="center"
+        {/* FAQ セクション */}
+        <Box 
+          as={motion.div}
+          variants={itemVariants}
+          w="100%"
+          p={10}
+          borderRadius="xl"
+          bg="rgba(10, 10, 26, 0.8)"
+          backdropFilter="blur(10px)"
+          boxShadow="0 0 30px rgba(0, 184, 212, 0.3)"
+          borderWidth="1px"
+          borderColor="neonBlue"
+        >
+          <Heading as="h2" size="xl" mb={6} textAlign="center" color="white">
+            よくある質問
+          </Heading>
+          <Accordion allowToggle>
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} border="none" mb={4}>
+                <AccordionButton 
+                  bg="rgba(0, 0, 20, 0.3)" 
+                  color="white" 
+                  p={4} 
+                  borderRadius="md"
+                  _hover={{ bg: 'rgba(0, 184, 212, 0.2)' }}
+                >
+                  <Box flex="1" textAlign="left" fontWeight="bold">
+                    {faq.question}
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4} pt={4} bg="rgba(0, 0, 20, 0.2)" color="whiteAlpha.800">
+                  {faq.answer}
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Box>
+
+        {/* 関連サービスセクション */}
+        <Box 
+          as={motion.div}
+          variants={itemVariants}
+          w="100%"
+          mb={8}
+        >
+          <RelatedServicesSection 
+            services={[
+              {
+                title: "モバイルアプリ開発",
+                description: "モバイルファーストの時代に、ユーザー体験を重視したモバイルアプリを開発",
+                path: "/services/app-development",
+                icon: FaMobile,
+                color: "teal.400",
+                reason: "モバイルアプリとウェブ開発は密接に連携し、クロスプラットフォームなユーザー体験を提供することが重要です"
+              },
+              {
+                title: "AIソリューション",
+                description: "AI技術を活用し、ビジネスに革新をもたらすソリューションを提供",
+                path: "/services/ai-blockchain",
+                icon: FaRobot,
+                color: "blue.400",
+                reason: "AI技術をウェブサイトに組み込むことで、パーソナライゼーションやデータ分析などの高度な機能を実現できます"
+              },
+              {
+                title: "ゲーム開発",
+                description: "ユーザー体験を重視したゲームを開発し、ビジネスに新たな価値を創造",
+                path: "/services/game-development",
+                icon: FaGamepad,
+                color: "green.400",
+                reason: "ゲーム開発で培ったインタラクティブなユーザー体験のノウハウは、ウェブサイトのエンゲージメント向上にも応用できます"
+              }
+            ]}
+          />
+        </Box>
+
+        {/* CTA セクション */}
+        <Box 
+          as={motion.div}
+          variants={itemVariants}
+          p={10}
+          borderRadius="xl"
+          bg="rgba(26, 43, 94, 0.5)"
+          backdropFilter="blur(8px)"
+          boxShadow="0 0 30px rgba(0, 184, 212, 0.3)"
+          borderWidth="1px"
+          borderColor="neonBlue"
+          textAlign="center"
+        >
+          <Heading as="h2" size="xl" mb={4} color="white">
+            ウェブで新しいビジネス体験を創造しませんか？
+          </Heading>
+          <Text fontSize="lg" mb={8} color="whiteAlpha.800">
+            IDEALのウェブ開発サービスで、貴社のビジネスに革新をもたらします。
+            まずはお気軽にお問い合わせください。
+          </Text>
+          <HStack spacing={4} justify="center">
+            <Button
+              as={RouterLink}
+              to="/contact"
+              variant="accent"
+              size="lg"
+              px={8}
             >
-              <Heading as="h2" size="xl" mb={4} color="white">
-                ウェブで新しいビジネス体験を創造しませんか？
-              </Heading>
-              <Text fontSize="lg" mb={8} color="whiteAlpha.800">
-                IDEALのウェブ開発サービスで、貴社のビジネスに革新をもたらします。
-                まずはお気軽にお問い合わせください。
-              </Text>
-              <HStack spacing={4} justify="center">
-                <Button
-                  as={RouterLink}
-                  to="/contact"
-                  variant="accent"
-                  size="lg"
-                  px={8}
-                >
-                  お問い合わせ
-                </Button>
-                <Button
-                  as={RouterLink}
-                  to="/services"
-                  variant="secondary"
-                  size="lg"
-                >
-                  サービス一覧に戻る
-                </Button>
-              </HStack>
-            </Box>
-          </VStack>
-      </ServicePageContainer>
-    </>
-  )
+              お問い合わせ
+            </Button>
+            <Button
+              as={RouterLink}
+              to="/services"
+              variant="secondary"
+              size="lg"
+            >
+              サービス一覧に戻る
+            </Button>
+          </HStack>
+        </Box>
+      </VStack>
+    </ServicePageContainer>
+  </>
+)
 }
 
 export default WebDevelopmentServicePage

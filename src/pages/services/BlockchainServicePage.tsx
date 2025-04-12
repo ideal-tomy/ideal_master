@@ -594,66 +594,78 @@ const BlockchainServicePage: React.FC = () => {
                   <SimpleGrid 
                     columns={{ base: 1, md: 2 }} 
                     spacing={8}
-                    as={motion.div}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                   >
-                    <Box 
-                      p={6} 
-                      bg="rgba(0, 0, 40, 0.4)" 
-                      borderRadius="lg"
-                      borderLeft="4px solid"
-                      borderColor="cyan.400"
-                      boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
-                      as={motion.div}
-                      whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                      transition={{ type: "spring", duration: 0.2 }}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                     >
-                      <Heading as="h3" size="md" mb={4} color="cyan.300">市場動向と消費者変化</Heading>
-                      <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaGlobeAsia} color="cyan.300" mt={1} mr={3} />
-                          <Text>金融、サプライチェーン、ヘルスケアなど様々な産業でのブロックチェーン導入が加速</Text>
-                        </ListItem>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaUsers} color="cyan.300" mt={1} mr={3} />
-                          <Text>企業間取引やデータ共有における透明性と信頼性の重要性の高まり</Text>
-                        </ListItem>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaChartLine} color="cyan.300" mt={1} mr={3} />
-                          <Text>規制環境の整備とブロックチェーン技術の標準化の進展</Text>
-                        </ListItem>
-                      </UnorderedList>
-                    </Box>
+                      <Box 
+                        p={6} 
+                        bg="rgba(0, 0, 40, 0.4)" 
+                        borderRadius="lg"
+                        borderLeft="4px solid"
+                        borderColor="cyan.400"
+                        boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                      >
+                        <motion.div
+                          whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
+                          transition={{ type: "spring", duration: 0.2 }}
+                        >
+                          <Heading as="h3" size="md" mb={4} color="cyan.300">市場動向と消費者変化</Heading>
+                          <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaGlobeAsia} color="cyan.300" mt={1} mr={3} />
+                              <Text>金融、サプライチェーン、ヘルスケアなど様々な産業でのブロックチェーン導入が加速</Text>
+                            </ListItem>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaUsers} color="cyan.300" mt={1} mr={3} />
+                              <Text>企業間取引やデータ共有における透明性と信頼性の重要性の高まり</Text>
+                            </ListItem>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaChartLine} color="cyan.300" mt={1} mr={3} />
+                              <Text>規制環境の整備とブロックチェーン技術の標準化の進展</Text>
+                            </ListItem>
+                          </UnorderedList>
+                        </motion.div>
+                      </Box>
+                    </motion.div>
                     
-                    <Box 
-                      p={6} 
-                      bg="rgba(0, 0, 40, 0.4)" 
-                      borderRadius="lg"
-                      borderLeft="4px solid"
-                      borderColor="purple.400"
-                      boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
-                      as={motion.div}
-                      whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
-                      transition={{ type: "spring", duration: 0.2 }}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ type: "spring", delay: 0.3, duration: 0.5 }}
                     >
-                      <Heading as="h3" size="md" mb={4} color="purple.300">技術革新と競争優位性</Heading>
-                      <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaCubes} color="purple.300" mt={1} mr={3} />
-                          <Text>ブロックチェーンやスマートコントラクトなどの技術の成熟により、ビジネスプロセスの革新が可能</Text>
-                        </ListItem>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaFlagCheckered} color="purple.300" mt={1} mr={3} />
-                          <Text>先行企業がブロックチェーンネットワーク内での存在感を確立し始めており、参入障壁が今後高まる可能性</Text>
-                        </ListItem>
-                        <ListItem display="flex" alignItems="flex-start">
-                          <Icon as={FaLightbulb} color="purple.300" mt={1} mr={3} />
-                          <Text>競合他社との差別化と新たな顧客体験の創出による競争優位性の確保</Text>
-                        </ListItem>
-                      </UnorderedList>
-                    </Box>
+                      <Box 
+                        p={6} 
+                        bg="rgba(0, 0, 40, 0.4)" 
+                        borderRadius="lg"
+                        borderLeft="4px solid"
+                        borderColor="purple.400"
+                        boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                      >
+                        <motion.div
+                          whileHover={{ y: -5, boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)" }}
+                          transition={{ type: "spring", duration: 0.2 }}
+                        >
+                          <Heading as="h3" size="md" mb={4} color="purple.300">技術革新と競争優位性</Heading>
+                          <UnorderedList mt={2} color="whiteAlpha.900" spacing={3} styleType="none" ml={0}>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaCubes} color="purple.300" mt={1} mr={3} />
+                              <Text>ブロックチェーンやスマートコントラクトなどの技術の成熟により、ビジネスプロセスの革新が可能</Text>
+                            </ListItem>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaFlagCheckered} color="purple.300" mt={1} mr={3} />
+                              <Text>先行企業がブロックチェーンネットワーク内での存在感を確立し始めており、参入障壁が今後高まる可能性</Text>
+                            </ListItem>
+                            <ListItem display="flex" alignItems="flex-start">
+                              <Icon as={FaLightbulb} color="purple.300" mt={1} mr={3} />
+                              <Text>競合他社との差別化と新たな顧客体験の創出による競争優位性の確保</Text>
+                            </ListItem>
+                          </UnorderedList>
+                        </motion.div>
+                      </Box>
+                    </motion.div>
                   </SimpleGrid>
                   
                   <Box 
@@ -709,6 +721,7 @@ const BlockchainServicePage: React.FC = () => {
                 tabs={[
                   {
                     title: "開発",
+                    content: <></>,
                     cards: [
                       {
                         title: "ブロックチェーン基盤開発",
@@ -735,6 +748,7 @@ const BlockchainServicePage: React.FC = () => {
                   },
                   {
                     title: "コンサルティング",
+                    content: <></>,
                     cards: [
                       {
                         title: "ブロックチェーン戦略立案",
