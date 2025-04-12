@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Heading, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, Link as ChakraLink, Spinner, Code, Button } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getCapabilities } from '../lib/api/capabilities';
-import { AICapability } from '../types/capability';
+import { AICapability, AICapabilityResponse } from '../types/capability';
 import AICapabilitySection from '../components/ai-capabilities/AICapabilitySection';
+import { mockCapabilities } from '../lib/mockData'; // モックデータをインポート
+
+// デバッグモード
+const DEBUG = true;
+
+// 開発モードの設定
+const USE_MOCK_DATA_FALLBACK = true; // 開発環境でのフォールバック
 
 // 全カテゴリリスト
 const ALL_CATEGORIES = [
@@ -41,138 +48,115 @@ const ALL_CATEGORIES = [
 ];
 
 // カテゴリの日本語表示名とチャレンジ文を管理
-const CATEGORY_INFO = {
+const CATEGORY_INFO: Record<string, { display: string, challenge: string }> = {
   text_creation: { display: '文章作成', challenge: '文章の作成が効率的に行える' },
   image_generation: { display: '画像生成', challenge: 'プロ品質の画像を簡単に作成できる' },
   video_creation: { display: '動画作成', challenge: '動画作成が自分でできる' },
   shift_management: { display: 'シフト管理', challenge: '自社に適したシフト管理システムを作れる' },
-  document_creation: { display: '文書作成・管理', challenge: '効率的な文書作成と管理を実現' },
-  meeting_support: { display: '会議・ミーティング支援', challenge: '会議の効率化と質の向上を実現' },
-  customer_support: { display: 'カスタマーサポート', challenge: '顧客対応の品質と効率を向上' },
-  data_analysis: { display: 'データ分析・レポート', challenge: 'データに基づく意思決定をサポート' },
-  translation: { display: '翻訳・多言語対応', challenge: '正確で自然な多言語コミュニケーション' },
-  design_support: { display: 'デザイン支援', challenge: 'クリエイティブな作業を効率化' },
-  code_generation: { display: 'コード生成・開発支援', challenge: '開発作業の効率と品質を向上' },
-  marketing_analysis: { display: 'マーケティング分析', challenge: 'データドリブンなマーケティング戦略を実現' },
-  content_planning: { display: 'コンテンツ企画', challenge: '効果的なコンテンツ戦略を立案' },
-  sales_support: { display: '営業支援', challenge: '営業活動の効率と成果を向上' },
-  social_media: { display: 'SNS運用支援', challenge: 'ソーシャルメディアの効果的な活用を実現' },
-  market_research: { display: '市場調査・分析', challenge: '市場動向の把握と戦略立案をサポート' },
-  recruitment: { display: '採用・人材管理', challenge: '効率的な採用活動と人材管理を実現' },
-  training_support: { display: '研修・教育支援', challenge: '効果的な人材育成を支援' },
-  performance_evaluation: { display: '評価・フィードバック', challenge: '公平で効果的な評価システムを実現' },
-  workflow_optimization: { display: '業務フロー最適化', challenge: '業務プロセスの効率化を実現' },
-  automation: { display: '業務自動化', challenge: '定型業務の自動化で効率アップ' },
-  knowledge_management: { display: 'ナレッジ管理', challenge: '組織の知識を効率的に管理・活用' },
-  communication: { display: 'コミュニケーション改善', challenge: '社内外のコミュニケーションを円滑化' },
-  life_planning: { display: 'ライフプランニング', challenge: '個人の生活設計をサポート' },
-  health_care: { display: 'ヘルスケア・健康管理', challenge: '健康管理と医療支援を効率化' },
-  learning_support: { display: '学習・自己啓発', challenge: '効果的な学習と能力開発を支援' },
-  entertainment: { display: 'エンターテインメント', challenge: '楽しみながら創造性を引き出す' },
-  personal_finance: { display: '家計・資産管理', challenge: '個人の財務管理を最適化' },
-  research_support: { display: '研究・開発支援', challenge: '研究開発プロセスを効率化' },
-  legal_support: { display: '法務・コンプライアンス', challenge: '法的リスク管理を効率化' },
-  risk_management: { display: 'リスク管理・セキュリティ', challenge: '組織のリスク管理を強化' }
+  document_creation: { display: '文書作成・管理', challenge: '文書作成と管理を効率化できる' },
+  meeting_support: { display: '会議支援', challenge: '会議の効率と質が向上する' },
+  customer_support: { display: '顧客対応', challenge: '顧客対応の質と速度を向上できる' },
+  data_analysis: { display: 'データ分析', challenge: '複雑なデータから価値ある洞察を得られる' },
+  translation: { display: '翻訳', challenge: '言語の壁を超えたコミュニケーションができる' },
+  design_support: { display: 'デザイン支援', challenge: 'デザイン業務を効率化できる' }
+  // その他のカテゴリも必要に応じて追加
 };
 
-// AICapabilityContentの型定義を修正
-interface AICapabilityContent {
-  id: string;
-  title: string;
-  description: string;
-  category: string[];
-  technologies: string[];
-  thumbnail: {
-    url: string;
-  };
-  detail: string;
-  gallery?: {
-    url: string;
-  }[];
-  relatedCases?: {
-    id: string;
-    title: string;
-    thumbnail: {
-      url: string;
-    };
-  }[];
-}
+// カテゴリー別のグループ化
+const CATEGORY_GROUPS = [
+  {
+    title: 'コンテンツ作成',
+    categories: ['text_creation', 'image_generation', 'video_creation', 'design_support']
+  },
+  {
+    title: '業務効率化',
+    categories: ['shift_management', 'document_creation', 'meeting_support', 'workflow_optimization', 'automation']
+  },
+  {
+    title: '顧客関連',
+    categories: ['customer_support', 'marketing_analysis', 'sales_support', 'social_media']
+  },
+  {
+    title: 'データ・分析',
+    categories: ['data_analysis', 'market_research', 'esearch_support']
+  },
+  {
+    title: '人材・教育',
+    categories: ['recruitment', 'training_support', 'performance_evaluation', 'learning_support']
+  }
+];
 
 export default function AICapabilitiesPage() {
-  const [capabilities, setCapabilities] = useState<AICapabilityContent[]>([]);
+  const [capabilities, setCapabilities] = useState<AICapability[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCapabilities = async () => {
-      try {
-        console.log('Starting to fetch capabilities...');
-        const data = await getCapabilities();
-        console.log('CMS Data Structure:', data.map(item => ({
-          id: item.id,
-          title: item.title,
-          url: `/tools/${item.id}`  // 生成されるURLを確認
-        })));
-        setCapabilities(data);
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setError(`データの取得に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    fetchCapabilities();
+  };
 
+  const fetchCapabilities = async () => {
+    try {
+      if (DEBUG) console.log('APIデータ取得開始');
+      const data = await getCapabilities();
+      
+      if (DEBUG) console.log('APIレスポンス:', data);
+      
+      if (data && 'contents' in data && Array.isArray(data.contents)) {
+        setCapabilities(data.contents);
+        if (DEBUG) console.log('取得したケイパビリティ数:', data.contents.length);
+      } else {
+        console.error('APIデータの形式が不正:', data);
+        setError('データの形式が不正です');
+        
+        // フォールバックにモックデータを使用
+        if (USE_MOCK_DATA_FALLBACK && mockCapabilities && Array.isArray(mockCapabilities)) {
+          console.log('モックデータを使用します');
+          setCapabilities(mockCapabilities);
+          setError(null);
+        }
+      }
+    } catch (error) {
+      console.error('データ取得エラー:', error);
+      setError('データの取得に失敗しました。ネットワーク接続を確認してください。');
+      
+      // フォールバックにモックデータを使用
+      if (USE_MOCK_DATA_FALLBACK && mockCapabilities && Array.isArray(mockCapabilities)) {
+        console.log('モックデータを使用します');
+        setCapabilities(mockCapabilities);
+        setError(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCapabilities();
   }, []);
 
-  // デバッグ用のログ出力を追加
-  useEffect(() => {
-    console.log('Current capabilities:', capabilities);
-  }, [capabilities]);
-
   const filterByCategory = (category: string) => {
-    const filtered = capabilities.filter(cap => {
-      // フィルタリング前のデータを確認
-      console.log('Checking capability:', {
-        id: cap.id,
-        title: cap.title,
-        category: cap.category
-      });
-
-      const matches = cap.category.some(cat => {
-        const internalCat = cat.split('（')[0].trim();
-        return internalCat === category;
-      });
-
-      // マッチしたデータを確認
-      if (matches) {
-        console.log('Matched:', {
-          id: cap.id,
-          generatedUrl: `/tools/${cap.id}`
-        });
-      }
-
-      return matches;
+    return capabilities.filter(cap => {
+      if (!cap.category || !Array.isArray(cap.category)) return false;
+      return cap.category.includes(category) || cap.category.some(cat => cat.startsWith(category));
     });
-    
-    return filtered;
   };
 
   if (loading) {
     return (
-      <Box p={8} textAlign="center">
-        <Text color="white">データを読み込んでいます...</Text>
+      <Box p={8} display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 200px)">
+        <Spinner size="xl" color="cyan.400" thickness="4px" />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box p={8} textAlign="center">
-        <Text color="red.500">{error}</Text>
-        <Text color="white" mt={4}>
-          エラーの詳細はコンソールを確認してください
-        </Text>
+      <Box p={8} textAlign="center" height="calc(100vh - 200px)" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Text color="red.500" mb={4}>{error}</Text>
+        <Button colorScheme="cyan" onClick={handleRetry}>再試行</Button>
       </Box>
     );
   }
@@ -199,36 +183,47 @@ export default function AICapabilitiesPage() {
         </Text>
       </Box>
 
-      {/* すべてのカテゴリを表示 */}
-      {Object.keys(CATEGORY_INFO).map(category => (
-        <AICapabilitySection
-          key={category}
-          title={CATEGORY_INFO[category].display}
-          challenge={CATEGORY_INFO[category].challenge}
-          contents={filterByCategory(category)}
-        />
+      {/* カテゴリグループ別にセクションを表示 */}
+      {CATEGORY_GROUPS.map((group, index) => (
+        <Box key={group.title} mb={20}>
+          <Heading 
+            size="lg" 
+            mb={6}
+            color="cyan.400"
+            textAlign="center"
+          >
+            {group.title}
+          </Heading>
+
+          {group.categories.map(category => {
+            const categoryCapabilities = filterByCategory(category);
+            if (categoryCapabilities.length === 0) return null;
+
+            return (
+              <AICapabilitySection 
+                key={category}
+                title={CATEGORY_INFO[category]?.display || category}
+                challenge={CATEGORY_INFO[category]?.challenge || ''}
+                contents={categoryCapabilities.slice(0, 4)} // 最大4つまで表示
+              />
+            );
+          })}
+        </Box>
       ))}
 
-      {capabilities.map(cap => (
-        <ChakraLink 
-          key={cap.id}
-          as={RouterLink}
-          to={`/tools/${cap.id}`}
-          onClick={() => {
-            console.log('Clicked link:', {
-              id: cap.id,
-              url: `/tools/${cap.id}`,
-              currentPath: window.location.pathname
-            });
-          }}
-          style={{ textDecoration: 'none' }}
-        >
-          <Box>
-            <Text>{cap.title}</Text>
-            <Text>{cap.description}</Text>
-          </Box>
+      {/* 全カテゴリーへのリンク */}
+      <Box textAlign="center" mt={16}>
+        <ChakraLink as={RouterLink} to="/ai-list">
+          <Button 
+            size="lg"
+            colorScheme="cyan"
+            variant="outline"
+            _hover={{ bg: 'rgba(0, 255, 255, 0.1)' }}
+          >
+            すべてのAI活用カテゴリを見る
+          </Button>
         </ChakraLink>
-      ))}
+      </Box>
     </Container>
   );
 }

@@ -18,26 +18,32 @@ import {
   AccordionPanel,
   AccordionIcon,
   Grid,
+  Button,
+  Spinner,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import { getCapabilities, getCapabilityById } from '../lib/api/capabilities';
-import { AICapability } from '../types/capability';
+import { AICapability, AICapabilityResponse } from '../types/capability';
 
 // カテゴリの表示名マッピング
 const categoryDisplayNames: { [key: string]: string } = {
-  'text_creation（文章作成）': '文章作成',
-  'image_generation（画像生成）': '画像生成',
-  'video_creation（動画作成）': '動画作成',
-  'shift_management（シフト管理）': 'シフト管理',
-  'document_creation（文書作成・管理）': '文書作成・管理',
-  'meeting_support（会議支援）': '会議支援',
+  'text_creation': '文章作成',
+  'image_generation': '画像生成',
+  'video_creation': '動画作成',
+  'shift_management': 'シフト管理',
+  'document_creation': '文書作成・管理',
+  'meeting_support': '会議支援',
+  'customer_support': '顧客対応',
+  'data_analysis': 'データ分析',
+  'design_support': 'デザイン支援',
+  'communication': 'コミュニケーション',
   // ... 他のカテゴリも同様に
 };
 
 // カテゴリ名を変換する関数
 const getCategoryDisplayName = (category: string) => {
-  // カテゴリから日本語部分を抽出
+  // カテゴリから日本語部分を抽出（括弧付きの場合）
   const match = category.match(/（(.+)）/);
   if (match) {
     return match[1];  // 括弧内の日本語を返す
@@ -708,39 +714,58 @@ export default function AICapabilityListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCapabilities = async () => {
-      console.log('Starting to fetch capabilities...'); // デバッグログ
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // 初期グループ化データを設定
-        setGroupedCapabilities(aiCapabilityGroups.map(group => ({
-          ...group,
-          capabilities: []
-        })));
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    fetchCapabilities();
+  };
 
-        const data = await getCapabilities();
-        console.log('Received data:', data); // デバッグログ
+  const fetchCapabilities = async () => {
+    console.log('Starting to fetch capabilities...'); // デバッグログ
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // 初期グループ化データを設定
+      setGroupedCapabilities(aiCapabilityGroups.map(group => ({
+        ...group,
+        capabilities: []
+      })));
 
-        if (Array.isArray(data)) {
-          setCapabilities(data);
-          const grouped = matchCapabilitiesToGroups(data, aiCapabilityGroups);
-          setGroupedCapabilities(grouped);
-          console.log('Grouped capabilities:', grouped); // デバッグログ
-        } else {
-          console.error('Data is not an array:', data); // デバッグログ
-          setError('データの形式が正しくありません');
-        }
-      } catch (err) {
-        console.error('Error in fetchCapabilities:', err);
-        setError('データの取得中にエラーが発生しました');
-      } finally {
-        setLoading(false);
+      const response = await getCapabilities();
+      console.log('Received API response:', response); // デバッグログ
+
+      // レスポンスのデータ構造を確認
+      let capabilitiesData: AICapability[] = [];
+      
+      if (response && 'contents' in response && Array.isArray(response.contents)) {
+        // MicroCMS形式のレスポンス（{contents: [...]}）
+        console.log('MicroCMS format response with contents array, length:', response.contents.length);
+        capabilitiesData = response.contents;
+      } else if (Array.isArray(response)) {
+        // 単純な配列形式のレスポンス
+        console.log('Array format response, length:', response.length);
+        capabilitiesData = response;
+      } else {
+        // 不正なフォーマット
+        console.error('Invalid response format:', response);
+        throw new Error('データの形式が正しくありません');
       }
-    };
 
+      setCapabilities(capabilitiesData);
+      const grouped = matchCapabilitiesToGroups(capabilitiesData, aiCapabilityGroups);
+      setGroupedCapabilities(grouped);
+      console.log('Grouped capabilities:', grouped); // デバッグログ
+      
+    } catch (err) {
+      console.error('Error in fetchCapabilities:', err);
+      setError('データの取得中にエラーが発生しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCapabilities();
   }, []);
 
@@ -748,12 +773,13 @@ export default function AICapabilityListPage() {
   return (
     <Container maxW="1400px" py={12}>
       {loading ? (
-        <Box textAlign="center">
-          <Text>データを読み込んでいます...</Text>
+        <Box textAlign="center" display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 200px)">
+          <Spinner size="xl" color="cyan.400" thickness="4px" />
         </Box>
       ) : error ? (
-        <Box textAlign="center" color="red.500">
-          <Text>{error}</Text>
+        <Box textAlign="center" color="red.500" display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="calc(100vh - 200px)">
+          <Text mb={4}>{error}</Text>
+          <Button colorScheme="cyan" onClick={handleRetry}>再試行</Button>
         </Box>
       ) : (
         <>
@@ -812,88 +838,94 @@ export default function AICapabilityListPage() {
                         </AccordionButton>
                         <AccordionPanel pb={4} bg="rgba(0, 184, 212, 0.02)">
                           <VStack align="stretch" spacing={4}>
-                            {group.capabilities.map(cap => {
-                              return (
-                                <RouterLink 
-                                  key={cap.id}
-                                  to={`/tools/${cap.id}`}
-                                  style={{ textDecoration: 'none' }}
-                                >
-                                  <Box 
-                                    p={4}
-                                    borderRadius="md"
-                                    bg="rgba(75, 0, 130, 0.2)"
-                                    height="110px"
-                                    display="flex"
-                                    flexDirection="column"
-                                    border="1px solid rgba(138, 43, 226, 0.2)"
-                                    transition="all 0.3s ease"
-                                    position="relative"
-                                    overflow="hidden"
-                                    _hover={{
-                                      bg: "rgba(75, 0, 130, 0.3)",
-                                      transform: "translateY(-2px)",
-                                      boxShadow: "0 4px 12px rgba(138, 43, 226, 0.15)",
-                                      borderColor: "rgba(138, 43, 226, 0.4)",
-                                      "&::after": {
-                                        content: '""',
-                                        position: "absolute",
-                                        top: "-50%",
-                                        left: "-50%",
-                                        width: "200%",
-                                        height: "200%",
-                                        background: "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 52%, transparent 55%)",
-                                        transform: "rotate(45deg)",
-                                        animation: "shine 1.5s ease-in-out",
-                                      }
-                                    }}
-                                    sx={{
-                                      "@keyframes shine": {
-                                        "0%": {
-                                          transform: "translateX(-100%) rotate(45deg)",
-                                        },
-                                        "100%": {
-                                          transform: "translateX(100%) rotate(45deg)",
-                                        }
-                                      }
-                                    }}
+                            {group.capabilities && group.capabilities.length > 0 ? (
+                              group.capabilities.map(cap => {
+                                return (
+                                  <RouterLink 
+                                    key={cap.id}
+                                    to={`/tools/${cap.id}`}
+                                    style={{ textDecoration: 'none' }}
                                   >
-                                    <HStack spacing={2} mb={3} alignItems="center">
-                                      <Text 
-                                        fontSize="sm" 
-                                        color="cyan.300"
-                                        fontWeight="bold"
-                                        noOfLines={1}
-                                        flex="1"
-                                      >
-                                        {cap.title}
-                                      </Text>
-                                      {cap.category && cap.category[0] && (
-                                        <Tag
-                                          size="sm"
-                                          variant="solid"
-                                          colorScheme="orange"
-                                          px={2}
-                                          py={1}
-                                          borderRadius="full"
-                                          flexShrink={0}
-                                        >
-                                          {getCategoryDisplayName(cap.category[0])}
-                                        </Tag>
-                                      )}
-                                    </HStack>
-                                    <Text 
-                                      fontSize="xs" 
-                                      color="gray.200"
-                                      lineHeight="1.4"
-                                      noOfLines={2}
+                                    <Box 
+                                      p={4}
+                                      borderRadius="md"
+                                      bg="rgba(75, 0, 130, 0.2)"
+                                      height="110px"
+                                      display="flex"
+                                      flexDirection="column"
+                                      border="1px solid rgba(138, 43, 226, 0.2)"
+                                      transition="all 0.3s ease"
+                                      position="relative"
+                                      overflow="hidden"
+                                      _hover={{
+                                        bg: "rgba(75, 0, 130, 0.3)",
+                                        transform: "translateY(-2px)",
+                                        boxShadow: "0 4px 12px rgba(138, 43, 226, 0.15)",
+                                        borderColor: "rgba(138, 43, 226, 0.4)",
+                                        "&::after": {
+                                          content: '""',
+                                          position: "absolute",
+                                          top: "-50%",
+                                          left: "-50%",
+                                          width: "200%",
+                                          height: "200%",
+                                          background: "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 52%, transparent 55%)",
+                                          transform: "rotate(45deg)",
+                                          animation: "shine 1.5s ease-in-out",
+                                        }
+                                      }}
+                                      sx={{
+                                        "@keyframes shine": {
+                                          "0%": {
+                                            transform: "translateX(-100%) rotate(45deg)",
+                                          },
+                                          "100%": {
+                                            transform: "translateX(100%) rotate(45deg)",
+                                          }
+                                        }
+                                      }}
                                     >
-                                      {cap.description}
-                                    </Text>
-                                  </Box>
-                                </RouterLink>
-                              );
-                            })}
+                                      <HStack spacing={2} mb={3} alignItems="center">
+                                        <Text 
+                                          fontSize="sm" 
+                                          color="cyan.300"
+                                          fontWeight="bold"
+                                          noOfLines={1}
+                                          flex="1"
+                                        >
+                                          {cap.title}
+                                        </Text>
+                                        {cap.category && cap.category[0] && (
+                                          <Tag
+                                            size="sm"
+                                            variant="solid"
+                                            colorScheme="orange"
+                                            px={2}
+                                            py={1}
+                                            borderRadius="full"
+                                            flexShrink={0}
+                                          >
+                                            {getCategoryDisplayName(cap.category[0])}
+                                          </Tag>
+                                        )}
+                                      </HStack>
+                                      <Text 
+                                        fontSize="xs" 
+                                        color="gray.200"
+                                        lineHeight="1.4"
+                                        noOfLines={2}
+                                      >
+                                        {cap.description}
+                                      </Text>
+                                    </Box>
+                                  </RouterLink>
+                                );
+                              })
+                            ) : (
+                              <Text color="gray.400" textAlign="center" py={2}>
+                                該当する機能が見つかりませんでした
+                              </Text>
+                            )}
                           </VStack>
                         </AccordionPanel>
                       </AccordionItem>

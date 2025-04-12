@@ -1,57 +1,46 @@
-import { client } from './client';
 import { AICapabilityResponse, SingleAICapabilityResponse } from '../../types/capability';
+import { getCapabilities as getServerCapabilities, getCapabilityById as getServerCapabilityById } from './serverlessClient';
 
 export const getCapabilities = async () => {
   try {
     console.log('Fetching capabilities...');
     
-    const response = await client.get<AICapabilityResponse>({
-      endpoint: 'capabilities',
-      queries: { 
-        limit: 100,
-        orders: '-publishedAt'
-      }
-    });
+    const response = await getServerCapabilities();
     
     console.log('Full API response:', JSON.stringify(response, null, 2));
     
-    if (!response || !response.contents || response.contents.length === 0) {
-      console.warn('No contents found in the response');
+    // MicroCMSのレスポンス形式かチェック
+    if (response && typeof response === 'object' && 'contents' in response && Array.isArray(response.contents)) {
+      console.log('Valid response with contents array, length:', response.contents.length);
+      return response;
+    }
+    
+    // 配列の場合はそのまま返す（モックデータからの場合）
+    if (Array.isArray(response)) {
+      console.log('Response is an array, length:', response.length);
+      return {
+        contents: response,
+        totalCount: response.length,
+        offset: 0,
+        limit: 10
+      };
     }
 
-    console.log('Sample capability ID:', response.contents[0]?.id);
-
-    return response.contents;
+    // オブジェクトだがcontentsがない場合（異常）
+    console.warn('Invalid response format:', response);
+    throw new Error('Invalid API response format');
   } catch (error) {
     console.error('Error in getCapabilities:', error);
     throw error;
   }
 };
 
-export const getCapabilityById = async (id: string): Promise<SingleAICapabilityResponse> => {
+export const getCapabilityById = async (id: string) => {
   try {
-    console.log('Making API request for ID:', id);
-    console.log('Endpoint:', 'capabilities');
-    
-    const response = await client.get<SingleAICapabilityResponse>({
-      endpoint: 'capabilities',
-      contentId: id,
-    });
-    
-    console.log('Raw API Response:', response);
-    
-    if (!response) {
-      console.log('No response received');
-      throw new Error('No capability found');
-    }
-    
-    return response;
+    const capability = await getServerCapabilityById(id);
+    return capability;
   } catch (error) {
-    console.error('Detailed error in getCapabilityById:', {
-      error,
-      id,
-      endpoint: 'capabilities'
-    });
+    console.error(`Error fetching capability with ID: ${id}`, error);
     throw error;
   }
 };
