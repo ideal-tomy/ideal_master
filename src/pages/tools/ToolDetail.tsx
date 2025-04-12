@@ -1024,7 +1024,7 @@ export default function ToolDetail() {
         try {
           setIsLoading(true);
           const data = await getCapabilityById(id);
-          setCapability(data);
+          setCapability(data as AICapability);
         } catch (err) {
           console.error('Error fetching capability:', err);
           setError(err instanceof Error ? err.message : '不明なエラーが発生しました');

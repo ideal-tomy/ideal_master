@@ -57,7 +57,29 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
     const fetchCases = async () => {
       try {
         const response = await client.get({ endpoint: 'cases' })
-        setData(response)
+        
+        // レスポンスの形式を確認し、適切な形式に変換
+        if (response && typeof response === 'object' && 'contents' in response) {
+          // MicroCMSの標準レスポンス形式の場合（{contents: [...]}）
+          setData(response as MicroCMSResponse<Case>)
+        } else {
+          // ダミーデータまたはセーフモード時のレスポンス処理
+          // MicroCMSResponse<Case>型に合わせてデータを整形
+          
+          // 単一オブジェクトの場合は配列に変換し、technologies配列がなければ空配列を設定
+          const caseItems = Array.isArray(response) ? response : [response];
+          const formattedItems = caseItems.map(item => ({
+            ...item,
+            technologies: item.technologies || [],
+          }));
+          
+          setData({
+            contents: formattedItems as Case[],
+            totalCount: formattedItems.length,
+            offset: 0,
+            limit: 10
+          })
+        }
       } catch (error) {
         console.error('Error fetching cases:', error)
       }
