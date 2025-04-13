@@ -7,7 +7,7 @@ import type { ProxyOptions } from 'vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/ideal_master/', // リポジトリ名に合わせて調整 // これを追加（リポジトリ名を指定）
+  base: '/', // Netlifyデプロイのため、ルートパスに設定
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
