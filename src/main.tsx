@@ -6,7 +6,6 @@ import { Provider } from 'react-redux'
 import { store } from './store'
 // import App from './App'
 // import theme from './lib/theme'
-import ErrorBoundary from './ErrorBoundary'
 
 // エラー境界コンポーネント
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
@@ -20,19 +19,21 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("React Error Boundary caught an error:", error, errorInfo);
+    console.error("Uncaught error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <Box p={8} textAlign="center" bg="gray.900" minH="100vh" color="white">
-          <Text fontSize="xl" mb={4}>アプリケーションでエラーが発生しました</Text>
-          <Text mb={4}>ブラウザをリロードしてみてください</Text>
-          <Box as="pre" p={4} bg="gray.800" borderRadius="md" overflow="auto" maxW="800px" mx="auto" fontSize="sm">
-            {this.state.error?.toString()}
-          </Box>
-        </Box>
+        <div>
+          <h2>Something went wrong.</h2>
+          <p>We are sorry, an unexpected error occurred.</p>
+          {this.state.error && (
+             <pre style={{ whiteSpace: 'pre-wrap', background: '#f0f0f0', padding: '1rem' }}>
+               {this.state.error.toString()}
+             </pre>
+          )}
+        </div>
       );
     }
 
