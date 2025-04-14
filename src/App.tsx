@@ -30,7 +30,7 @@ import { ProviderDetailPage } from './pages/ProviderDetailPage'
 const App: React.FC = () => {
   return (
     <Layout>
-      <ScrollToTop />
+      {/* <ScrollToTop /> */}
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
