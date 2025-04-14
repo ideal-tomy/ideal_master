@@ -7,7 +7,6 @@ import type { ProxyOptions } from 'vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/ideal_master/', // GitHub Pagesデプロイ用にリポジトリ名を指定
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
