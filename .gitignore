@@ -1,6 +1,5 @@
 node_modules/
 .env
-dist/
 build/
 .DS_Store
 *.log
@@ -28,3 +27,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/dist
+/node_modules
+.env
+.env.*
+*.local
