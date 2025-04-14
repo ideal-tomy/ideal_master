@@ -24,8 +24,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const client = createClient({
-      serviceDomain: process.env.MICROCMS_SERVICE_DOMAIN || '',
-      apiKey: process.env.MICROCMS_API_KEY || '',
+      serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN || '',
+      apiKey: import.meta.env.VITE_MICROCMS_API_KEY || '',
     });
 
     // クエリパラメータの取得（queryとして渡されたものを除外）

@@ -1,0 +1,35 @@
+# AIでできることの機能一覧
+capabilities:
+  # 文書・メール作成系
+  email_support:
+    title: "メールの返信を即座に作成してくれる"
+    description: "クレームメールや問い合わせへの返信文を、適切な言葉遣いでAIが作成"
+    categories: ["text_creation"]
+    keywords: ["メール", "返信", "クレーム対応", "ビジネスメール"]
+    
+  proposal_writing:
+    title: "企画書や提案書を素早く作ってくれる"
+    description: "企画のポイントを入力するだけで、説得力のある提案書をAIが作成"
+    categories: ["document_creation"]
+    keywords: ["企画書", "提案書", "プレゼン資料"]
+    
+  minutes_creation:
+    title: "会議の音声から議事録を自動作成"
+    description: "会議の録音データから、要点をまとめた議事録をAIが作成します"
+    categories: ["meeting_support"]
+    keywords: ["議事録", "会議", "音声認識", "テキスト化"]
+
+  # カスタマーサポート系
+  chat_support:
+    title: "チャットでの問い合わせに24時間対応"
+    description: "よくある質問への回答や簡単な問い合わせに、AIが即座に対応します"
+    categories: ["customer_support", "chat_bot"]
+    keywords: ["チャットボット", "FAQ", "問い合わせ対応"]
+    
+  inquiry_classification:
+    title: "問い合わせ内容を自動で振り分けてくれる"
+    description: "メールやチャットの内容を解析し、適切な部署や担当者へAIが振り分け"
+    categories: ["workflow"]
+    keywords: ["問い合わせ管理", "業務振り分け", "自動分類"]
+
+  # その他の項目省略

@@ -1,0 +1,52 @@
+# サイト全体のデザイン設定
+design:
+  # 宇宙背景の設定
+  space_background:
+    enabled: true
+    apply_to_all_pages: true  # すべてのページに適用
+    settings:
+      particle_count: 2000
+      star_size: 0.5
+      animation_speed: 0.05
+      color_primary: "#1a237e"
+      color_secondary: "#0000b8"
+      depth: 1000
+    fallback:
+      type: "gradient"
+      colors: ["#0a0a2a", "#1a1a4a"]
+
+  # カラーテーマ
+  colors:
+    primary: "#00b8d4"
+    secondary: "#9c27b0"
+    accent: "#2196f3"
+    text: "#ffffff"
+    background: "#121212"
+    
+  # フォント設定
+  typography:
+    heading_font: "Poppins, sans-serif"
+    body_font: "Roboto, sans-serif"
+    
+  # UI設定
+  ui_components:
+    card:
+      border_radius: "lg"
+      shadow: "md"
+      hover_effect: true
+      
+    button:
+      variant: "filled"
+      border_radius: "md"
+      
+    section:
+      padding_y: 12
+      max_width: "1400px"
+      
+    header:
+      sticky: true
+      blur_effect: true
+      
+    accordion:
+      variant: "filled"
+      multi: true
