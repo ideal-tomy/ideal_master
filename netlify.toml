@@ -1,0 +1,43 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  port = 5173
+  targetPort = 5173
+
+# 古いパスから新しいパスへのリダイレクト
+[[redirects]]
+  from = "/ideal_master/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+# SPAのためのリダイレクト
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# JavaScriptファイルのMIMEタイプ設定
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/*.mjs"
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+
+# 特定のパスのJavaScriptファイル用
+[[headers]]
+  for = "/ideal_master/assets/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"

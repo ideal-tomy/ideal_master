@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="IDEAL - AIブロックチェーン、メタバース、ウェブサイト開発、ゲーム開発、アプリ開発、英会話コンサル、留学コンサル、キャリアコンサルなど、次世代技術で未来を創る営業代行企業" />
+    <meta name="keywords" content="AI, ブロックチェーン, メタバース, ウェブ開発, アプリ開発, ゲーム開発, 英会話, 留学, キャリアコンサル" />
+    <title>IDEAL - 次世代技術で未来を創る</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- エラーキャッチ用スクリプト -->
+    <script>
+      // グローバルエラーハンドラー
+      window.addEventListener('error', function(event) {
+        console.error('Global Error:', event.error);
+        // エラー情報を画面に表示
+        const errorElement = document.createElement('div');
+        errorElement.style.position = 'fixed';
+        errorElement.style.bottom = '10px';
+        errorElement.style.right = '10px';
+        errorElement.style.background = 'rgba(255, 0, 0, 0.8)';
+        errorElement.style.color = 'white';
+        errorElement.style.padding = '10px';
+        errorElement.style.borderRadius = '5px';
+        errorElement.style.maxWidth = '400px';
+        errorElement.style.zIndex = '9999';
+        errorElement.innerHTML = `
+          <strong>エラーが発生しました:</strong><br>
+          ${event.message}<br>
+          at ${event.filename}:${event.lineno}:${event.colno}
+        `;
+        document.body.appendChild(errorElement);
+        
+        // 5秒後に非表示
+        setTimeout(() => {
+          errorElement.style.opacity = '0';
+          errorElement.style.transition = 'opacity 0.5s';
+          setTimeout(() => errorElement.remove(), 500);
+        }, 5000);
+      });
+      
+      // Reactエラーキャッチ
+      window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled Promise Rejection:', event.reason);
+      });
+    </script>
+    <script type="module" crossorigin src="/assets/index-BReFPApL.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CgCLQ5XL.css">
+  </head>
+  <body class="bg-space-dark text-white">
+    <div id="root">
+      <!-- 初期ローディング表示 -->
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #0a0a1e;">
+        <div style="text-align: center;">
+          <h1 style="color: white; font-size: 24px; margin-bottom: 20px;">読み込み中...</h1>
+          <div style="border: 4px solid rgba(0, 184, 212, 0.3); border-top: 4px solid rgba(0, 184, 212, 1); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        </div>
+      </div>
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
+    <!-- スクリプトがロードされる前にブラウザ情報を表示 -->
+    <script>
+      console.log('Browser Info:', navigator.userAgent);
+      console.log('Viewport Size:', window.innerWidth, 'x', window.innerHeight);
+      console.log('Page URL:', window.location.href);
+    </script>
+  </body>
+</html>

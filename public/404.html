@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IDEAL Official - リダイレクト中</title>
+  <script type="text/javascript">
+    // SPAのルーティングを処理するためのリダイレクトスクリプト
+    (function() {
+      // GitHub Pagesのリポジトリ名
+      var segmentCount = 1;
+      var repository = "/ideal_master";
+      var l = window.location;
+      
+      // URLからリポジトリ名を除いたパスを取得
+      var path = l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/';
+      var restPath = l.pathname.slice(path.length);
+      
+      // クエリパラメータとハッシュを保持
+      var query = l.search || '';
+      var hash = l.hash || '';
+      
+      // index.htmlにリダイレクト
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        repository + '/' + (restPath || '') +
+        query + hash
+      );
+    })();
+  </script>
+</head>
+<body>
+  <h1>リダイレクト中...</h1>
+  <p>自動的にリダイレクトされない場合は、<a id="redirect-link" href="/">こちらをクリック</a>してください。</p>
+  <script>
+    document.getElementById('redirect-link').href = window.location.protocol + '//' + 
+      window.location.hostname + (window.location.port ? ':' + window.location.port : '') + 
+      '/ideal_master/';
+  </script>
+</body>
+</html>
