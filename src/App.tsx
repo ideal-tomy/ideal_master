@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { Heading } from '@chakra-ui/react'
 import Layout from './components/layout/Layout'
 import Loading from './components/common/Loading'
 import ScrollToTop from './components/common/ScrollToTop'
@@ -28,9 +29,15 @@ import { ProvidersPage } from './pages/ProvidersPage'
 import { ProviderDetailPage } from './pages/ProviderDetailPage'
 
 const App: React.FC = () => {
+  const location = useLocation();
+
+  if (location.pathname === '/cases') {
+    return <Heading>Cases Direct Test</Heading>;
+  }
+
   return (
     <Layout>
-      {/* <ScrollToTop /> */}
+      <ScrollToTop />
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
