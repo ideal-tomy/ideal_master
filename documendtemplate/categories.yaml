@@ -1,0 +1,93 @@
+# AI機能カテゴリ定義
+categories:
+  text_creation:
+    display: "文章作成"
+    aliases: ["text_creation（文章作成）"]
+    icon: "edit"
+  
+  image_generation:
+    display: "画像生成"
+    aliases: ["image_generation（画像生成）"]
+    icon: "image"
+  
+  video_creation:
+    display: "動画作成"
+    aliases: ["video_creation（動画作成）"]
+    icon: "video"
+  
+  shift_management:
+    display: "シフト管理"
+    aliases: ["shift_management（シフト管理）"]
+    icon: "calendar"
+  
+  document_creation:
+    display: "文書作成・管理"
+    aliases: ["document_creation（文書作成・管理）"]
+    icon: "file"
+  
+  meeting_support:
+    display: "会議支援"
+    aliases: ["meeting_support（会議支援）"]
+    icon: "users"
+  
+  customer_support:
+    display: "カスタマーサポート"
+    aliases: ["customer_support（カスタマーサポート）"]
+    icon: "headset"
+  
+  data_analysis:
+    display: "データ分析"
+    aliases: ["data_analysis（データ分析）"]
+    icon: "chart-bar"
+  
+  translation:
+    display: "翻訳・多言語化"
+    aliases: ["translation（翻訳・多言語化）"]
+    icon: "language"
+  
+  design_support:
+    display: "デザイン支援"
+    aliases: ["design_support（デザイン支援）"]
+    icon: "palette"
+  
+  code_generation:
+    display: "コード生成・開発支援"
+    aliases: ["code_generation（コード生成・開発支援）"]
+    icon: "code"
+  
+  marketing_analysis:
+    display: "マーケティング分析"
+    aliases: ["marketing_analysis（マーケティング分析）"]
+    icon: "bullhorn"
+  
+  content_planning:
+    display: "コンテンツ企画"
+    aliases: ["content_planning（コンテンツ企画）"]
+    icon: "lightbulb"
+  
+  sales_support:
+    display: "営業支援"
+    aliases: ["sales_support（営業支援）"]
+    icon: "handshake"
+  
+  social_media:
+    display: "SNS運用"
+    aliases: ["social_media（SNS運用）"]
+    icon: "share-alt"
+  
+  market_research:
+    display: "市場調査"
+    aliases: ["market_research（市場調査）"]
+    icon: "search"
+  
+  recruitment:
+    display: "採用・人材"
+    aliases: ["recruitment（採用・人材）"]
+    icon: "user-plus"
+  
+  training_support:
+    display: "研修・教育支援"
+    aliases: ["training_support（研修・教育支援）"]
+    icon: "graduation-cap"
+
+  # 残りのカテゴリ省略
