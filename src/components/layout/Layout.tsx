@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <Box minH="100vh" display="flex" flexDirection="column" position="relative" overflow="hidden">
       {/* すべてのページに適用される宇宙背景 */}
-      <Box
+      {/* <Box
         position="fixed"
         top={0}
         left={0}
@@ -20,8 +20,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         bottom={0}
         bg="linear-gradient(180deg, #000235 0%, #000010 100%)"
         zIndex={-2}
-      />
+      /> */}
       {/* Three.jsで生成された動的な星の背景 */}
+      {/*
       <Box
         position="fixed"
         top={0}
@@ -32,6 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         <SpaceBackground height="100vh" position="fixed" zIndex={-1} />
       </Box>
+      */}
       
       {/* <Header /> */}
       <Box as="main" flex="1" pt={{ base: '70px', md: '80px' }} position="relative" zIndex={1}>
