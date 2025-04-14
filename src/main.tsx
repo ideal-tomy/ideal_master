@@ -1,11 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { ChakraProvider, ColorModeScript, Box, Text } from '@chakra-ui/react'
+// import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { Provider } from 'react-redux'
 import { store } from './store'
-import App from './App'
-import theme from './lib/theme'
+// import App from './App'
+// import theme from './lib/theme'
+import ErrorBoundary from './ErrorBoundary'
 
 // エラー境界コンポーネント
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
@@ -50,16 +51,19 @@ if (!rootElement) {
     const root = ReactDOM.createRoot(rootElement);
     
     root.render(
-      <ErrorBoundary>
-        <Provider store={store}>
-          <ChakraProvider theme={theme}>
-            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </ChakraProvider>
-        </Provider>
-      </ErrorBoundary>
+      <React.StrictMode>
+        <ErrorBoundary>
+          {/* <ColorModeScript initialColorMode={theme.config.initialColorMode} /> */}
+          <Provider store={store}>
+            {/* <ChakraProvider theme={theme}> */}
+              <BrowserRouter>
+                {/* <App /> */}
+                <h1>Chakra UI なしテスト</h1>
+              </BrowserRouter>
+            {/* </ChakraProvider> */}
+          </Provider>
+        </ErrorBoundary>
+      </React.StrictMode>
     );
   } catch (error) {
     console.error('Fatal error during render:', error);
