@@ -33,11 +33,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <SpaceBackground height="100vh" position="fixed" zIndex={-1} />
       </Box>
       
-      <Header />
+      {/* <Header /> */}
       <Box as="main" flex="1" pt={{ base: '70px', md: '80px' }} position="relative" zIndex={1}>
         {children}
       </Box>
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   )
 }
