@@ -10,7 +10,7 @@ const baseURL = import.meta.env.DEV
   : '/api';
 
 // 開発モードの設定
-const USE_MOCK_DATA = true; // 本番環境ではfalseに変更する
+const USE_MOCK_DATA = false; // 本番環境ではfalseに変更する
 
 // APIエラーの詳細をコンソールに出力
 const logApiError = (error: any, endpoint: string) => {
