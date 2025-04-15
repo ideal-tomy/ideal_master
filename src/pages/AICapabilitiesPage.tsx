@@ -12,8 +12,17 @@ const DEBUG = true;
 // 開発モードの設定
 const USE_MOCK_DATA_FALLBACK = true; // 開発環境でのフォールバック
 
+// カテゴリIDの型定義
+type CategoryId = string;
+
+// カテゴリ情報のインターフェース
+interface CategoryInfo {
+  display_name: string;
+  challenge: string;
+}
+
 // 全カテゴリリスト
-const ALL_CATEGORIES = [
+const ALL_CATEGORIES: CategoryId[] = [
   'text_creation',
   'image_generation',
   'video_creation',
@@ -42,47 +51,200 @@ const ALL_CATEGORIES = [
   'learning_support',
   'entertainment',
   'personal_finance',
-  'esearch_support',
+  'research_support',
   'legal_support',
   'risk_management'
 ];
 
-// カテゴリの日本語表示名とチャレンジ文を管理
-const CATEGORY_INFO: Record<string, { display: string, challenge: string }> = {
-  text_creation: { display: '文章作成', challenge: '文章の作成が効率的に行える' },
-  image_generation: { display: '画像生成', challenge: 'プロ品質の画像を簡単に作成できる' },
-  video_creation: { display: '動画作成', challenge: '動画作成が自分でできる' },
-  shift_management: { display: 'シフト管理', challenge: '自社に適したシフト管理システムを作れる' },
-  document_creation: { display: '文書作成・管理', challenge: '文書作成と管理を効率化できる' },
-  meeting_support: { display: '会議支援', challenge: '会議の効率と質が向上する' },
-  customer_support: { display: '顧客対応', challenge: '顧客対応の質と速度を向上できる' },
-  data_analysis: { display: 'データ分析', challenge: '複雑なデータから価値ある洞察を得られる' },
-  translation: { display: '翻訳', challenge: '言語の壁を超えたコミュニケーションができる' },
-  design_support: { display: 'デザイン支援', challenge: 'デザイン業務を効率化できる' }
-  // その他のカテゴリも必要に応じて追加
+// カテゴリごとの詳細情報
+const CATEGORY_INFO: Record<CategoryId, CategoryInfo> = {
+  text_creation: {
+    display_name: '文章作成',
+    challenge: '高品質な文章コンテンツを効率的に作成したい'
+  },
+  image_generation: {
+    display_name: '画像生成',
+    challenge: 'クオリティの高い画像・イラストを素早く生成したい'
+  },
+  video_creation: {
+    display_name: '動画作成',
+    challenge: '魅力的な動画コンテンツを手軽に制作したい'
+  },
+  shift_management: {
+    display_name: 'シフト管理',
+    challenge: '複雑なシフト管理を効率化し最適なスケジュールを作成したい'
+  },
+  document_creation: {
+    display_name: '文書作成・管理',
+    challenge: 'ビジネス文書の作成・管理の手間を削減したい'
+  },
+  meeting_support: {
+    display_name: '会議・ミーティング支援',
+    challenge: '会議の準備・運営・フォローアップの効率を高めたい'
+  },
+  customer_support: {
+    display_name: 'カスタマーサポート',
+    challenge: '顧客対応の質を維持しながら業務負担を軽減したい'
+  },
+  data_analysis: {
+    display_name: 'データ分析・レポート',
+    challenge: '大量のデータから有益な洞察を効率的に抽出したい'
+  },
+  translation: {
+    display_name: '翻訳・多言語対応',
+    challenge: '正確で自然な翻訳を素早く行いたい'
+  },
+  design_support: {
+    display_name: 'デザイン支援',
+    challenge: 'クリエイティブなデザイン作業を効率化したい'
+  },
+  code_generation: {
+    display_name: 'コード生成・開発支援',
+    challenge: 'プログラミング作業を効率化し開発スピードを向上させたい'
+  },
+  marketing_analysis: {
+    display_name: 'マーケティング分析',
+    challenge: 'マーケティング戦略の立案と効果測定を強化したい'
+  },
+  content_planning: {
+    display_name: 'コンテンツ企画',
+    challenge: '魅力的なコンテンツのアイデア創出を効率化したい'
+  },
+  sales_support: {
+    display_name: '営業支援',
+    challenge: '営業活動の効率と成約率を向上させたい'
+  },
+  social_media: {
+    display_name: 'SNS運用支援',
+    challenge: 'SNSの運用管理と効果的な投稿作成を効率化したい'
+  },
+  market_research: {
+    display_name: '市場調査・分析',
+    challenge: '市場動向の把握と分析を迅速に行いたい'
+  },
+  recruitment: {
+    display_name: '採用・人材管理',
+    challenge: '採用プロセスと人材管理を効率化したい'
+  },
+  training_support: {
+    display_name: '研修・教育支援',
+    challenge: '効果的な研修・教育プログラムを作成・実施したい'
+  },
+  performance_evaluation: {
+    display_name: '評価・フィードバック',
+    challenge: '公平で効果的な人事評価とフィードバックを実現したい'
+  },
+  workflow_optimization: {
+    display_name: '業務フロー最適化',
+    challenge: '複雑な業務プロセスを見直し効率化したい'
+  },
+  automation: {
+    display_name: '業務自動化',
+    challenge: '定型業務の自動化で工数削減と精度向上を実現したい'
+  },
+  knowledge_management: {
+    display_name: 'ナレッジ管理',
+    challenge: '組織内の知識・情報を効率的に管理・活用したい'
+  },
+  communication: {
+    display_name: 'コミュニケーション改善',
+    challenge: '社内外のコミュニケーションを円滑化したい'
+  },
+  life_planning: {
+    display_name: 'ライフプランニング',
+    challenge: '個人の生活設計や将来計画をサポートしたい'
+  },
+  health_care: {
+    display_name: 'ヘルスケア・健康管理',
+    challenge: '健康維持・管理を効率的にサポートしたい'
+  },
+  learning_support: {
+    display_name: '学習・自己啓発',
+    challenge: '効果的な学習法と自己成長をサポートしたい'
+  },
+  entertainment: {
+    display_name: 'エンターテインメント',
+    challenge: '新しい娯楽体験とコンテンツ消費を充実させたい'
+  },
+  personal_finance: {
+    display_name: '家計・資産管理',
+    challenge: '個人の財務管理と資産運用を最適化したい'
+  },
+  research_support: {
+    display_name: '研究・開発支援',
+    challenge: '研究開発プロセスを効率化し革新的な成果を生み出したい'
+  },
+  legal_support: {
+    display_name: '法務・コンプライアンス',
+    challenge: '法的要件の遵守と法務業務の効率化を実現したい'
+  },
+  risk_management: {
+    display_name: 'リスク管理・セキュリティ',
+    challenge: '組織のリスクを把握し適切な対策を実施したい'
+  }
 };
 
-// カテゴリー別のグループ化
-const CATEGORY_GROUPS = [
+// 目的別グループ化（「〜したい」ベース）
+const PURPOSE_GROUPS = [
   {
-    title: 'コンテンツ作成',
-    categories: ['text_creation', 'image_generation', 'video_creation', 'design_support']
+    title: '作りたい',
+    description: '文章、画像、動画などさまざまなコンテンツを効率的に作成',
+    icon: 'create',
+    categories: ['text_creation', 'image_generation', 'video_creation', 'design_support', 'content_planning']
   },
   {
-    title: '業務効率化',
-    categories: ['shift_management', 'document_creation', 'meeting_support', 'workflow_optimization', 'automation']
+    title: '管理したい',
+    description: '業務、シフト、情報などを効率的に整理・管理',
+    icon: 'manage',
+    categories: ['shift_management', 'document_creation', 'knowledge_management', 'personal_finance']
   },
   {
-    title: '顧客関連',
-    categories: ['customer_support', 'marketing_analysis', 'sales_support', 'social_media']
+    title: '効率化したい',
+    description: '業務プロセスや繰り返し作業を自動化し時間を節約',
+    icon: 'optimize',
+    categories: ['workflow_optimization', 'automation']
   },
   {
-    title: 'データ・分析',
-    categories: ['data_analysis', 'market_research', 'esearch_support']
+    title: '分析したい',
+    description: 'データや市場から重要な洞察を発見',
+    icon: 'analyze',
+    categories: ['data_analysis', 'market_research', 'marketing_analysis']
   },
   {
-    title: '人材・教育',
-    categories: ['recruitment', 'training_support', 'performance_evaluation', 'learning_support']
+    title: '伝えたい',
+    description: 'コミュニケーションや情報共有を円滑に',
+    icon: 'communicate',
+    categories: ['meeting_support', 'communication', 'translation', 'social_media']
+  },
+  {
+    title: '開発したい',
+    description: 'システム開発やプログラミングを支援',
+    icon: 'develop',
+    categories: ['code_generation', 'research_support']
+  },
+  {
+    title: '販売・接客したい',
+    description: '顧客対応や営業活動を強化',
+    icon: 'support',
+    categories: ['customer_support', 'sales_support']
+  },
+  {
+    title: '人材を育てたい',
+    description: '採用、教育、評価のプロセスを最適化',
+    icon: 'people',
+    categories: ['recruitment', 'training_support', 'performance_evaluation']
+  },
+  {
+    title: '学びたい・楽しみたい',
+    description: '個人の学習や余暇活動を充実',
+    icon: 'learn',
+    categories: ['learning_support', 'entertainment', 'health_care', 'life_planning']
+  },
+  {
+    title: '守りたい',
+    description: '法的リスクやセキュリティを管理',
+    icon: 'protect',
+    categories: ['legal_support', 'risk_management']
   }
 ];
 
@@ -140,7 +302,27 @@ export default function AICapabilitiesPage() {
   const filterByCategory = (category: string) => {
     return capabilities.filter(cap => {
       if (!cap.category || !Array.isArray(cap.category)) return false;
-      return cap.category.includes(category) || cap.category.some(cat => cat.startsWith(category));
+      
+      return cap.category.some(catItem => {
+        // 完全一致チェック
+        if (catItem === category) return true;
+        
+        // カテゴリIDの抽出（日本語表記対応）
+        // 例: "text_creation（文章作成）" → "text_creation"
+        const baseCategory = catItem.split('（')[0].trim();
+        if (baseCategory === category) return true;
+        
+        // 接頭辞一致チェック（サブカテゴリのケース）
+        if (catItem.startsWith(category + '_') || baseCategory.startsWith(category + '_')) return true;
+        
+        // 日本語部分の比較
+        if (catItem.includes('（')) {
+          const japanesePart = catItem.split('（')[1].replace('）', '').trim();
+          return CATEGORY_INFO[category]?.display_name === japanesePart;
+        }
+        
+        return false;
+      });
     });
   };
 
@@ -184,13 +366,24 @@ export default function AICapabilitiesPage() {
       </Box>
 
       {/* カテゴリグループ別にセクションを表示 */}
-      {CATEGORY_GROUPS.map((group, index) => (
+      {PURPOSE_GROUPS.map((group, index) => (
         <Box key={group.title} mb={20}>
           <Heading 
             size="lg" 
-            mb={6}
+            mb={8}
             color="cyan.400"
             textAlign="center"
+            position="relative"
+            _after={{
+              content: '""',
+              position: 'absolute',
+              bottom: '-10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '80px',
+              height: '2px',
+              bg: 'cyan.400'
+            }}
           >
             {group.title}
           </Heading>
@@ -198,13 +391,15 @@ export default function AICapabilitiesPage() {
           {group.categories.map(category => {
             const categoryCapabilities = filterByCategory(category);
             if (categoryCapabilities.length === 0) return null;
+            
+            console.log(`カテゴリ: ${CATEGORY_INFO[category]?.display_name || category}, 記事数: ${categoryCapabilities.length}`);
 
             return (
               <AICapabilitySection 
                 key={category}
-                title={CATEGORY_INFO[category]?.display || category}
+                title={CATEGORY_INFO[category]?.display_name || category}
                 challenge={CATEGORY_INFO[category]?.challenge || ''}
-                contents={categoryCapabilities.slice(0, 4)} // 最大4つまで表示
+                contents={categoryCapabilities.slice(0, 6)} // 最大6つまで表示
               />
             );
           })}

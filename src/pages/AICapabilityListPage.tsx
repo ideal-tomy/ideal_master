@@ -26,30 +26,147 @@ import { Link as RouterLink, useParams } from 'react-router-dom';
 import { getCapabilities, getCapabilityById } from '../lib/api/capabilities';
 import { AICapability, AICapabilityResponse } from '../types/capability';
 
-// カテゴリの表示名マッピング
-const categoryDisplayNames: { [key: string]: string } = {
-  'text_creation': '文章作成',
-  'image_generation': '画像生成',
-  'video_creation': '動画作成',
-  'shift_management': 'シフト管理',
-  'document_creation': '文書作成・管理',
-  'meeting_support': '会議支援',
-  'customer_support': '顧客対応',
-  'data_analysis': 'データ分析',
-  'design_support': 'デザイン支援',
-  'communication': 'コミュニケーション',
-  // ... 他のカテゴリも同様に
+// categories.yamlの定義をベースにしたカテゴリ情報
+const CATEGORIES = {
+  text_creation: { 
+    display: "文章作成", 
+    aliases: ["text_creation（文章作成）"],
+    icon: "edit" 
+  },
+  image_generation: { 
+    display: "画像生成", 
+    aliases: ["image_generation（画像生成）"],
+    icon: "image" 
+  },
+  video_creation: { 
+    display: "動画作成", 
+    aliases: ["video_creation（動画作成）"],
+    icon: "video" 
+  },
+  shift_management: { 
+    display: "シフト管理", 
+    aliases: ["shift_management（シフト管理）"],
+    icon: "calendar" 
+  },
+  document_creation: { 
+    display: "文書作成・管理", 
+    aliases: ["document_creation（文書作成・管理）"],
+    icon: "file" 
+  },
+  meeting_support: { 
+    display: "会議支援", 
+    aliases: ["meeting_support（会議支援）"],
+    icon: "users" 
+  },
+  customer_support: { 
+    display: "カスタマーサポート", 
+    aliases: ["customer_support（カスタマーサポート）"],
+    icon: "headset" 
+  },
+  data_analysis: { 
+    display: "データ分析", 
+    aliases: ["data_analysis（データ分析）"],
+    icon: "chart-bar" 
+  },
+  translation: { 
+    display: "翻訳・多言語化", 
+    aliases: ["translation（翻訳・多言語化）"],
+    icon: "language" 
+  },
+  design_support: { 
+    display: "デザイン支援", 
+    aliases: ["design_support（デザイン支援）"],
+    icon: "palette" 
+  },
+  code_generation: { 
+    display: "コード生成・開発支援", 
+    aliases: ["code_generation（コード生成・開発支援）"],
+    icon: "code" 
+  },
+  marketing_analysis: { 
+    display: "マーケティング分析", 
+    aliases: ["marketing_analysis（マーケティング分析）"],
+    icon: "bullhorn" 
+  },
+  content_planning: { 
+    display: "コンテンツ企画", 
+    aliases: ["content_planning（コンテンツ企画）"],
+    icon: "lightbulb" 
+  },
+  sales_support: { 
+    display: "営業支援", 
+    aliases: ["sales_support（営業支援）"],
+    icon: "handshake" 
+  },
+  social_media: { 
+    display: "SNS運用", 
+    aliases: ["social_media（SNS運用）"],
+    icon: "share-alt" 
+  },
+  market_research: { 
+    display: "市場調査", 
+    aliases: ["market_research（市場調査）"],
+    icon: "search" 
+  },
+  recruitment: { 
+    display: "採用・人材", 
+    aliases: ["recruitment（採用・人材）"],
+    icon: "user-plus" 
+  },
+  training_support: { 
+    display: "研修・教育支援", 
+    aliases: ["training_support（研修・教育支援）"],
+    icon: "graduation-cap" 
+  }
 };
 
-// カテゴリ名を変換する関数
-const getCategoryDisplayName = (category: string) => {
-  // カテゴリから日本語部分を抽出（括弧付きの場合）
-  const match = category.match(/（(.+)）/);
-  if (match) {
-    return match[1];  // 括弧内の日本語を返す
+// すべてのカテゴリIDのリスト
+const ALL_CATEGORY_IDS = Object.keys(CATEGORIES);
+
+// カテゴリ表示名からカテゴリIDを取得する関数
+const getCategoryIdByDisplayName = (displayName: string): string | null => {
+  for (const [id, info] of Object.entries(CATEGORIES)) {
+    if (info.display === displayName) {
+      return id;
+    }
   }
-  // 既存のマッピングをフォールバックとして使用
-  return categoryDisplayNames[category] || category;
+  return null;
+};
+
+// カテゴリIDから表示名を取得する関数
+const getCategoryDisplayName = (categoryId: string): string => {
+  return CATEGORIES[categoryId]?.display || categoryId;
+};
+
+// 改善されたマッチングロジック
+const matchCategory = (cap: AICapability, categoryId: string): boolean => {
+  if (!cap.category || !Array.isArray(cap.category)) return false;
+
+  const category = CATEGORIES[categoryId];
+  if (!category) return false;
+  
+  return cap.category.some(catItem => {
+    // 基本的な一致チェック
+    if (catItem === categoryId) return true;
+    
+    // カテゴリIDの日本語表記を含む場合の処理
+    const baseCategory = catItem.split('（')[0].trim();
+    if (baseCategory === categoryId) return true;
+    
+    // エイリアスとの一致チェック
+    if (category.aliases && category.aliases.includes(catItem)) return true;
+    
+    // 日本語表示名との一致チェック
+    if (catItem === category.display) return true;
+    
+    // 日本語部分のみの比較（「文章作成」などの部分だけを取り出して比較）
+    if (catItem.includes('（')) {
+      const japanesePart = catItem.split('（')[1].replace('）', '').trim();
+      if (japanesePart === category.display) return true;
+    }
+    
+    return false;
+  });
 };
 
 // AIでできることの定義を拡張
@@ -596,7 +713,7 @@ const AI_CATEGORIES = {
 } as const;
 
 // カテゴリのマッチング関数
-const matchCategory = (cmsCategory: string, groupCategory: string): boolean => {
+const matchCategoryString = (cmsCategory: string, groupCategory: string): boolean => {
   // 完全一致を試みる
   if (cmsCategory === groupCategory) return true;
   
@@ -649,44 +766,77 @@ const matchCapabilitiesToGroups = (capabilities: AICapability[], groups: AICapab
   return groupedCapabilities;
 };
 
-// マッチングスコアを計算する関数
+// 改善されたマッチングスコア計算関数
 const calculateMatchScore = (cap: AICapability, group: AICapabilityGroup): MatchResult => {
   let score = 0;
   const matchedKeywords: string[] = [];
-
-  // キーワードによるマッチング（最も重視）
-  group.keywords.forEach(keyword => {
-    const keywordLower = keyword.toLowerCase();
-    if (
-      cap.title.toLowerCase().includes(keywordLower) ||
-      cap.description.toLowerCase().includes(keywordLower)
-    ) {
-      score += 0.4;
-      matchedKeywords.push(keyword);
+  
+  // カテゴリマッチング（最も重要）
+  if (cap.category && Array.isArray(cap.category)) {
+    const categoryMatchCount = group.categories.filter(groupCat => 
+      cap.category?.some(capCat => {
+        if (typeof capCat === 'string') {
+          return matchCategoryString(capCat, groupCat);
+        }
+        return false;
+      })
+    ).length;
+    
+    if (categoryMatchCount > 0) {
+      score += categoryMatchCount * 50; // カテゴリ一致は高いスコア
     }
-  });
-
-  // タイトルの類似性チェック
-  const titleWords = group.title.toLowerCase().split(/[\s,、。]+/);
-  titleWords.forEach(word => {
-    if (
-      cap.title.toLowerCase().includes(word) ||
-      cap.description.toLowerCase().includes(word)
-    ) {
-      score += 0.3;
-      matchedKeywords.push(word);
-    }
-  });
-
-  // カテゴリによるマッチング（補助的に使用）
-  if (matchesCategory(cap, group.categories)) {
-    score += 0.2;
   }
-
-  return {
-    score,
-    matchedKeywords: [...new Set(matchedKeywords)] // 重複を除去
-  };
+  
+  // タイトルの重みを増加
+  if (cap.title && group.keywords) {
+    group.keywords.forEach(keyword => {
+      if (cap.title.toLowerCase().includes(keyword.toLowerCase())) {
+        score += 30; // タイトルキーワード一致の重み増加
+        matchedKeywords.push(keyword);
+      }
+    });
+  }
+  
+  // 説明文のキーワードマッチング
+  if (cap.description && group.keywords) {
+    group.keywords.forEach(keyword => {
+      if (cap.description.toLowerCase().includes(keyword.toLowerCase())) {
+        score += 20;
+        if (!matchedKeywords.includes(keyword)) {
+          matchedKeywords.push(keyword);
+        }
+      }
+    });
+  }
+  
+  // カテゴリ名とタイトルの一致
+  if (cap.title && group.categories) {
+    group.categories.forEach(catId => {
+      const catDisplay = CATEGORIES[catId]?.display;
+      if (catDisplay && cap.title.includes(catDisplay)) {
+        score += 40;
+      }
+    });
+  }
+  
+  // 詳細データのキーワードマッチング（存在する場合）
+  if (cap.detail && group.keywords) {
+    group.keywords.forEach(keyword => {
+      if (cap.detail.toLowerCase().includes(keyword.toLowerCase())) {
+        score += 10;
+        if (!matchedKeywords.includes(keyword)) {
+          matchedKeywords.push(keyword);
+        }
+      }
+    });
+  }
+  
+  // デバッグログ（必要に応じてコメントアウト）
+  if (score > 0) {
+    console.log(`マッチング "${cap.title}" -> "${group.title}" スコア: ${score}, キーワード: ${matchedKeywords.join(', ')}`);
+  }
+  
+  return { score, matchedKeywords };
 };
 
 // 未マッチの記事を取得する関数（将来的なタイトル追加のため）

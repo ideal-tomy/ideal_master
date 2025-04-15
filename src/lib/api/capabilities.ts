@@ -1,46 +1,46 @@
 import { AICapabilityResponse, SingleAICapabilityResponse } from '../../types/capability';
-import { getCapabilities as getServerCapabilities, getCapabilityById as getServerCapabilityById } from './serverlessClient';
+import { createClient } from 'microcms-js-sdk';
+
+const client = createClient({
+  serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
+  apiKey: import.meta.env.VITE_MICROCMS_API_KEY,
+});
 
 export const getCapabilities = async () => {
   try {
-    console.log('Fetching capabilities...');
+    // APIから直接データを取得
+    const data = await client.get({ endpoint: 'capabilities' });
     
-    const response = await getServerCapabilities();
+    // デバッグ用にレスポンス全体を表示
+    console.log('MicroCMS raw response:', data);
     
-    console.log('Full API response:', JSON.stringify(response, null, 2));
-    
-    // MicroCMSのレスポンス形式かチェック
-    if (response && typeof response === 'object' && 'contents' in response && Array.isArray(response.contents)) {
-      console.log('Valid response with contents array, length:', response.contents.length);
-      return response;
+    // データの構造を検証
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response structure');
     }
     
-    // 配列の場合はそのまま返す（モックデータからの場合）
-    if (Array.isArray(response)) {
-      console.log('Response is an array, length:', response.length);
-      return {
-        contents: response,
-        totalCount: response.length,
-        offset: 0,
-        limit: 10
-      };
-    }
-
-    // オブジェクトだがcontentsがない場合（異常）
-    console.warn('Invalid response format:', response);
-    throw new Error('Invalid API response format');
+    return data; // 修正：データをそのまま返す
   } catch (error) {
-    console.error('Error in getCapabilities:', error);
+    console.error('API Error:', error);
     throw error;
   }
 };
 
 export const getCapabilityById = async (id: string) => {
   try {
-    const capability = await getServerCapabilityById(id);
-    return capability;
+    if (!id) {
+      throw new Error('ID is required');
+    }
+    
+    const data = await client.get({
+      endpoint: 'capabilities',
+      contentId: id
+    });
+    
+    console.log('Single capability data:', data);
+    return data;
   } catch (error) {
-    console.error(`Error fetching capability with ID: ${id}`, error);
+    console.error(`Error fetching capability ${id}:`, error);
     throw error;
   }
 };
