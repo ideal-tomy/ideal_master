@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { motion } from 'framer-motion' // motion を再度インポート
+import { motion } from 'framer-motion'
 
 // ホームページ用コンポーネントのインポート
 import Hero from '../components/home/Hero'
