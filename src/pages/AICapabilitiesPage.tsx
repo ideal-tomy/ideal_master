@@ -185,66 +185,46 @@ const CATEGORY_INFO: Record<CategoryId, CategoryInfo> = {
 };
 
 // 目的別グループ化（「〜したい」ベース）
-const PURPOSE_GROUPS = [
+const OPTIMIZED_PURPOSE_GROUPS = [
   {
-    title: '作りたい',
-    description: '文章、画像、動画などさまざまなコンテンツを効率的に作成',
-    icon: 'create',
+    title: 'コンテンツを作る',  // より具体的に
+    description: '文章・画像・動画などの作成と編集',
     categories: ['text_creation', 'image_generation', 'video_creation', 'design_support', 'content_planning']
   },
   {
-    title: '管理したい',
-    description: '業務、シフト、情報などを効率的に整理・管理',
-    icon: 'manage',
-    categories: ['shift_management', 'document_creation', 'knowledge_management', 'personal_finance']
+    title: '業務を効率化する',  // 「管理」と「効率化」を統合
+    description: '日常業務の自動化と管理の最適化',
+    categories: ['shift_management', 'document_creation', 'workflow_optimization', 'automation', 'knowledge_management']
   },
   {
-    title: '効率化したい',
-    description: '業務プロセスや繰り返し作業を自動化し時間を節約',
-    icon: 'optimize',
-    categories: ['workflow_optimization', 'automation']
+    title: '情報を分析・活用する',  // 「分析」をより広義に
+    description: 'データから洞察を得て意思決定を支援',
+    categories: ['data_analysis', 'market_research', 'marketing_analysis', 'research_support']
   },
   {
-    title: '分析したい',
-    description: 'データや市場から重要な洞察を発見',
-    icon: 'analyze',
-    categories: ['data_analysis', 'market_research', 'marketing_analysis']
-  },
-  {
-    title: '伝えたい',
-    description: 'コミュニケーションや情報共有を円滑に',
-    icon: 'communicate',
+    title: 'コミュニケーションを改善する',  // 「伝える」をより具体的に
+    description: '人と人、組織間の対話をスムーズに',
     categories: ['meeting_support', 'communication', 'translation', 'social_media']
   },
   {
-    title: '開発したい',
-    description: 'システム開発やプログラミングを支援',
-    icon: 'develop',
-    categories: ['code_generation', 'research_support']
-  },
-  {
-    title: '販売・接客したい',
-    description: '顧客対応や営業活動を強化',
-    icon: 'support',
+    title: '顧客・営業活動を強化する',  // 「販売・接客」をビジネス視点で
+    description: '顧客体験と営業プロセスの質を高める',
     categories: ['customer_support', 'sales_support']
   },
   {
-    title: '人材を育てたい',
-    description: '採用、教育、評価のプロセスを最適化',
-    icon: 'people',
+    title: '人材・組織を育てる',  // より組織的視点を追加
+    description: '採用から育成、評価までの人材マネジメント',
     categories: ['recruitment', 'training_support', 'performance_evaluation']
   },
   {
-    title: '学びたい・楽しみたい',
-    description: '個人の学習や余暇活動を充実',
-    icon: 'learn',
-    categories: ['learning_support', 'entertainment', 'health_care', 'life_planning']
+    title: '個人の生活を豊かにする',  // 「学ぶ・楽しむ」をより広く
+    description: '学習、健康、娯楽、資産管理をサポート',
+    categories: ['learning_support', 'entertainment', 'health_care', 'life_planning', 'personal_finance']
   },
   {
-    title: '守りたい',
-    description: '法的リスクやセキュリティを管理',
-    icon: 'protect',
-    categories: ['legal_support', 'risk_management']
+    title: 'リスク管理と安全を確保する',  // 「守る」をより具体的に
+    description: '法令遵守とセキュリティ対策',
+    categories: ['legal_support', 'risk_management', 'code_generation']  // 開発関連もセキュリティに関わる
   }
 ];
 
@@ -326,6 +306,31 @@ export default function AICapabilitiesPage() {
     });
   };
 
+  // カテゴリに関連するコンテンツを取得（関連カテゴリも含む）
+  const getRelatedContentsByCategory = (category: string) => {
+    // プライマリカテゴリに基づくフィルタリング
+    const primaryMatches = filterByCategory(category);
+    
+    // キーワードや関連性によるセカンダリマッチング
+    // 例: 「文章作成」は「コンテンツ企画」と関連
+    const RELATED_CATEGORIES: Record<string, string[]> = {
+      'text_creation': ['content_planning'],
+      'content_planning': ['text_creation', 'social_media'],
+      // 他の関連付けをここに追加
+    };
+    
+    // 関連カテゴリからのコンテンツを取得
+    let secondaryMatches: AICapability[] = [];
+    if (RELATED_CATEGORIES[category]) {
+      secondaryMatches = RELATED_CATEGORIES[category]
+        .flatMap(relatedCat => filterByCategory(relatedCat))
+        .filter(cap => !primaryMatches.some(p => p.id === cap.id)); // 重複を除去
+    }
+    
+    // プライマリとセカンダリを結合（プライマリを優先）
+    return [...primaryMatches, ...secondaryMatches.slice(0, 2)]; // セカンダリは最大2つまで
+  };
+
   if (loading) {
     return (
       <Box p={8} display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 200px)">
@@ -366,7 +371,7 @@ export default function AICapabilitiesPage() {
       </Box>
 
       {/* カテゴリグループ別にセクションを表示 */}
-      {PURPOSE_GROUPS.map((group, index) => (
+      {OPTIMIZED_PURPOSE_GROUPS.map((group, index) => (
         <Box key={group.title} mb={20}>
           <Heading 
             size="lg" 
@@ -389,7 +394,7 @@ export default function AICapabilitiesPage() {
           </Heading>
 
           {group.categories.map(category => {
-            const categoryCapabilities = filterByCategory(category);
+            const categoryCapabilities = getRelatedContentsByCategory(category);
             if (categoryCapabilities.length === 0) return null;
             
             console.log(`カテゴリ: ${CATEGORY_INFO[category]?.display_name || category}, 記事数: ${categoryCapabilities.length}`);
