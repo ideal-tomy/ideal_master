@@ -312,23 +312,80 @@ export default function AICapabilitiesPage() {
     const primaryMatches = filterByCategory(category);
     
     // キーワードや関連性によるセカンダリマッチング
-    // 例: 「文章作成」は「コンテンツ企画」と関連
+    // カテゴリ間の関連性マッピング（詳細な関連付け）
     const RELATED_CATEGORIES: Record<string, string[]> = {
-      'text_creation': ['content_planning'],
-      'content_planning': ['text_creation', 'social_media'],
-      // 他の関連付けをここに追加
+      // コンテンツ制作関連
+      'text_creation': ['content_planning', 'social_media', 'marketing_analysis'],
+      'image_generation': ['design_support', 'content_planning', 'social_media'],
+      'video_creation': ['content_planning', 'social_media'],
+      'design_support': ['image_generation', 'content_planning'],
+      'content_planning': ['text_creation', 'social_media', 'marketing_analysis'],
+      
+      // 業務効率化関連
+      'shift_management': ['workflow_optimization', 'automation'],
+      'document_creation': ['text_creation', 'knowledge_management'],
+      'workflow_optimization': ['automation', 'knowledge_management'],
+      'automation': ['workflow_optimization', 'knowledge_management'],
+      'knowledge_management': ['document_creation', 'communication'],
+      
+      // データ・分析関連
+      'data_analysis': ['market_research', 'marketing_analysis', 'research_support'],
+      'market_research': ['data_analysis', 'marketing_analysis'],
+      'marketing_analysis': ['market_research', 'data_analysis', 'content_planning', 'social_media'],
+      'research_support': ['data_analysis', 'code_generation'],
+      
+      // コミュニケーション関連
+      'meeting_support': ['communication', 'knowledge_management'],
+      'communication': ['meeting_support', 'translation'],
+      'translation': ['communication', 'text_creation'],
+      'social_media': ['content_planning', 'marketing_analysis', 'text_creation'],
+      
+      // 顧客・営業関連
+      'customer_support': ['sales_support', 'communication'],
+      'sales_support': ['customer_support', 'marketing_analysis'],
+      
+      // 人材・教育関連
+      'recruitment': ['training_support', 'performance_evaluation'],
+      'training_support': ['learning_support', 'recruitment', 'performance_evaluation'],
+      'performance_evaluation': ['recruitment', 'training_support'],
+      
+      // 個人向け関連
+      'learning_support': ['training_support', 'entertainment'],
+      'health_care': ['life_planning', 'personal_finance'],
+      'entertainment': ['learning_support'],
+      'life_planning': ['health_care', 'personal_finance'],
+      'personal_finance': ['life_planning'],
+      
+      // リスク・法務関連
+      'legal_support': ['risk_management', 'document_creation'],
+      'risk_management': ['legal_support', 'code_generation'],
+      'code_generation': ['research_support', 'automation']
     };
     
     // 関連カテゴリからのコンテンツを取得
     let secondaryMatches: AICapability[] = [];
     if (RELATED_CATEGORIES[category]) {
+      // 関連カテゴリから順番にコンテンツを取得
       secondaryMatches = RELATED_CATEGORIES[category]
-        .flatMap(relatedCat => filterByCategory(relatedCat))
+        .flatMap(relatedCat => {
+          const relatedContent = filterByCategory(relatedCat);
+          if (DEBUG) console.log(`関連カテゴリ ${relatedCat} から ${relatedContent.length} 件取得`);
+          return relatedContent;
+        })
         .filter(cap => !primaryMatches.some(p => p.id === cap.id)); // 重複を除去
     }
     
+    if (DEBUG) {
+      console.log(`カテゴリ ${category} のプライマリマッチ: ${primaryMatches.length}件`);
+      console.log(`カテゴリ ${category} のセカンダリマッチ: ${secondaryMatches.length}件`);
+    }
+    
     // プライマリとセカンダリを結合（プライマリを優先）
-    return [...primaryMatches, ...secondaryMatches.slice(0, 2)]; // セカンダリは最大2つまで
+    // プライマリが少ない場合はセカンダリをより多く表示
+    const primaryCount = primaryMatches.length;
+    const secondaryLimit = primaryCount < 3 ? 4 : (primaryCount < 5 ? 3 : 2);
+    
+    return [...primaryMatches, ...secondaryMatches.slice(0, secondaryLimit)];
   };
 
   if (loading) {

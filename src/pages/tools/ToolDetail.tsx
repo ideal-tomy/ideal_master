@@ -13,9 +13,7 @@ import {
   CardHeader,
   CardBody,
   Icon,
-  ChakraProvider,
   Grid,
-  useBreakpointValue,
   Wrap,
   WrapItem,
   Accordion,
@@ -25,31 +23,12 @@ import {
   AccordionIcon,
   Image,
 } from '@chakra-ui/react';
-import { MdBusinessCenter, MdWork, MdTrendingUp, MdTaskAlt, MdBuild, MdAttachMoney } from 'react-icons/md';
-import { FaStar, FaLightbulb, FaChartLine, FaBullseye, FaUsers } from 'react-icons/fa';
+import { MdBusinessCenter, MdWork, MdTrendingUp, MdTaskAlt, MdBuild } from 'react-icons/md';
+import { FaStar, FaLightbulb, FaChartLine, FaBullseye } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { getCapabilityById } from '@/lib/api/capabilities';
 import { AICapability } from '@/types/capability';
-import { GalleryImage, RelatedCapability } from '@/types/tool';
-
-interface Capability {
-  id: string;
-  title: string;
-  description: string;
-  category: string[];
-  technologies: string[];
-  thumbnail: {
-    url: string;
-  };
-  detail: string;
-  gallery?: GalleryImage[];
-  relatedCapabilities?: RelatedCapability[];
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  revisedAt: string;
-  difficultyLevel?: number;
-}
+import { RelatedCapability } from '@/types/tool';
 
 // アニメーションスタイルの定義
 const animations = {
@@ -245,10 +224,6 @@ const DifficultyAndOverviewSection = ({ capability }: { capability: AICapability
   );
 };
 
-interface DetailContentProps {
-  capability: AICapability;
-}
-
 // RichTextContentコンポーネント
 const RichTextContent: React.FC<{ html: string }> = ({ html }) => {
   return (
@@ -401,26 +376,42 @@ const RelatedArticlesCarousel = ({ relatedCapabilities }: { relatedCapabilities?
             borderColor="whiteAlpha.200"
             transition="all 0.3s"
             _hover={{
-              transform: "translateY(-4px)",
-              boxShadow: "lg"
+              transform: "translateY(-5px)",
+              shadow: "lg"
             }}
           >
             {article.thumbnail && (
-              <Box h="200px" overflow="hidden">
-                <Image
-                  src={article.thumbnail.url}
-                  alt={article.title}
-                  objectFit="cover"
-                  w="full"
-                  h="full"
-                />
-              </Box>
+              <Image 
+                src={article.thumbnail.url} 
+                alt={article.title}
+                w="full"
+                h="200px"
+                objectFit="cover"
+              />
             )}
-            <Box p={4}>
-              <Heading size="md" color="cyan.400" mb={2}>
-                {article.title}
-              </Heading>
-              {/* 必要に応じて追加の情報を表示 */}
+            <Box p={5}>
+              <Heading size="md" mb={2} color="cyan.300">{article.title}</Heading>
+              <Text color="gray.300" fontSize="sm" mb={4} noOfLines={3}>
+                {article.description}
+              </Text>
+              <Box 
+                as="a" 
+                href={`/tools/${article.id}`}
+                display="inline-block"
+                px={4}
+                py={2}
+                bg="blue.600"
+                color="white"
+                rounded="md"
+                fontSize="sm"
+                fontWeight="bold"
+                _hover={{
+                  bg: "blue.500",
+                  transform: "translateY(-2px)"
+                }}
+              >
+                詳細を見る
+              </Box>
             </Box>
           </Box>
         ))}
@@ -428,6 +419,10 @@ const RelatedArticlesCarousel = ({ relatedCapabilities }: { relatedCapabilities?
     </Box>
   );
 };
+
+interface DetailContentProps {
+  capability: AICapability;
+}
 
 const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
   return (
@@ -506,28 +501,32 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             title="関連業種"
             color="orange.400"
           >
-            <VStack align="stretch" spacing={3}>
-              <RoleItem
-                role="マーケティング担当者"
-                description="製品訴求力の向上と作業時間の削減"
-              />
-              <RoleItem
-                role="製品マネージャー"
-                description="製品価値の明確な言語化と市場反応の改善"
-              />
-              <RoleItem
-                role="コピーライター"
-                description="アイデア出しと表現のバリエーション拡大"
-              />
-              <RoleItem
-                role="ECサイト運営者"
-                description="製品説明の質と量の両立による売上向上"
-              />
-              <RoleItem
-                role="ブランドマネージャー"
-                description="一貫したブランドボイスの維持と拡張"
-              />
-            </VStack>
+            {capability.detail03 ? (
+              <RichTextContent html={capability.detail03} />
+            ) : (
+              <VStack align="stretch" spacing={3}>
+                <RoleItem
+                  role="マーケティング担当者"
+                  description="製品訴求力の向上と作業時間の削減"
+                />
+                <RoleItem
+                  role="製品マネージャー"
+                  description="製品価値の明確な言語化と市場反応の改善"
+                />
+                <RoleItem
+                  role="コピーライター"
+                  description="アイデア出しと表現のバリエーション拡大"
+                />
+                <RoleItem
+                  role="ECサイト運営者"
+                  description="製品説明の質と量の両立による売上向上"
+                />
+                <RoleItem
+                  role="ブランドマネージャー"
+                  description="一貫したブランドボイスの維持と拡張"
+                />
+              </VStack>
+            )}
           </AccordionCustomItem>
         </Accordion>
 
@@ -538,28 +537,32 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             title="関連職種"
             color="yellow.400"
           >
-            <VStack align="stretch" spacing={3}>
-              <RoleItem
-                role="EC・小売業"
-                description="製品説明ページのコンバージョン率向上に直結"
-              />
-              <RoleItem
-                role="メーカー"
-                description="技術的特性を顧客メリットに変換する際の壁を解消"
-              />
-              <RoleItem
-                role="SaaS企業"
-                description="複雑な機能を分かりやすく顧客価値として伝達"
-              />
-              <RoleItem
-                role="スタートアップ"
-                description="限られたリソースで効果的な製品訴求を実現"
-              />
-              <RoleItem
-                role="広告・マーケティング"
-                description="クライアント製品の価値を明確に表現"
-              />
-            </VStack>
+            {capability.detail04 ? (
+              <RichTextContent html={capability.detail04} />
+            ) : (
+              <VStack align="stretch" spacing={3}>
+                <RoleItem
+                  role="EC・小売業"
+                  description="製品説明ページのコンバージョン率向上に直結"
+                />
+                <RoleItem
+                  role="メーカー"
+                  description="技術的特性を顧客メリットに変換する際の壁を解消"
+                />
+                <RoleItem
+                  role="SaaS企業"
+                  description="複雑な機能を分かりやすく顧客価値として伝達"
+                />
+                <RoleItem
+                  role="スタートアップ"
+                  description="限られたリソースで効果的な製品訴求を実現"
+                />
+                <RoleItem
+                  role="広告・マーケティング"
+                  description="クライアント製品の価値を明確に表現"
+                />
+              </VStack>
+            )}
           </AccordionCustomItem>
         </Accordion>
 
@@ -570,56 +573,60 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             title="解決できる課題"
             color="pink.400"
           >
-            <VStack align="stretch" spacing={4}>
-              {/* 課題リスト */}
-              <VStack align="start" spacing={3}>
-                {[
-                  "製品の機能と顧客メリットを効果的に結びつけられない",
-                  "多数の製品説明を作成する時間と人的リソースが不足している",
-                  "表現のマンネリ化や業界用語の乱用で顧客に伝わらない"
-                ].map((issue, index) => (
-                  <HStack 
-                    key={index}
-                    p={3}
-                    bg="whiteAlpha.100"
-                    rounded="md"
-                    w="full"
-                  >
-                    <Text 
-                      color="cyan.300" 
-                      fontWeight="bold"
-                      minW="70px"
+            {capability.detail05 ? (
+              <RichTextContent html={capability.detail05} />
+            ) : (
+              <VStack align="stretch" spacing={4}>
+                {/* 課題リスト */}
+                <VStack align="start" spacing={3}>
+                  {[
+                    "製品の機能と顧客メリットを効果的に結びつけられない",
+                    "多数の製品説明を作成する時間と人的リソースが不足している",
+                    "表現のマンネリ化や業界用語の乱用で顧客に伝わらない"
+                  ].map((issue, index) => (
+                    <HStack 
+                      key={index}
+                      p={3}
+                      bg="whiteAlpha.100"
+                      rounded="md"
+                      w="full"
                     >
-                      課題 {index + 1}
-                    </Text>
-                    <Text color="gray.300">
-                      {issue}
-                    </Text>
-                  </HStack>
-                ))}
-              </VStack>
-
-              {/* 規模感の目安 */}
-              <Box 
-                p={4} 
-                bg="whiteAlpha.100" 
-                rounded="md"
-                w="full"
-              >
-                <Text 
-                  color="cyan.300" 
-                  fontWeight="bold" 
-                  mb={3}
-                >
-                  規模感の目安
-                </Text>
-                <VStack align="start" spacing={2}>
-                  <Text color="gray.300" fontSize="sm">• 月間製品説明作成数：10件以上</Text>
-                  <Text color="gray.300" fontSize="sm">• 1件あたりの作成時間：30分以上</Text>
-                  <Text color="gray.300" fontSize="sm">• コンテンツ作成担当：1〜3名程度</Text>
+                      <Text 
+                        color="cyan.300" 
+                        fontWeight="bold"
+                        minW="70px"
+                      >
+                        課題 {index + 1}
+                      </Text>
+                      <Text color="gray.300">
+                        {issue}
+                      </Text>
+                    </HStack>
+                  ))}
                 </VStack>
-              </Box>
-            </VStack>
+
+                {/* 規模感の目安 */}
+                <Box 
+                  p={4} 
+                  bg="whiteAlpha.100" 
+                  rounded="md"
+                  w="full"
+                >
+                  <Text 
+                    color="cyan.300" 
+                    fontWeight="bold" 
+                    mb={3}
+                  >
+                    規模感の目安
+                  </Text>
+                  <VStack align="start" spacing={2}>
+                    <Text color="gray.300" fontSize="sm">• 月間製品説明作成数：10件以上</Text>
+                    <Text color="gray.300" fontSize="sm">• 1件あたりの作成時間：30分以上</Text>
+                    <Text color="gray.300" fontSize="sm">• コンテンツ作成担当：1〜3名程度</Text>
+                  </VStack>
+                </Box>
+              </VStack>
+            )}
           </AccordionCustomItem>
         </Accordion>
       </SimpleGrid>
@@ -654,22 +661,28 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             </Heading>
             
             <VStack align="stretch" spacing={3} w="full">
-              <ScenarioItem
-                title="製品カタログの自動生成"
-                description="複数の製品情報から一貫性のある説明文を効率的に作成"
-              />
-              <ScenarioItem
-                title="マーケティング資料の作成"
-                description="技術仕様を顧客メリットに変換した訴求力の高い資料を作成"
-              />
-              <ScenarioItem
-                title="Webサイトのコンテンツ制作"
-                description="SEO対策を考慮しつつ、魅力的な製品紹介ページを作成"
-              />
-              <ScenarioItem
-                title="セールス資料の最適化"
-                description="顧客のニーズに合わせた提案資料のカスタマイズ"
-              />
+              {capability.detail07 ? (
+                <RichTextContent html={capability.detail07} />
+              ) : (
+                <>
+                  <ScenarioItem
+                    title="製品カタログの自動生成"
+                    description="複数の製品情報から一貫性のある説明文を効率的に作成"
+                  />
+                  <ScenarioItem
+                    title="マーケティング資料の作成"
+                    description="技術仕様を顧客メリットに変換した訴求力の高い資料を作成"
+                  />
+                  <ScenarioItem
+                    title="Webサイトのコンテンツ制作"
+                    description="SEO対策を考慮しつつ、魅力的な製品紹介ページを作成"
+                  />
+                  <ScenarioItem
+                    title="セールス資料の最適化"
+                    description="顧客のニーズに合わせた提案資料のカスタマイズ"
+                  />
+                </>
+              )}
             </VStack>
           </VStack>
         </Box>
@@ -696,93 +709,55 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             </Heading>
             
             <VStack align="stretch" spacing={3} w="full">
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="md"
-                position="relative"
-                _hover={{
-                  bg: "whiteAlpha.200",
-                  transform: "translateX(4px)",
-                  transition: "all 0.2s"
-                }}
-              >
-                <HStack spacing={3} mb={2}>
-                  <Icon as={FaChartLine} color="green.400" boxSize={5} />
-                  <Text color="green.400" fontWeight="bold">
-                    作業効率の向上
-                  </Text>
-                </HStack>
-                <Text color="gray.300" fontSize="sm" pl={8}>
-                  製品説明の作成時間を最大70%削減
-                </Text>
-              </Box>
+              {capability.detail08 ? (
+                <RichTextContent html={capability.detail08} />
+              ) : (
+                <>
+                  <Box
+                    p={4}
+                    bg="whiteAlpha.100"
+                    rounded="md"
+                    position="relative"
+                    _hover={{
+                      bg: "whiteAlpha.200",
+                      transform: "translateX(4px)",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <HStack spacing={3} mb={2}>
+                      <Icon as={FaChartLine} color="green.400" boxSize={5} />
+                      <Text color="green.400" fontWeight="bold">
+                        作業効率の向上
+                      </Text>
+                    </HStack>
+                    <Text color="gray.300" fontSize="sm" pl={8}>
+                      製品説明の作成時間を最大70%削減
+                    </Text>
+                  </Box>
 
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="md"
-                position="relative"
-                _hover={{
-                  bg: "whiteAlpha.200",
-                  transform: "translateX(4px)",
-                  transition: "all 0.2s"
-                }}
-              >
-                <HStack spacing={3} mb={2}>
-                  <Icon as={FaBullseye} color="orange.400" boxSize={5} />
-                  <Text color="orange.400" fontWeight="bold">
-                    品質の向上
-                  </Text>
-                </HStack>
-                <Text color="gray.300" fontSize="sm" pl={8}>
-                  一貫性のある高品質な製品説明を実現
-                </Text>
-              </Box>
-
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="md"
-                position="relative"
-                _hover={{
-                  bg: "whiteAlpha.200",
-                  transform: "translateX(4px)",
-                  transition: "all 0.2s"
-                }}
-              >
-                <HStack spacing={3} mb={2}>
-                  <Icon as={FaUsers} color="blue.400" boxSize={5} />
-                  <Text color="blue.400" fontWeight="bold">
-                    顧客理解の促進
-                  </Text>
-                </HStack>
-                <Text color="gray.300" fontSize="sm" pl={8}>
-                  技術的な特徴を顧客メリットとして分かりやすく説明
-                </Text>
-              </Box>
-
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="md"
-                position="relative"
-                _hover={{
-                  bg: "whiteAlpha.200",
-                  transform: "translateX(4px)",
-                  transition: "all 0.2s"
-                }}
-              >
-                <HStack spacing={3} mb={2}>
-                  <Icon as={MdAttachMoney} color="purple.400" boxSize={5} />
-                  <Text color="purple.400" fontWeight="bold">
-                    コスト削減
-                  </Text>
-                </HStack>
-                <Text color="gray.300" fontSize="sm" pl={8}>
-                  外部委託コストの削減と社内リソースの効率的な活用
-                </Text>
-              </Box>
+                  <Box
+                    p={4}
+                    bg="whiteAlpha.100"
+                    rounded="md"
+                    position="relative"
+                    _hover={{
+                      bg: "whiteAlpha.200",
+                      transform: "translateX(4px)",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <HStack spacing={3} mb={2}>
+                      <Icon as={FaBullseye} color="orange.400" boxSize={5} />
+                      <Text color="orange.400" fontWeight="bold">
+                        品質の向上
+                      </Text>
+                    </HStack>
+                    <Text color="gray.300" fontSize="sm" pl={8}>
+                      一貫性のある高品質な製品説明を実現
+                    </Text>
+                  </Box>
+                </>
+              )}
             </VStack>
           </VStack>
         </Box>
@@ -924,64 +899,68 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             </HStack>
 
             <VStack align="stretch" spacing={4} w="full">
-              {[
-                {
-                  step: 1,
-                  title: "要件定義と目標設定",
-                  description: "製品説明の作成目的と要件を明確にし、具体的な目標を設定します。"
-                },
-                {
-                  step: 2,
-                  title: "ツールの選定と環境構築",
-                  description: "目的に合わせて最適なAIツールを選定し、必要なアカウント設定を行います。"
-                },
-                {
-                  step: 3,
-                  title: "プロンプトの作成とテスト",
-                  description: "効果的な製品説明を生成するためのプロンプトを作成し、テストを実施します。"
-                },
-                {
-                  step: 4,
-                  title: "品質チェックと改善",
-                  description: "生成された説明文の品質をチェックし、必要に応じて改善を行います。"
-                }
-              ].map((step, index) => (
-                <Box
-                  key={index}
-                  p={4}
-                  bg="whiteAlpha.100"
-                  rounded="md"
-                  position="relative"
-                  transition="all 0.3s"
-                  _hover={{ transform: "translateX(4px)", bg: "whiteAlpha.200" }}
-                >
+              {capability.detail10 ? (
+                <RichTextContent html={capability.detail10} />
+              ) : (
+                [
+                  {
+                    step: 1,
+                    title: "要件定義と目標設定",
+                    description: "製品説明の作成目的と要件を明確にし、具体的な目標を設定します。"
+                  },
+                  {
+                    step: 2,
+                    title: "ツールの選定と環境構築",
+                    description: "目的に合わせて最適なAIツールを選定し、必要なアカウント設定を行います。"
+                  },
+                  {
+                    step: 3,
+                    title: "プロンプトの作成とテスト",
+                    description: "効果的な製品説明を生成するためのプロンプトを作成し、テストを実施します。"
+                  },
+                  {
+                    step: 4,
+                    title: "品質チェックと改善",
+                    description: "生成された説明文の品質をチェックし、必要に応じて改善を行います。"
+                  }
+                ].map((step, index) => (
                   <Box
-                    position="absolute"
-                    top={-2}
-                    left={-2}
-                    bg="orange.400"
-                    color="white"
-                    rounded="full"
-                    w={6}
-                    h={6}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    fontSize="sm"
-                    fontWeight="bold"
+                    key={index}
+                    p={4}
+                    bg="whiteAlpha.100"
+                    rounded="md"
+                    position="relative"
+                    transition="all 0.3s"
+                    _hover={{ transform: "translateX(4px)", bg: "whiteAlpha.200" }}
                   >
-                    {step.step}
+                    <Box
+                      position="absolute"
+                      top={-2}
+                      left={-2}
+                      bg="orange.400"
+                      color="white"
+                      rounded="full"
+                      w={6}
+                      h={6}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="sm"
+                      fontWeight="bold"
+                    >
+                      {step.step}
+                    </Box>
+                    <VStack align="start" spacing={2} pl={6}>
+                      <Text color="orange.300" fontWeight="bold">
+                        {step.title}
+                      </Text>
+                      <Text color="gray.300">
+                        {step.description}
+                      </Text>
+                    </VStack>
                   </Box>
-                  <VStack align="start" spacing={2} pl={6}>
-                    <Text color="orange.300" fontWeight="bold">
-                      {step.title}
-                    </Text>
-                    <Text color="gray.300">
-                      {step.description}
-                    </Text>
-                  </VStack>
-                </Box>
-              ))}
+                ))
+              )}
             </VStack>
           </VStack>
         </Box>

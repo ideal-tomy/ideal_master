@@ -770,7 +770,7 @@ const matchCapabilitiesToGroups = (capabilities: AICapability[], groups: AICapab
 const calculateMatchScore = (cap: AICapability, group: AICapabilityGroup): MatchResult => {
   let score = 0;
   const matchedKeywords: string[] = [];
-  
+
   // カテゴリマッチング（最も重要）
   if (cap.category && Array.isArray(cap.category)) {
     const categoryMatchCount = group.categories.filter(groupCat => 
@@ -789,12 +789,12 @@ const calculateMatchScore = (cap: AICapability, group: AICapabilityGroup): Match
   
   // タイトルの重みを増加
   if (cap.title && group.keywords) {
-    group.keywords.forEach(keyword => {
+  group.keywords.forEach(keyword => {
       if (cap.title.toLowerCase().includes(keyword.toLowerCase())) {
         score += 30; // タイトルキーワード一致の重み増加
-        matchedKeywords.push(keyword);
-      }
-    });
+      matchedKeywords.push(keyword);
+    }
+  });
   }
   
   // 説明文のキーワードマッチング
