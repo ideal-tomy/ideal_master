@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
   Box, 
@@ -22,13 +22,23 @@ import {
   AccordionPanel,
   AccordionIcon,
   Image,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  List,
+  ListItem
 } from '@chakra-ui/react';
-import { MdBusinessCenter, MdWork, MdTrendingUp, MdTaskAlt, MdBuild } from 'react-icons/md';
+import { MdBusinessCenter, MdWork, MdTrendingUp, MdTaskAlt, MdBuild, MdArrowForward } from 'react-icons/md';
 import { FaStar, FaLightbulb, FaChartLine, FaBullseye } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { getCapabilityById } from '@/lib/api/capabilities';
 import { AICapability } from '@/types/capability';
 import { RelatedCapability } from '@/types/tool';
+import { FiTrendingUp } from 'react-icons/fi';
 
 // アニメーションスタイルの定義
 const animations = {
@@ -331,16 +341,22 @@ const RoleItem: React.FC<{ role: string; description: string }> = ({ role, descr
 );
 
 // 活用シーンと効果のアイテムコンポーネント
-const ScenarioItem: React.FC<{ title: string; description: string }> = ({ title, description }) => (
+const ScenarioItem: React.FC<{ 
+  title: string; 
+  description: string;
+  onClick?: () => void;
+}> = ({ title, description, onClick }) => (
   <Box
     p={4}
     bg="whiteAlpha.100"
     rounded="md"
+    cursor="pointer"
     _hover={{
       bg: "whiteAlpha.200",
       transform: "translateX(4px)",
       transition: "all 0.2s"
     }}
+    onClick={onClick}
   >
     <VStack align="start" spacing={2}>
       <HStack spacing={2}>
@@ -353,6 +369,39 @@ const ScenarioItem: React.FC<{ title: string; description: string }> = ({ title,
         {description}
       </Text>
     </VStack>
+  </Box>
+);
+
+// 期待できる効果アイテムコンポーネント
+const EffectItem: React.FC<{ 
+  icon: IconType;
+  title: string; 
+  description: string;
+  color: string;
+  onClick?: () => void;
+}> = ({ icon, title, description, color, onClick }) => (
+  <Box
+    p={4}
+    bg="whiteAlpha.100"
+    rounded="md"
+    position="relative"
+    cursor="pointer"
+    _hover={{
+      bg: "whiteAlpha.200",
+      transform: "translateX(4px)",
+      transition: "all 0.2s"
+    }}
+    onClick={onClick}
+  >
+    <HStack spacing={3} mb={2}>
+      <Icon as={icon} color={`${color}.400`} boxSize={5} />
+      <Text color={`${color}.400`} fontWeight="bold">
+        {title}
+      </Text>
+    </HStack>
+    <Text color="gray.300" fontSize="sm" pl={8}>
+      {description}
+    </Text>
   </Box>
 );
 
@@ -381,10 +430,10 @@ const RelatedArticlesCarousel = ({ relatedCapabilities }: { relatedCapabilities?
             }}
           >
             {article.thumbnail && (
-              <Image 
-                src={article.thumbnail.url} 
-                alt={article.title}
-                w="full"
+                <Image
+                  src={article.thumbnail.url}
+                  alt={article.title}
+                  w="full"
                 h="200px"
                 objectFit="cover"
               />
@@ -424,7 +473,243 @@ interface DetailContentProps {
   capability: AICapability;
 }
 
+// 見出しとその内容を格納するインターフェース
+interface ContentItem {
+  id: string;
+  level: number;
+  text: string;
+  content: string;
+  title?: string;
+  headingType?: string;
+  description?: string;
+  icon?: IconType;
+  color?: string;
+}
+
+// 見出しリスト項目コンポーネント
+const HeadingListItem = ({ item, onClick }: { item: ContentItem; onClick: () => void }) => {
+  return (
+    <ListItem 
+      p={2} 
+      cursor="pointer" 
+      _hover={{ bg: 'gray.100' }} 
+      borderRadius="md"
+      onClick={onClick}
+    >
+      <HStack>
+        <Icon 
+          as={item.level === 2 ? MdBusinessCenter : MdWork} 
+          color={item.level === 2 ? 'blue.500' : 'green.500'} 
+        />
+        <Text fontWeight={item.level === 2 ? 'bold' : 'medium'}>
+          {item.text}
+        </Text>
+      </HStack>
+    </ListItem>
+  );
+};
+
+// HeadingListItemコンポーネントを追加（title, headingTypeを受け取るバージョン）
+interface HeadingItemProps {
+  key?: number;
+  title: string;
+  headingType: string;
+  onClick: () => void;
+}
+
+const HeadingListItem2: React.FC<HeadingItemProps> = ({ title, headingType, onClick }) => {
+  return (
+    <ListItem 
+      p={2} 
+      cursor="pointer" 
+      _hover={{ bg: 'gray.100' }} 
+      borderRadius="md"
+      onClick={onClick}
+    >
+      <HStack>
+        <Icon 
+          as={headingType === 'h2' ? MdBusinessCenter : MdWork} 
+          color={headingType === 'h2' ? 'blue.500' : 'green.500'} 
+        />
+        <Text fontWeight={headingType === 'h2' ? 'bold' : 'medium'}>
+          {title}
+        </Text>
+      </HStack>
+    </ListItem>
+  );
+};
+
+// HTMLコンテンツから見出しと内容を抽出する関数
+const extractHeadingsFromHtml = (html: string): ContentItem[] => {
+  if (!html) return [];
+  
+  // クライアントサイドでのみDOMParserを使用
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const items: ContentItem[] = [];
+    
+    // h2とh3要素を抽出
+    const headings = doc.querySelectorAll('h2, h3');
+    
+    if (!headings || headings.length === 0) return [];
+    
+    headings.forEach((heading, index) => {
+      const level = heading.tagName?.toLowerCase() === 'h2' ? 2 : 3;
+      const id = `heading-${index}`;
+      const text = heading.textContent || '';
+      
+      // この見出しの後に続く内容を集める
+      let content = '';
+      let currentNode = heading.nextElementSibling;
+      
+      while (currentNode && currentNode.tagName?.toLowerCase() !== 'h2' && currentNode.tagName?.toLowerCase() !== 'h3') {
+        content += currentNode.outerHTML;
+        currentNode = currentNode.nextElementSibling;
+      }
+      
+      items.push({ id, level, text, content });
+    });
+    
+    return items;
+  } catch (error) {
+    console.error('HTMLパース中にエラーが発生しました:', error);
+    return [];
+  }
+};
+
+// 見出しリストコンポーネント
+const HeadingsList = ({ content }: { content: string }) => {
+  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const headings = extractHeadingsFromHtml(content || '');
+  
+  const handleHeadingClick = (item: ContentItem) => {
+    if (!item) return;
+    
+    setSelectedItem(item);
+    onOpen();
+  };
+  
+  return (
+    <>
+      <VStack align="stretch" spacing={1} w="100%">
+        <Heading size="md" mb={2}>コンテンツ見出し一覧</Heading>
+        <Text fontSize="sm" mb={3} color="gray.600">
+          見出しをクリックすると、詳細な内容がポップアップで表示されます
+        </Text>
+        
+        {headings?.length > 0 ? (
+          <List spacing={1}>
+            {headings.map((item) => (
+              <HeadingListItem 
+                key={item.id} 
+                item={item} 
+                onClick={() => handleHeadingClick(item)}
+              />
+            ))}
+          </List>
+        ) : (
+          <Text fontSize="sm" color="gray.500">見出しが見つかりませんでした</Text>
+        )}
+      </VStack>
+      
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{selectedItem?.text || ''}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            {selectedItem && (
+              <Box 
+                className="content-detail"
+                dangerouslySetInnerHTML={{ __html: selectedItem.content || '' }} 
+              />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
 const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
+  // モーダル用の状態管理
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalContent, setModalContent] = useState<{
+    title: string;
+    content: string;
+    icon?: IconType;
+    color?: string;
+    isHtml?: boolean;
+  } | null>(null);
+
+  // シナリオのフォールバック
+  const fallbackScenarios = [
+    {
+      id: 'scenario-1',
+      level: 2,
+      text: '想定シナリオ例',
+      content: '<p>この機能を活用することで解決できる具体的なビジネスシナリオを紹介します。</p>',
+      title: '想定シナリオ例',
+      headingType: 'h2',
+      description: 'この機能を活用することで解決できる具体的なビジネスシナリオを紹介します。',
+      icon: FaLightbulb,
+      color: 'cyan'
+    }
+  ] as ContentItem[];
+
+  // 効果のフォールバック
+  const fallbackEffects = [
+    {
+      id: 'effect-1',
+      level: 2,
+      text: '期待される効果例',
+      content: '<p>この機能を導入することで得られる具体的な効果や利点を説明します。</p>',
+      title: '期待される効果例',
+      headingType: 'h2',
+      description: 'この機能を導入することで得られる具体的な効果や利点を説明します。',
+      icon: FaChartLine, 
+      color: 'green'
+    }
+  ] as ContentItem[];
+
+  // シナリオの処理
+  const scenarioItems: ContentItem[] = extractHeadingsFromHtml(capability?.detail07 || '');
+  const hasScenarios = scenarioItems.length > 0;
+  const scenarioItemsToShow = hasScenarios ? scenarioItems : fallbackScenarios;
+
+  // 効果の処理
+  const effectItems: ContentItem[] = extractHeadingsFromHtml(capability?.detail08 || '');
+  const hasEffects = effectItems.length > 0;
+  const effectItemsToShow = hasEffects ? effectItems : fallbackEffects;
+  
+  // シナリオをクリックした時の処理
+  const handleScenarioClick = (scenario: ContentItem) => {
+    setModalContent({
+      title: scenario.title || scenario.text || '',
+      content: scenario.content || scenario.description || '',
+      icon: scenario.icon || FaLightbulb,
+      color: scenario.color || "cyan",
+      isHtml: Boolean(scenario.content && scenario.content.includes('<'))
+    });
+    onOpen();
+  };
+
+  // 効果をクリックした時の処理
+  const handleEffectClick = (effect: ContentItem, icon: IconType = FaChartLine, color: string = "green") => {
+    setModalContent({
+      title: effect.title || effect.text || '',
+      content: effect.content || effect.description || '',
+      icon: effect.icon || icon,
+      color: effect.color || color,
+      isHtml: Boolean(effect.content && effect.content.includes('<'))
+    });
+    onOpen();
+  };
+
   return (
     <VStack spacing={8} align="stretch" w="full">
       {/* 開発難易度と概要のセクション */}
@@ -504,28 +789,28 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             {capability.detail03 ? (
               <RichTextContent html={capability.detail03} />
             ) : (
-              <VStack align="stretch" spacing={3}>
-                <RoleItem
-                  role="マーケティング担当者"
-                  description="製品訴求力の向上と作業時間の削減"
-                />
-                <RoleItem
-                  role="製品マネージャー"
-                  description="製品価値の明確な言語化と市場反応の改善"
-                />
-                <RoleItem
-                  role="コピーライター"
-                  description="アイデア出しと表現のバリエーション拡大"
-                />
-                <RoleItem
-                  role="ECサイト運営者"
-                  description="製品説明の質と量の両立による売上向上"
-                />
-                <RoleItem
-                  role="ブランドマネージャー"
-                  description="一貫したブランドボイスの維持と拡張"
-                />
-              </VStack>
+            <VStack align="stretch" spacing={3}>
+              <RoleItem
+                role="マーケティング担当者"
+                description="製品訴求力の向上と作業時間の削減"
+              />
+              <RoleItem
+                role="製品マネージャー"
+                description="製品価値の明確な言語化と市場反応の改善"
+              />
+              <RoleItem
+                role="コピーライター"
+                description="アイデア出しと表現のバリエーション拡大"
+              />
+              <RoleItem
+                role="ECサイト運営者"
+                description="製品説明の質と量の両立による売上向上"
+              />
+              <RoleItem
+                role="ブランドマネージャー"
+                description="一貫したブランドボイスの維持と拡張"
+              />
+            </VStack>
             )}
           </AccordionCustomItem>
         </Accordion>
@@ -540,28 +825,28 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             {capability.detail04 ? (
               <RichTextContent html={capability.detail04} />
             ) : (
-              <VStack align="stretch" spacing={3}>
-                <RoleItem
-                  role="EC・小売業"
-                  description="製品説明ページのコンバージョン率向上に直結"
-                />
-                <RoleItem
-                  role="メーカー"
-                  description="技術的特性を顧客メリットに変換する際の壁を解消"
-                />
-                <RoleItem
-                  role="SaaS企業"
-                  description="複雑な機能を分かりやすく顧客価値として伝達"
-                />
-                <RoleItem
-                  role="スタートアップ"
-                  description="限られたリソースで効果的な製品訴求を実現"
-                />
-                <RoleItem
-                  role="広告・マーケティング"
-                  description="クライアント製品の価値を明確に表現"
-                />
-              </VStack>
+            <VStack align="stretch" spacing={3}>
+              <RoleItem
+                role="EC・小売業"
+                description="製品説明ページのコンバージョン率向上に直結"
+              />
+              <RoleItem
+                role="メーカー"
+                description="技術的特性を顧客メリットに変換する際の壁を解消"
+              />
+              <RoleItem
+                role="SaaS企業"
+                description="複雑な機能を分かりやすく顧客価値として伝達"
+              />
+              <RoleItem
+                role="スタートアップ"
+                description="限られたリソースで効果的な製品訴求を実現"
+              />
+              <RoleItem
+                role="広告・マーケティング"
+                description="クライアント製品の価値を明確に表現"
+              />
+            </VStack>
             )}
           </AccordionCustomItem>
         </Accordion>
@@ -576,56 +861,56 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             {capability.detail05 ? (
               <RichTextContent html={capability.detail05} />
             ) : (
-              <VStack align="stretch" spacing={4}>
-                {/* 課題リスト */}
-                <VStack align="start" spacing={3}>
-                  {[
-                    "製品の機能と顧客メリットを効果的に結びつけられない",
-                    "多数の製品説明を作成する時間と人的リソースが不足している",
-                    "表現のマンネリ化や業界用語の乱用で顧客に伝わらない"
-                  ].map((issue, index) => (
-                    <HStack 
-                      key={index}
-                      p={3}
-                      bg="whiteAlpha.100"
-                      rounded="md"
-                      w="full"
-                    >
-                      <Text 
-                        color="cyan.300" 
-                        fontWeight="bold"
-                        minW="70px"
-                      >
-                        課題 {index + 1}
-                      </Text>
-                      <Text color="gray.300">
-                        {issue}
-                      </Text>
-                    </HStack>
-                  ))}
-                </VStack>
-
-                {/* 規模感の目安 */}
-                <Box 
-                  p={4} 
-                  bg="whiteAlpha.100" 
-                  rounded="md"
-                  w="full"
-                >
-                  <Text 
-                    color="cyan.300" 
-                    fontWeight="bold" 
-                    mb={3}
+            <VStack align="stretch" spacing={4}>
+              {/* 課題リスト */}
+              <VStack align="start" spacing={3}>
+                {[
+                  "製品の機能と顧客メリットを効果的に結びつけられない",
+                  "多数の製品説明を作成する時間と人的リソースが不足している",
+                  "表現のマンネリ化や業界用語の乱用で顧客に伝わらない"
+                ].map((issue, index) => (
+                  <HStack 
+                    key={index}
+                    p={3}
+                    bg="whiteAlpha.100"
+                    rounded="md"
+                    w="full"
                   >
-                    規模感の目安
-                  </Text>
-                  <VStack align="start" spacing={2}>
-                    <Text color="gray.300" fontSize="sm">• 月間製品説明作成数：10件以上</Text>
-                    <Text color="gray.300" fontSize="sm">• 1件あたりの作成時間：30分以上</Text>
-                    <Text color="gray.300" fontSize="sm">• コンテンツ作成担当：1〜3名程度</Text>
-                  </VStack>
-                </Box>
+                    <Text 
+                      color="cyan.300" 
+                      fontWeight="bold"
+                      minW="70px"
+                    >
+                      課題 {index + 1}
+                    </Text>
+                    <Text color="gray.300">
+                      {issue}
+                    </Text>
+                  </HStack>
+                ))}
               </VStack>
+
+              {/* 規模感の目安 */}
+              <Box 
+                p={4} 
+                bg="whiteAlpha.100" 
+                rounded="md"
+                w="full"
+              >
+                <Text 
+                  color="cyan.300" 
+                  fontWeight="bold" 
+                  mb={3}
+                >
+                  規模感の目安
+                </Text>
+                <VStack align="start" spacing={2}>
+                  <Text color="gray.300" fontSize="sm">• 月間製品説明作成数：10件以上</Text>
+                  <Text color="gray.300" fontSize="sm">• 1件あたりの作成時間：30分以上</Text>
+                  <Text color="gray.300" fontSize="sm">• コンテンツ作成担当：1〜3名程度</Text>
+                </VStack>
+              </Box>
+            </VStack>
             )}
           </AccordionCustomItem>
         </Accordion>
@@ -662,25 +947,26 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             
             <VStack align="stretch" spacing={3} w="full">
               {capability.detail07 ? (
-                <RichTextContent html={capability.detail07} />
+                <List spacing={1}>
+                  {scenarioItemsToShow.map((item, index) => (
+                    <HeadingListItem2
+                      key={index}
+                      title={item.title || item.text}
+                      headingType={item.headingType || (item.level === 2 ? 'h2' : 'h3')}
+                      onClick={() => handleScenarioClick(item)}
+                    />
+                  ))}
+                </List>
               ) : (
                 <>
-                  <ScenarioItem
-                    title="製品カタログの自動生成"
-                    description="複数の製品情報から一貫性のある説明文を効率的に作成"
-                  />
-                  <ScenarioItem
-                    title="マーケティング資料の作成"
-                    description="技術仕様を顧客メリットに変換した訴求力の高い資料を作成"
-                  />
-                  <ScenarioItem
-                    title="Webサイトのコンテンツ制作"
-                    description="SEO対策を考慮しつつ、魅力的な製品紹介ページを作成"
-                  />
-                  <ScenarioItem
-                    title="セールス資料の最適化"
-                    description="顧客のニーズに合わせた提案資料のカスタマイズ"
-                  />
+                  {scenarioItemsToShow.map((scenario, index) => (
+                    <ScenarioItem
+                      key={index}
+                      title={scenario.title || scenario.text}
+                      description={scenario.description || scenario.content}
+                      onClick={() => handleScenarioClick(scenario)}
+                    />
+                  ))}
                 </>
               )}
             </VStack>
@@ -710,55 +996,76 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
             
             <VStack align="stretch" spacing={3} w="full">
               {capability.detail08 ? (
-                <RichTextContent html={capability.detail08} />
+                <List spacing={1}>
+                  {effectItemsToShow.map((item, index) => (
+                    <HeadingListItem2
+                      key={index}
+                      title={item.title || item.text}
+                      headingType={item.headingType || (item.level === 2 ? 'h2' : 'h3')}
+                      onClick={() => handleEffectClick(
+                        item, 
+                        index % 2 === 0 ? FaChartLine : FaBullseye,
+                        index % 2 === 0 ? "green" : "orange"
+                      )}
+                    />
+                  ))}
+                </List>
               ) : (
                 <>
-                  <Box
-                    p={4}
-                    bg="whiteAlpha.100"
-                    rounded="md"
-                    position="relative"
-                    _hover={{
-                      bg: "whiteAlpha.200",
-                      transform: "translateX(4px)",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <HStack spacing={3} mb={2}>
-                      <Icon as={FaChartLine} color="green.400" boxSize={5} />
-                      <Text color="green.400" fontWeight="bold">
-                        作業効率の向上
-                      </Text>
-                    </HStack>
-                    <Text color="gray.300" fontSize="sm" pl={8}>
-                      製品説明の作成時間を最大70%削減
-                    </Text>
-                  </Box>
-
-                  <Box
-                    p={4}
-                    bg="whiteAlpha.100"
-                    rounded="md"
-                    position="relative"
-                    _hover={{
-                      bg: "whiteAlpha.200",
-                      transform: "translateX(4px)",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <HStack spacing={3} mb={2}>
-                      <Icon as={FaBullseye} color="orange.400" boxSize={5} />
-                      <Text color="orange.400" fontWeight="bold">
-                        品質の向上
-                      </Text>
-                    </HStack>
-                    <Text color="gray.300" fontSize="sm" pl={8}>
-                      一貫性のある高品質な製品説明を実現
-                    </Text>
-                  </Box>
+                  {effectItemsToShow.map((effect, index) => (
+                    <EffectItem
+                      key={index}
+                      icon={effect.icon || (index % 2 === 0 ? FaChartLine : FaBullseye)}
+                      title={effect.title || effect.text}
+                      description={effect.description || effect.content}
+                      color={effect.color || (index % 2 === 0 ? "green" : "orange")}
+                      onClick={() => handleEffectClick(
+                        effect, 
+                        effect.icon || (index % 2 === 0 ? FaChartLine : FaBullseye), 
+                        effect.color || (index % 2 === 0 ? "green" : "orange")
+                      )}
+                    />
+                  ))}
                 </>
               )}
             </VStack>
+          </VStack>
+        </Box>
+      </SimpleGrid>
+
+      {/* HTMLコンテンツを表示するセクション */}
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+        {/* 左側：見出しリスト */}
+        <Box
+          p={6}
+          bg="whiteAlpha.50"
+          rounded="lg"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+        >
+          <Heading size="md" color="cyan.400" mb={4}>目次</Heading>
+          <HeadingsList content={capability.detail || ''} />
+        </Box>
+        
+        {/* 右側：説明 */}
+        <Box
+          p={6}
+          bg="rgba(255, 255, 255, 0.05)"
+          backdropFilter="blur(10px)"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          rounded="lg"
+          boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
+        >
+          <VStack align="start" spacing={4}>
+            <Heading size="md" color="cyan.400">使い方</Heading>
+            <Text color="gray.100">
+              左側の目次から項目をクリックすると、詳細な内容がポップアップで表示されます。
+            </Text>
+            <HStack spacing={2} color="cyan.300">
+              <Icon as={MdArrowForward} />
+              <Text fontWeight="bold">クリックして詳細を確認</Text>
+            </HStack>
           </VStack>
         </Box>
       </SimpleGrid>
@@ -903,62 +1210,62 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
                 <RichTextContent html={capability.detail10} />
               ) : (
                 [
-                  {
-                    step: 1,
-                    title: "要件定義と目標設定",
-                    description: "製品説明の作成目的と要件を明確にし、具体的な目標を設定します。"
-                  },
-                  {
-                    step: 2,
-                    title: "ツールの選定と環境構築",
-                    description: "目的に合わせて最適なAIツールを選定し、必要なアカウント設定を行います。"
-                  },
-                  {
-                    step: 3,
-                    title: "プロンプトの作成とテスト",
-                    description: "効果的な製品説明を生成するためのプロンプトを作成し、テストを実施します。"
-                  },
-                  {
-                    step: 4,
-                    title: "品質チェックと改善",
-                    description: "生成された説明文の品質をチェックし、必要に応じて改善を行います。"
-                  }
-                ].map((step, index) => (
+                {
+                  step: 1,
+                  title: "要件定義と目標設定",
+                  description: "製品説明の作成目的と要件を明確にし、具体的な目標を設定します。"
+                },
+                {
+                  step: 2,
+                  title: "ツールの選定と環境構築",
+                  description: "目的に合わせて最適なAIツールを選定し、必要なアカウント設定を行います。"
+                },
+                {
+                  step: 3,
+                  title: "プロンプトの作成とテスト",
+                  description: "効果的な製品説明を生成するためのプロンプトを作成し、テストを実施します。"
+                },
+                {
+                  step: 4,
+                  title: "品質チェックと改善",
+                  description: "生成された説明文の品質をチェックし、必要に応じて改善を行います。"
+                }
+              ].map((step, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  bg="whiteAlpha.100"
+                  rounded="md"
+                  position="relative"
+                  transition="all 0.3s"
+                  _hover={{ transform: "translateX(4px)", bg: "whiteAlpha.200" }}
+                >
                   <Box
-                    key={index}
-                    p={4}
-                    bg="whiteAlpha.100"
-                    rounded="md"
-                    position="relative"
-                    transition="all 0.3s"
-                    _hover={{ transform: "translateX(4px)", bg: "whiteAlpha.200" }}
+                    position="absolute"
+                    top={-2}
+                    left={-2}
+                    bg="orange.400"
+                    color="white"
+                    rounded="full"
+                    w={6}
+                    h={6}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontSize="sm"
+                    fontWeight="bold"
                   >
-                    <Box
-                      position="absolute"
-                      top={-2}
-                      left={-2}
-                      bg="orange.400"
-                      color="white"
-                      rounded="full"
-                      w={6}
-                      h={6}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      fontSize="sm"
-                      fontWeight="bold"
-                    >
-                      {step.step}
-                    </Box>
-                    <VStack align="start" spacing={2} pl={6}>
-                      <Text color="orange.300" fontWeight="bold">
-                        {step.title}
-                      </Text>
-                      <Text color="gray.300">
-                        {step.description}
-                      </Text>
-                    </VStack>
+                    {step.step}
                   </Box>
+                  <VStack align="start" spacing={2} pl={6}>
+                    <Text color="orange.300" fontWeight="bold">
+                      {step.title}
+                    </Text>
+                    <Text color="gray.300">
+                      {step.description}
+                    </Text>
+                  </VStack>
+                </Box>
                 ))
               )}
             </VStack>
@@ -986,6 +1293,57 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
 
       {/* 関連記事セクションを追加 */}
       <RelatedArticlesCarousel relatedCapabilities={capability.relatedCapabilities} />
+
+      {/* モーダル */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent bg="rgba(10, 10, 26, 0.9)" borderWidth="1px" borderColor="cyan.400" boxShadow="0 0 30px rgba(0, 184, 212, 0.3)">
+          <ModalHeader color="white">
+            {modalContent && (
+              <HStack spacing={3}>
+                {modalContent.icon && (
+                  <Icon as={modalContent.icon} color={`${modalContent.color}.400`} boxSize={6} />
+                )}
+                <Text>{modalContent?.title}</Text>
+              </HStack>
+            )}
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody pb={6}>
+            {modalContent?.isHtml ? (
+              <Box
+                sx={{
+                  'h2, h3, strong': { 
+                    fontSize: 'lg', 
+                    fontWeight: 'bold', 
+                    mb: 3,
+                    color: 'cyan.400',
+                    display: 'block'
+                  },
+                  'p': { 
+                    mb: 4,
+                    color: 'gray.100',
+                    lineHeight: 1.8
+                  },
+                  'ul': { 
+                    pl: 8, 
+                    mb: 6,
+                    color: 'gray.100'
+                  },
+                  'li': { 
+                    mb: 3
+                  }
+                }}
+                dangerouslySetInnerHTML={{ __html: modalContent.content }}
+              />
+            ) : (
+              <Text color="gray.100" lineHeight="1.8">
+                {modalContent?.content}
+              </Text>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </VStack>
   );
 };
