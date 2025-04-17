@@ -703,8 +703,15 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }
 
       {/* 実装ステップ */}
       <Box mb={8}>
-        <Heading size="lg" color="cyan.400" mb={6} display="flex" alignItems="center">
-          <Icon as={MdArrowForward} mr={3} boxSize={6} />
+        <Heading 
+          size="xl" 
+          mb={6} 
+          display="flex" 
+          alignItems="center"
+          color="#FFA500"
+          fontWeight="bold"
+        >
+          <Icon as={MdArrowForward} mr={3} boxSize={6} color="#FFA500" />
           実装ステップ
         </Heading>
         <SimpleGrid columns={{ base: 1, md: 1 }} spacing={6}>
@@ -780,10 +787,10 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }
                   bottom: 0,
                   borderRadius: 'md',
                   pointerEvents: 'none',
-                  background: 'linear-gradient(45deg, transparent 0%, rgba(0, 184, 212, 0.3) 50%, transparent 100%)',
+                  background: 'linear-gradient(45deg, transparent 0%, rgba(255, 215, 0, 0.5) 50%, transparent 100%)',
                   backgroundSize: '200% 200%',
-                  animation: 'flashAnimation 2s infinite',
-                  opacity: 0.6
+                  animation: 'flashAnimation 5s infinite',
+                  opacity: 0.7
                 }}
                 sx={{
                   '@keyframes flashAnimation': {
@@ -796,19 +803,19 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }
                     title: step.title || step.text || '',
                     content: step.content || step.description || '',
                     icon: MdArrowForward,
-                    color: "cyan",
+                    color: "orange",
                     isHtml: Boolean(step.content && step.content.includes('<'))
                   });
                   onOpen();
                 }}
               >
                 <VStack align="start" spacing={3}>
-                  <Heading size="md" color="cyan.400">
+                  <Heading size="md" color="#FF8C00">
                     {step.title || step.text}
                   </Heading>
                   <HStack pt={2}>
-                    <Icon as={MdArrowForward} color="cyan.400" />
-                    <Text fontSize="xs" color="cyan.400">詳細を見る</Text>
+                    <Icon as={MdArrowForward} color="#FF8C00" />
+                    <Text fontSize="xs" color="#FF8C00">詳細を見る</Text>
                   </HStack>
                 </VStack>
               </Box>
