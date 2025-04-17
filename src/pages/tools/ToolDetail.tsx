@@ -9,18 +9,9 @@ import {
   HStack,
   Tag,
   SimpleGrid,
-  Card,
-  CardHeader,
-  CardBody,
-  Icon,
   Grid,
   Wrap,
   WrapItem,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Image,
   Modal,
   ModalOverlay,
@@ -30,9 +21,10 @@ import {
   ModalCloseButton,
   useDisclosure,
   List,
-  ListItem
+  ListItem,
+  Icon
 } from '@chakra-ui/react';
-import { MdBusinessCenter, MdWork, MdTrendingUp, MdTaskAlt, MdBuild, MdArrowForward } from 'react-icons/md';
+import { MdBusinessCenter, MdWork, MdTaskAlt, MdSubject, MdAutoAwesome, MdConstruction, MdOutlineRocketLaunch, MdOutlineWarning, MdOutlineChecklist } from 'react-icons/md';
 import { FaStar, FaLightbulb, FaChartLine, FaBullseye } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { getCapabilityById } from '@/lib/api/capabilities';
@@ -42,181 +34,18 @@ import { RelatedCapability } from '@/types/tool';
 // アニメーションスタイルの定義
 const pulseShadow = "0px 0px 10px rgba(0, 184, 212, 0.3)";
 
-// アコーディオンアイテムのコンポーネント
-interface AccordionCustomItemProps {
-  icon: IconType;
-  title: string;
-  color: string;
-  children: React.ReactNode;
+// 見出しとその内容を格納するインターフェース
+interface ContentItem {
+  id: string;
+  level: number;
+  text: string;
+  content: string;
+  title?: string;
+  headingType?: string;
+  description?: string;
+  icon?: IconType;
+  color?: string;
 }
-
-const AccordionCustomItem: React.FC<AccordionCustomItemProps> = ({
-  icon,
-  title,
-  color,
-  children
-}) => {
-  return (
-    <AccordionItem 
-      border="none" 
-      bg="whiteAlpha.50" 
-      rounded="lg"
-      borderWidth="1px"
-      borderColor="whiteAlpha.200"
-      position="relative"
-      transition="all 0.3s"
-      _hover={{
-        transform: "translateY(-2px)",
-        boxShadow: `0 0 20px ${color}33`
-      }}
-    >
-      <AccordionButton 
-        p={4}
-        _hover={{ bg: 'whiteAlpha.100' }}
-        rounded="lg"
-      >
-        <HStack flex="1" spacing={4}>
-          <Icon 
-            as={icon} 
-            color={color} 
-            boxSize={6} 
-          />
-          <Heading 
-            size="md" 
-            color={color}
-            textShadow="0 0 10px rgba(255, 255, 255, 0.3)"
-            _hover={{
-              transform: "scale(1.05)",
-              transition: "transform 0.2s"
-            }}
-          >
-            {title}
-          </Heading>
-        </HStack>
-        <AccordionIcon color={color} boxSize={6} />
-      </AccordionButton>
-      <AccordionPanel pb={4}>
-        {children}
-      </AccordionPanel>
-    </AccordionItem>
-  );
-};
-
-const RelatedInfoSection = ({ capability }: { capability: AICapability }) => {
-  return (
-    <Box mb={12}>
-      <Heading as="h2" size="xl" mb={8} textAlign="center">👥 関連情報</Heading>
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-        <Card variant="outline" bg="whiteAlpha.50">
-          <CardHeader>
-            <HStack>
-              <Icon as={MdBusinessCenter} color="orange.400" boxSize={6} />
-              <Heading size="md" color="orange.400">関連業種</Heading>
-            </HStack>
-          </CardHeader>
-          <CardBody>
-            <VStack spacing={4} align="stretch">
-              {capability.category?.map((cat, index) => (
-                <Box key={index}>
-                  <Text fontWeight="bold" color="orange.200">{cat}</Text>
-                </Box>
-              ))}
-            </VStack>
-          </CardBody>
-        </Card>
-
-        <Card variant="outline" bg="whiteAlpha.50">
-          <CardHeader>
-            <HStack>
-              <Icon as={MdWork} color="cyan.400" boxSize={6} />
-              <Heading size="md" color="cyan.400">関連技術</Heading>
-            </HStack>
-          </CardHeader>
-          <CardBody>
-            <VStack spacing={4} align="stretch">
-              {capability.technologies?.map((tech, index) => (
-                <Box key={index}>
-                  <Text fontWeight="bold" color="cyan.200">{tech}</Text>
-                </Box>
-              ))}
-            </VStack>
-          </CardBody>
-        </Card>
-      </SimpleGrid>
-    </Box>
-  );
-};
-
-// 開発難易度と概要セクションのコンポーネント
-const DifficultyAndOverviewSection = ({ capability }: { capability: AICapability }) => {
-  // 難易度レベルに応じた★の生成
-  const renderStars = (level: number, max: number = 5) => {
-    return Array(max).fill('').map((_, i) => (
-      <Text as="span" key={i} color={i < level ? "yellow.400" : "gray.600"} fontSize="xl">
-        ★
-      </Text>
-    ));
-  };
-
-  return (
-    <Box mb={12}>
-      <Heading as="h2" size="xl" mb={8} textAlign="center">⭐ 開発難易度と概要</Heading>
-      <SimpleGrid columns={{ base: 1, md: 5 }} spacing={8}>
-        {/* 開発難易度 (1列分) */}
-        <Card variant="outline" bg="whiteAlpha.50" gridColumn={{ base: "1", md: "1 / span 1" }}>
-          <CardHeader>
-            <VStack align="stretch" spacing={2}>
-              <HStack>
-                <Icon as={MdTrendingUp} color="yellow.400" boxSize={6} />
-                <Heading size="md" color="yellow.400">開発難易度</Heading>
-              </HStack>
-              <HStack justify="center" mt={2}>
-                {renderStars(capability.difficultyLevel || 3)}
-              </HStack>
-            </VStack>
-          </CardHeader>
-          <CardBody>
-            <VStack spacing={6} align="stretch">
-              <Box>
-                <Text color="gray.300" fontSize="sm" mb={4}>
-                  基本的なプログラミングスキルと機械学習の基礎知識があれば実装可能です。
-                </Text>
-                <Heading size="sm" color="cyan.400" mb={2}>実装のポイント</Heading>
-                <Text color="gray.300" fontSize="sm">
-                  • APIキーの設定
-                  • プロンプトの最適化
-                  • レスポンス処理の実装
-                </Text>
-              </Box>
-            </VStack>
-          </CardBody>
-        </Card>
-
-        {/* 概要説明 (4列分) */}
-        <Box gridColumn={{ base: "1", md: "2 / span 4" }}>
-          <Box 
-            className="overview-content"
-            dangerouslySetInnerHTML={{ __html: capability.detail }}
-            sx={{
-              'p': {
-                color: 'gray.300',
-                fontSize: 'lg',
-                lineHeight: 'tall',
-                mb: 4
-              },
-              'a': {
-                color: 'cyan.400',
-                _hover: {
-                  textDecoration: 'underline'
-                }
-              }
-            }}
-          />
-        </Box>
-      </SimpleGrid>
-    </Box>
-  );
-};
 
 // RichTextContentコンポーネント
 const RichTextContent: React.FC<{ html: string }> = ({ html }) => {
@@ -248,14 +77,6 @@ const RichTextContent: React.FC<{ html: string }> = ({ html }) => {
   );
 };
 
-// 必要なコンポーネントを先に定義
-const LabeledContent: React.FC<{ label: string; content: string }> = ({ label, content }) => (
-  <VStack align="start" spacing={1}>
-    <Text color="cyan.400" fontSize="sm" fontWeight="bold">{label}</Text>
-    <Text color="gray.100">{content}</Text>
-  </VStack>
-);
-
 // カスタムリストアイテムコンポーネント
 const CustomListItem: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <HStack 
@@ -279,141 +100,6 @@ const CustomListItem: React.FC<{ children: React.ReactNode }> = ({ children }) =
       {children}
     </Text>
   </HStack>
-);
-
-// メトリクスアイテムコンポーネント（規模感の目安用）
-const MetricsItem: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Text 
-    color="cyan.200" 
-    fontSize="sm" 
-    pl={6}
-    borderLeft="2px"
-    borderColor="cyan.400"
-  >
-    {children}
-  </Text>
-);
-
-// 役割や職種を表示するためのカスタムコンポーネント
-const RoleItem: React.FC<{ role: string; description: string }> = ({ role, description }) => (
-  <VStack 
-    align="start" 
-    spacing={1}
-    p={3}
-    bg="whiteAlpha.100"
-    rounded="md"
-    _hover={{
-      bg: "whiteAlpha.200",
-      transform: "translateX(4px)",
-      transition: "all 0.2s"
-    }}
-  >
-    <Text 
-      color="cyan.300" 
-      fontWeight="bold"
-      fontSize="md"
-    >
-      {role}
-    </Text>
-    <Text 
-      color="gray.300" 
-      fontSize="sm"
-    >
-      {description}
-    </Text>
-  </VStack>
-);
-
-// 活用シーンと効果のアイテムコンポーネント
-const ScenarioItem: React.FC<{ 
-  title: string; 
-  description: string;
-  onClick?: () => void;
-}> = ({ title, description, onClick }) => (
-  <Box
-    p={4}
-    bg="whiteAlpha.100"
-    rounded="md"
-    cursor="pointer"
-    position="relative"
-    transition="all 0.3s ease"
-    overflow="hidden"
-    boxShadow={pulseShadow}
-    _before={{
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'linear-gradient(45deg, rgba(0,184,212,0.1) 0%, rgba(0,184,212,0) 70%)',
-      opacity: 0.5,
-    }}
-    _hover={{
-      bg: "rgba(0, 184, 212, 0.15)",
-      transform: "translateX(5px)",
-      boxShadow: "0 0 20px 5px rgba(0, 184, 212, 0.25)"
-    }}
-    onClick={onClick}
-  >
-    <VStack align="start" spacing={2}>
-      <HStack spacing={2}>
-        <Icon as={FaLightbulb} color="cyan.300" />
-        <Text color="cyan.300" fontWeight="bold">
-          {title}
-        </Text>
-      </HStack>
-      <Text color="gray.300" fontSize="sm" pl={6}>
-        {description}
-      </Text>
-    </VStack>
-  </Box>
-);
-
-// 期待できる効果アイテムコンポーネント
-const EffectItem: React.FC<{ 
-  icon: IconType;
-  title: string; 
-  description: string;
-  color: string;
-  onClick?: () => void;
-}> = ({ icon, title, description, color, onClick }) => (
-  <Box
-    p={4}
-    bg="whiteAlpha.100"
-    rounded="md"
-    position="relative"
-    cursor="pointer"
-    transition="all 0.3s ease"
-    overflow="hidden"
-    boxShadow={`0px 0px 10px rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.2)`}
-    _before={{
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '3px',
-      height: '100%',
-      background: `${color}.400`,
-      opacity: 0.8,
-    }}
-    _hover={{
-      bg: `rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.15)`,
-      transform: "translateX(5px)",
-      boxShadow: `0 0 20px 5px rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.2)`
-    }}
-    onClick={onClick}
-  >
-    <HStack spacing={3} mb={2}>
-      <Icon as={icon} color={`${color}.400`} boxSize={5} />
-      <Text color={`${color}.400`} fontWeight="bold">
-        {title}
-      </Text>
-    </HStack>
-    <Text color="gray.300" fontSize="sm" pl={8}>
-      {description}
-    </Text>
-  </Box>
 );
 
 // 関連記事カルーセルコンポーネント
@@ -480,45 +166,11 @@ const RelatedArticlesCarousel = ({ relatedCapabilities }: { relatedCapabilities?
   );
 };
 
+// DetailContentコンポーネントのPropsを更新
 interface DetailContentProps {
   capability: AICapability;
+  onItemClick?: (item: ContentItem, type: string) => void;
 }
-
-// 見出しとその内容を格納するインターフェース
-interface ContentItem {
-  id: string;
-  level: number;
-  text: string;
-  content: string;
-  title?: string;
-  headingType?: string;
-  description?: string;
-  icon?: IconType;
-  color?: string;
-}
-
-// 見出しリスト項目コンポーネント
-const HeadingListItem = ({ item, onClick }: { item: ContentItem; onClick: () => void }) => {
-  return (
-    <ListItem 
-      p={2} 
-      cursor="pointer" 
-      _hover={{ bg: 'gray.100' }} 
-      borderRadius="md"
-      onClick={onClick}
-    >
-      <HStack>
-        <Icon 
-          as={item.level === 2 ? MdBusinessCenter : MdWork} 
-          color={item.level === 2 ? 'blue.500' : 'green.500'} 
-        />
-        <Text fontWeight={item.level === 2 ? 'bold' : 'medium'}>
-          {item.text}
-        </Text>
-      </HStack>
-    </ListItem>
-  );
-};
 
 // HeadingListItemコンポーネントを追加（title, headingTypeを受け取るバージョン）
 interface HeadingItemProps {
@@ -604,62 +256,140 @@ const extractHeadingsFromHtml = (html: string): ContentItem[] => {
   }
 };
 
-// 見出しリストコンポーネント
-const HeadingsList = ({ content }: { content: string }) => {
-  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const headings = extractHeadingsFromHtml(content || '');
+// HTMLコンテンツからコンテンツアイテムを抽出する関数
+const extractContentItems = (html: string): ContentItem[] => {
+  if (!html) return [];
   
-  const handleHeadingClick = (item: ContentItem) => {
-    if (!item) return;
+  // クライアントサイドでのみDOMParserを使用
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const items: ContentItem[] = [];
     
-    setSelectedItem(item);
-    onOpen();
-  };
-  
-  return (
-    <>
-      <VStack align="stretch" spacing={1} w="100%">
-        <Heading size="md" mb={2}>コンテンツ見出し一覧</Heading>
-        <Text fontSize="sm" mb={3} color="gray.600">
-          見出しをクリックすると、詳細な内容がポップアップで表示されます
-        </Text>
-        
-        {headings?.length > 0 ? (
-          <List spacing={1}>
-            {headings.map((item) => (
-              <HeadingListItem 
-                key={item.id} 
-                item={item} 
-                onClick={() => handleHeadingClick(item)}
-              />
-            ))}
-          </List>
-        ) : (
-          <Text fontSize="sm" color="gray.500">見出しが見つかりませんでした</Text>
-        )}
-      </VStack>
+    // h2とh3要素を抽出
+    const headings = doc.querySelectorAll('h2, h3');
+    
+    if (!headings || headings.length === 0) return [];
+    
+    headings.forEach((heading, index) => {
+      const level = heading.tagName?.toLowerCase() === 'h2' ? 2 : 3;
+      const id = `heading-${index}`;
+      const text = heading.textContent || '';
       
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{selectedItem?.text || ''}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            {selectedItem && (
-              <Box 
-                className="content-detail"
-                dangerouslySetInnerHTML={{ __html: selectedItem.content || '' }} 
-              />
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+      // この見出しの後に続く内容を集める
+      let content = '';
+      let description = '';
+      let currentNode = heading.nextElementSibling;
+      
+      while (currentNode && currentNode.tagName?.toLowerCase() !== 'h2' && currentNode.tagName?.toLowerCase() !== 'h3') {
+        content += currentNode.outerHTML;
+        if (currentNode.tagName?.toLowerCase() === 'p' && !description) {
+          description = currentNode.textContent || '';
+        }
+        currentNode = currentNode.nextElementSibling;
+      }
+      
+      items.push({ 
+        id, 
+        level, 
+        text, 
+        content,
+        title: text,
+        description,
+        headingType: level === 2 ? 'h2' : 'h3',
+        color: level === 2 ? 'cyan' : 'blue'
+      });
+    });
+    
+    return items;
+  } catch (error) {
+    console.error('HTMLパース中にエラーが発生しました:', error);
+    return [];
+  }
+};
+
+// 共通のリッチテキストセクションコンポーネント
+interface RichTextSectionProps {
+  title: string;
+  titleColor?: string;
+  htmlContent: string | undefined;
+  icon?: IconType;
+  columns?: number;
+  onItemClick: (item: ContentItem, icon?: IconType, color?: string) => void;
+  fallbackItems?: ContentItem[];
+  fallbackIcon?: IconType;
+  fallbackColor?: string;
+  fontSize?: { title?: string; content?: string };
+}
+
+const RichTextSection: React.FC<RichTextSectionProps> = ({
+  title,
+  titleColor = "cyan.400",
+  htmlContent,
+  icon,
+  columns = 1,
+  onItemClick,
+  fallbackItems = [],
+  fallbackIcon,
+  fallbackColor = "cyan",
+  fontSize
+}) => {
+  const items: ContentItem[] = htmlContent ? extractHeadingsFromHtml(htmlContent) : [];
+  const hasItems = items.length > 0;
+  const itemsToShow = hasItems ? items : fallbackItems;
+
+  return (
+    <Box
+      position="relative"
+      p={6}
+      rounded="lg"
+      bg="whiteAlpha.50"
+      borderWidth="1px"
+      borderColor="whiteAlpha.200"
+    >
+      <VStack align="start" spacing={6}>
+        <HStack spacing={3} w="full">
+          {icon && <Icon as={icon} color={titleColor} boxSize={6} />}
+          <Heading 
+            size={fontSize?.title || "md"}
+            color={titleColor}
+            pb={2}
+            borderBottom="2px"
+            borderColor={titleColor}
+            w="full"
+          >
+            {title}
+          </Heading>
+        </HStack>
+        
+        <SimpleGrid columns={{ base: 1, md: columns }} spacing={3} w="full">
+          {htmlContent && !hasItems ? (
+            <RichTextContent html={htmlContent} />
+          ) : (
+            <List spacing={1}>
+              {itemsToShow.map((item, index) => (
+                <HeadingListItem2
+                  key={index}
+                  title={item.title || item.text}
+                  headingType={item.headingType || (item.level === 2 ? 'h2' : 'h3')}
+                  onClick={() => onItemClick(
+                    item,
+                    fallbackIcon || (index % 2 === 0 ? FaLightbulb : FaBullseye),
+                    fallbackColor
+                  )}
+                />
+              ))}
+            </List>
+          )}
+        </SimpleGrid>
+      </VStack>
+    </Box>
   );
 };
 
-const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
+const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }) => {
   // モーダル用の状態管理
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState<{
@@ -699,40 +429,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
       color: 'green'
     }
   ] as ContentItem[];
-
-  // シナリオの処理
-  const scenarioItems: ContentItem[] = extractHeadingsFromHtml(capability?.detail07 || '');
-  const hasScenarios = scenarioItems.length > 0;
-  const scenarioItemsToShow = hasScenarios ? scenarioItems : fallbackScenarios;
-
-  // 効果の処理
-  const effectItems: ContentItem[] = extractHeadingsFromHtml(capability?.detail08 || '');
-  const hasEffects = effectItems.length > 0;
-  const effectItemsToShow = hasEffects ? effectItems : fallbackEffects;
-  
-  // シナリオをクリックした時の処理
-  const handleScenarioClick = (scenario: ContentItem) => {
-    setModalContent({
-      title: scenario.title || scenario.text || '',
-      content: scenario.content || scenario.description || '',
-      icon: scenario.icon || FaLightbulb,
-      color: scenario.color || "cyan",
-      isHtml: Boolean(scenario.content && scenario.content.includes('<'))
-    });
-    onOpen();
-  };
-
-  // 効果をクリックした時の処理
-  const handleEffectClick = (effect: ContentItem, icon: IconType = FaChartLine, color: string = "green") => {
-    setModalContent({
-      title: effect.title || effect.text || '',
-      content: effect.content || effect.description || '',
-      icon: effect.icon || icon,
-      color: effect.color || color,
-      isHtml: Boolean(effect.content && effect.content.includes('<'))
-    });
-    onOpen();
-  };
 
   return (
     <VStack spacing={8} align="stretch" w="full">
@@ -803,141 +499,65 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
 
       {/* 関連情報と課題のセクション */}
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-        <Accordion allowToggle defaultIndex={[]} width="full">
-          {/* 関連業種 */}
-          <AccordionCustomItem
-            icon={MdBusinessCenter}
-            title="関連業種"
-            color="orange.400"
-          >
-            {capability.detail03 ? (
-              <RichTextContent html={capability.detail03} />
-            ) : (
-            <VStack align="stretch" spacing={3}>
-              <RoleItem
-                role="マーケティング担当者"
-                description="製品訴求力の向上と作業時間の削減"
-              />
-              <RoleItem
-                role="製品マネージャー"
-                description="製品価値の明確な言語化と市場反応の改善"
-              />
-              <RoleItem
-                role="コピーライター"
-                description="アイデア出しと表現のバリエーション拡大"
-              />
-              <RoleItem
-                role="ECサイト運営者"
-                description="製品説明の質と量の両立による売上向上"
-              />
-              <RoleItem
-                role="ブランドマネージャー"
-                description="一貫したブランドボイスの維持と拡張"
-              />
-            </VStack>
-            )}
-          </AccordionCustomItem>
-        </Accordion>
+        {/* 関連業種 */}
+        <RichTextSection
+          title="関連業種"
+          titleColor="orange.400"
+          htmlContent={capability.detail03}
+          icon={MdBusinessCenter}
+          columns={1}
+          onItemClick={(item) => {
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdBusinessCenter,
+              color: "orange",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackColor="orange"
+        />
 
-        <Accordion allowToggle defaultIndex={[]} width="full">
-          {/* 関連職種 */}
-          <AccordionCustomItem
-            icon={MdWork}
-            title="関連職種"
-            color="yellow.400"
-          >
-            {capability.detail04 ? (
-              <RichTextContent html={capability.detail04} />
-            ) : (
-            <VStack align="stretch" spacing={3}>
-              <RoleItem
-                role="EC・小売業"
-                description="製品説明ページのコンバージョン率向上に直結"
-              />
-              <RoleItem
-                role="メーカー"
-                description="技術的特性を顧客メリットに変換する際の壁を解消"
-              />
-              <RoleItem
-                role="SaaS企業"
-                description="複雑な機能を分かりやすく顧客価値として伝達"
-              />
-              <RoleItem
-                role="スタートアップ"
-                description="限られたリソースで効果的な製品訴求を実現"
-              />
-              <RoleItem
-                role="広告・マーケティング"
-                description="クライアント製品の価値を明確に表現"
-              />
-            </VStack>
-            )}
-          </AccordionCustomItem>
-        </Accordion>
+        {/* 関連職種 */}
+        <RichTextSection
+          title="関連職種"
+          titleColor="yellow.400"
+          htmlContent={capability.detail04}
+          icon={MdWork}
+          columns={1}
+          onItemClick={(item) => {
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdWork,
+              color: "yellow",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackColor="yellow"
+        />
 
-        <Accordion allowToggle defaultIndex={[]} width="full">
-          {/* 解決できる課題 */}
-          <AccordionCustomItem
-            icon={MdTaskAlt}
-            title="解決できる課題"
-            color="pink.400"
-          >
-            {capability.detail05 ? (
-              <RichTextContent html={capability.detail05} />
-            ) : (
-            <VStack align="stretch" spacing={4}>
-              {/* 課題リスト */}
-              <VStack align="start" spacing={3}>
-                {[
-                  "製品の機能と顧客メリットを効果的に結びつけられない",
-                  "多数の製品説明を作成する時間と人的リソースが不足している",
-                  "表現のマンネリ化や業界用語の乱用で顧客に伝わらない"
-                ].map((issue, index) => (
-                  <HStack 
-                    key={index}
-                    p={3}
-                    bg="whiteAlpha.100"
-                    rounded="md"
-                    w="full"
-                  >
-                    <Text 
-                      color="cyan.300" 
-                      fontWeight="bold"
-                      minW="70px"
-                    >
-                      課題 {index + 1}
-                    </Text>
-                    <Text color="gray.300">
-                      {issue}
-                    </Text>
-                  </HStack>
-                ))}
-              </VStack>
-
-              {/* 規模感の目安 */}
-              <Box 
-                p={4} 
-                bg="whiteAlpha.100" 
-                rounded="md"
-                w="full"
-              >
-                <Text 
-                  color="cyan.300" 
-                  fontWeight="bold" 
-                  mb={3}
-                >
-                  規模感の目安
-                </Text>
-                <VStack align="start" spacing={2}>
-                  <Text color="gray.300" fontSize="sm">• 月間製品説明作成数：10件以上</Text>
-                  <Text color="gray.300" fontSize="sm">• 1件あたりの作成時間：30分以上</Text>
-                  <Text color="gray.300" fontSize="sm">• コンテンツ作成担当：1〜3名程度</Text>
-                </VStack>
-              </Box>
-            </VStack>
-            )}
-          </AccordionCustomItem>
-        </Accordion>
+        {/* 解決できる課題 */}
+        <RichTextSection
+          title="解決できる課題"
+          titleColor="pink.400"
+          htmlContent={capability.detail05}
+          icon={MdTaskAlt}
+          columns={1}
+          onItemClick={(item) => {
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdTaskAlt,
+              color: "pink",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackColor="pink"
+        />
       </SimpleGrid>
 
       {/* 課題の詳細解説（1カラム） */}
@@ -946,330 +566,247 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
         <RichTextContent html={capability.detail06 || ""} />
       </Box>
 
-      {/* 活用と効果のセクション */}
+      {/* 活用と効果のセクション - リスト形式に戻す */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
         {/* 活用シーン */}
-        <Box
-          position="relative"
-          p={6}
-          rounded="lg"
-          bg="whiteAlpha.50"
-          borderWidth="1px"
-          borderColor="whiteAlpha.200"
-        >
-          <VStack align="start" spacing={6}>
-            <Heading 
-              size="md" 
-              color="cyan.400"
-              pb={2}
-              borderBottom="2px"
-              borderColor="cyan.400"
-              w="full"
-            >
-              活用シーン
-            </Heading>
+        <RichTextSection
+          title="活用シーン"
+          titleColor="purple.400"
+          htmlContent={capability.detail07}
+          icon={MdSubject}
+          columns={1}
+          onItemClick={(item) => {
+            if (onItemClick) {
+              onItemClick(item, 'scenario');
+              return;
+            }
             
-            <VStack align="stretch" spacing={3} w="full">
-              {capability.detail07 ? (
-                <List spacing={1}>
-                  {scenarioItemsToShow.map((item, index) => (
-                    <HeadingListItem2
-                      key={index}
-                      title={item.title || item.text}
-                      headingType={item.headingType || (item.level === 2 ? 'h2' : 'h3')}
-                      onClick={() => handleScenarioClick(item)}
-                    />
-                  ))}
-                </List>
-              ) : (
-                <>
-                  {scenarioItemsToShow.map((scenario, index) => (
-                    <ScenarioItem
-                      key={index}
-                      title={scenario.title || scenario.text}
-                      description={scenario.description || scenario.content}
-                      onClick={() => handleScenarioClick(scenario)}
-                    />
-                  ))}
-                </>
-              )}
-            </VStack>
-          </VStack>
-        </Box>
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdSubject,
+              color: "purple",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackItems={fallbackScenarios}
+          fallbackColor="purple"
+        />
 
         {/* 期待できる効果 */}
-        <Box
-          position="relative"
-          p={6}
-          rounded="lg"
-          bg="whiteAlpha.50"
-          borderWidth="1px"
-          borderColor="whiteAlpha.200"
-        >
-          <VStack align="start" spacing={6}>
-            <Heading 
-              size="md" 
-              color="cyan.400"
-              pb={2}
-              borderBottom="2px"
-              borderColor="cyan.400"
-              w="full"
-            >
-              期待できる効果
-            </Heading>
+        <RichTextSection
+          title="期待できる効果"
+          titleColor="blue.400"
+          htmlContent={capability.detail08}
+          icon={MdAutoAwesome}
+          columns={1}
+          onItemClick={(item) => {
+            if (onItemClick) {
+              onItemClick(item, 'effect');
+              return;
+            }
             
-            <VStack align="stretch" spacing={3} w="full">
-              {capability.detail08 ? (
-                <List spacing={1}>
-                  {effectItemsToShow.map((item, index) => (
-                    <HeadingListItem2
-                      key={index}
-                      title={item.title || item.text}
-                      headingType={item.headingType || (item.level === 2 ? 'h2' : 'h3')}
-                      onClick={() => handleEffectClick(
-                        item, 
-                        index % 2 === 0 ? FaChartLine : FaBullseye,
-                        index % 2 === 0 ? "green" : "orange"
-                      )}
-                    />
-                  ))}
-                </List>
-              ) : (
-                <>
-                  {effectItemsToShow.map((effect, index) => (
-                    <EffectItem
-                      key={index}
-                      icon={effect.icon || (index % 2 === 0 ? FaChartLine : FaBullseye)}
-                      title={effect.title || effect.text}
-                      description={effect.description || effect.content}
-                      color={effect.color || (index % 2 === 0 ? "green" : "orange")}
-                      onClick={() => handleEffectClick(
-                        effect, 
-                        effect.icon || (index % 2 === 0 ? FaChartLine : FaBullseye), 
-                        effect.color || (index % 2 === 0 ? "green" : "orange")
-                      )}
-                    />
-                  ))}
-                </>
-              )}
-            </VStack>
-          </VStack>
-        </Box>
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdAutoAwesome,
+              color: "blue",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackItems={fallbackEffects}
+          fallbackColor="blue"
+        />
       </SimpleGrid>
 
-      {/* ツールと導入のセクション */}
-      <VStack spacing={6} w="full">
-        {/* おすすめツール */}
-        <Box 
-          w="full"
-          p={6} 
-          bg="whiteAlpha.50" 
-          rounded="lg" 
-          borderWidth="1px" 
-          borderColor="whiteAlpha.200"
-          position="relative"
-          overflow="hidden"
-          _before={{
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "2px",
-            background: "linear-gradient(90deg, cyan.400, blue.500)",
-          }}
-        >
-          {/* タイトル部分（1カラム） */}
-          <VStack align="start" spacing={6} w="full">
-            <HStack spacing={3}>
-              <Icon as={MdBuild} color="cyan.400" boxSize={6} />
-              <Heading size="md" color="cyan.400">おすすめツール</Heading>
-            </HStack>
-            
-            {/* AIツール一覧（3カラム） */}
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
-              {/* OpenAI GPT-4 */}
+      {/* おすすめツール */}
+      <Box mb={8}>
+        <Heading size="md" color="green.400" mb={4} display="flex" alignItems="center">
+          <Icon as={MdConstruction} mr={2} />
+          おすすめツール
+        </Heading>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+          {(() => {
+            const toolItems = extractContentItems(capability.detail09 || "");
+            const hasTools = toolItems.length > 0;
+            const toolsToShow = hasTools ? toolItems : [
+              {
+                id: "tool-1",
+                level: 2,
+                text: "OpenAI GPT-4",
+                content: "<p>最も高性能な汎用AIモデルで、複雑な製品説明も作成可能。高度な文脈理解と自然な日本語生成ができ、専門性の高い製品にも対応。</p>",
+                title: "OpenAI GPT-4",
+                description: "最も高性能な汎用AIモデルで、複雑な製品説明も作成可能。高度な文脈理解と自然な日本語生成ができ、専門性の高い製品にも対応。",
+                color: "green"
+              },
+              {
+                id: "tool-2",
+                level: 2,
+                text: "Copy.ai",
+                content: "<p>製品説明に特化したAIライティングツール。マーケティングの専門知識がなくても、多様な表現パターンを生成可能。テンプレートが豊富で初心者でも使いやすい。</p>",
+                title: "Copy.ai",
+                description: "製品説明に特化したAIライティングツール。マーケティングの専門知識がなくても、多様な表現パターンを生成可能。テンプレートが豊富で初心者でも使いやすい。",
+                color: "green"
+              },
+              {
+                id: "tool-3",
+                level: 2,
+                text: "Jasper",
+                content: "<p>マーケティング向けAIライティングアシスタント。SEO最適化やブランドボイスの一貫性維持に優れ、チーム利用に適したコラボレーション機能を備えている。</p>",
+                title: "Jasper",
+                description: "マーケティング向けAIライティングアシスタント。SEO最適化やブランドボイスの一貫性維持に優れ、チーム利用に適したコラボレーション機能を備えている。",
+                color: "green"
+              }
+            ];
+
+            return toolsToShow.map((tool, index) => (
               <Box
+                key={index}
                 p={4}
-                bg="whiteAlpha.100"
-                rounded="lg"
+                bg="rgba(0, 200, 100, 0.08)"
+                borderRadius="md"
                 borderWidth="1px"
-                borderColor="whiteAlpha.200"
+                borderColor="green.600"
+                cursor="pointer"
                 transition="all 0.3s"
-                _hover={{ 
-                  transform: "translateY(-4px)",
-                  boxShadow: "lg",
-                  bg: "whiteAlpha.200"
+                _hover={{ transform: "translateY(-5px)", boxShadow: "0 10px 15px -3px rgba(0, 200, 100, 0.2)" }}
+                onClick={() => {
+                  setModalContent({
+                    title: tool.title || tool.text || '',
+                    content: tool.content || tool.description || '',
+                    icon: MdConstruction,
+                    color: "green",
+                    isHtml: Boolean(tool.content && tool.content.includes('<'))
+                  });
+                  onOpen();
                 }}
               >
-                <VStack align="start" spacing={3}>
-                  <HStack spacing={3}>
-                    <Icon as={FaStar} color="yellow.400" boxSize={5} />
-                    <Text color="cyan.300" fontWeight="bold">OpenAI GPT-4</Text>
-                  </HStack>
-                  <Text color="gray.300" fontSize="sm">
-                    製品の技術特性と顧客価値の関連付けに優れ、文脈理解力が高いため、一貫性のある説明文を生成できます。カスタムプロンプトでブランドボイスの調整も可能です。
+                <VStack align="start" spacing={2}>
+                  <Heading size="sm" color="green.400">
+                    {tool.title || tool.text}
+                  </Heading>
+                  <Text fontSize="sm" color="gray.300" noOfLines={3}>
+                    {tool.description}
                   </Text>
+                  <HStack pt={2}>
+                    <Icon as={MdConstruction} color="green.400" />
+                    <Text fontSize="xs" color="green.400">詳細を見る</Text>
+                  </HStack>
                 </VStack>
               </Box>
+            ));
+          })()}
+        </SimpleGrid>
+      </Box>
 
-              {/* Copy.ai */}
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="lg"
-                borderWidth="1px"
-                borderColor="whiteAlpha.200"
-                transition="all 0.3s"
-                _hover={{ 
-                  transform: "translateY(-4px)",
-                  boxShadow: "lg",
-                  bg: "whiteAlpha.200"
-                }}
-              >
-                <VStack align="start" spacing={3}>
-                  <HStack spacing={3}>
-                    <Icon as={FaStar} color="yellow.400" boxSize={5} />
-                    <Text color="cyan.300" fontWeight="bold">Copy.ai</Text>
-                  </HStack>
-                  <Text color="gray.300" fontSize="sm">
-                    マーケティングコピー特化型のAIツールで、製品説明に特化したテンプレートが豊富。簡単な入力から多様な表現バリエーションを生成できます。
-                  </Text>
-                </VStack>
-              </Box>
+      {/* 実装ステップ */}
+      <RichTextSection
+        title="実装ステップ"
+        titleColor="cyan.400"
+        htmlContent={capability.detail10}
+        icon={MdOutlineRocketLaunch}
+        columns={1}
+        onItemClick={(item) => {
+          setModalContent({
+            title: item.title || item.text || '',
+            content: item.content || item.description || '',
+            icon: MdOutlineRocketLaunch,
+            color: "cyan",
+            isHtml: Boolean(item.content && item.content.includes('<'))
+          });
+          onOpen();
+        }}
+        fallbackItems={[
+          {
+            id: "step-1",
+            level: 2,
+            text: "1. 要件定義",
+            content: "<p>製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。</p>",
+            title: "1. 要件定義",
+            description: "製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。",
+            color: "cyan"
+          },
+          {
+            id: "step-2",
+            level: 2,
+            text: "2. ツール選定",
+            content: "<p>目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。</p>",
+            title: "2. ツール選定",
+            description: "目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。",
+            color: "cyan"
+          },
+          {
+            id: "step-3",
+            level: 2,
+            text: "3. プロンプト作成",
+            content: "<p>AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。</p>",
+            title: "3. プロンプト作成",
+            description: "AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。",
+            color: "cyan"
+          },
+          {
+            id: "step-4",
+            level: 2,
+            text: "4. 生成内容の確認・編集",
+            content: "<p>AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。</p>",
+            title: "4. 生成内容の確認・編集",
+            description: "AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。",
+            color: "cyan"
+          },
+          {
+            id: "step-5",
+            level: 2,
+            text: "5. A/Bテスト・最適化",
+            content: "<p>複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。</p>",
+            title: "5. A/Bテスト・最適化",
+            description: "複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。",
+            color: "cyan"
+          }
+        ]}
+      />
 
-              {/* Jasper */}
-              <Box
-                p={4}
-                bg="whiteAlpha.100"
-                rounded="lg"
-                borderWidth="1px"
-                borderColor="whiteAlpha.200"
-                transition="all 0.3s"
-                _hover={{ 
-                  transform: "translateY(-4px)",
-                  boxShadow: "lg",
-                  bg: "whiteAlpha.200"
-                }}
-              >
-                <VStack align="start" spacing={3}>
-                  <HStack spacing={3}>
-                    <Icon as={FaStar} color="yellow.400" boxSize={5} />
-                    <Text color="cyan.300" fontWeight="bold">Jasper</Text>
-                  </HStack>
-                  <Text color="gray.300" fontSize="sm">
-                    ECサイト向けの商品説明に強みがあり、SEO最適化された製品説明文の生成に適しています。他のマーケティングコンテンツとの連携も容易です。
-                  </Text>
-                </VStack>
-              </Box>
-            </SimpleGrid>
-          </VStack>
-        </Box>
-
-        {/* 導入ステップ */}
-        <Box 
-          w="full"
-          p={6} 
-          bg="whiteAlpha.50" 
-          rounded="lg" 
-          borderWidth="1px" 
-          borderColor="whiteAlpha.200"
-          position="relative"
-          overflow="hidden"
-          _before={{
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "2px",
-            background: "linear-gradient(90deg, orange.400, pink.500)",
-          }}
-        >
-          <VStack align="start" spacing={6}>
-            <HStack spacing={3}>
-              <Icon as={MdTrendingUp} color="orange.400" boxSize={6} />
-              <Heading size="md" color="orange.400">導入ステップ</Heading>
-            </HStack>
-
-            <VStack align="stretch" spacing={4} w="full">
-              {capability.detail10 ? (
-                <RichTextContent html={capability.detail10} />
-              ) : (
-                [
-                {
-                  step: 1,
-                  title: "要件定義と目標設定",
-                  description: "製品説明の作成目的と要件を明確にし、具体的な目標を設定します。"
-                },
-                {
-                  step: 2,
-                  title: "ツールの選定と環境構築",
-                  description: "目的に合わせて最適なAIツールを選定し、必要なアカウント設定を行います。"
-                },
-                {
-                  step: 3,
-                  title: "プロンプトの作成とテスト",
-                  description: "効果的な製品説明を生成するためのプロンプトを作成し、テストを実施します。"
-                },
-                {
-                  step: 4,
-                  title: "品質チェックと改善",
-                  description: "生成された説明文の品質をチェックし、必要に応じて改善を行います。"
-                }
-              ].map((step, index) => (
-                <Box
-                  key={index}
-                  p={4}
-                  bg="whiteAlpha.100"
-                  rounded="md"
-                  position="relative"
-                  transition="all 0.3s"
-                  _hover={{ transform: "translateX(4px)", bg: "whiteAlpha.200" }}
-                >
-                  <Box
-                    position="absolute"
-                    top={-2}
-                    left={-2}
-                    bg="orange.400"
-                    color="white"
-                    rounded="full"
-                    w={6}
-                    h={6}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    fontSize="sm"
-                    fontWeight="bold"
-                  >
-                    {step.step}
-                  </Box>
-                  <VStack align="start" spacing={2} pl={6}>
-                    <Text color="orange.300" fontWeight="bold">
-                      {step.title}
-                    </Text>
-                    <Text color="gray.300">
-                      {step.description}
-                    </Text>
-                  </VStack>
-                </Box>
-                ))
-              )}
-            </VStack>
-          </VStack>
-        </Box>
-      </VStack>
-
-      {/* 注意点と検討項目のセクション */}
+      {/* 注意点・制限事項 */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-        <Box p={6} bg="whiteAlpha.50" rounded="lg" borderWidth="1px" borderColor="whiteAlpha.200">
-          <Heading size="md" color="cyan.400" mb={4}>注意点・制限事項</Heading>
-          <RichTextContent html={capability.detail11 || ""} />
-        </Box>
-        <Box p={6} bg="whiteAlpha.50" rounded="lg" borderWidth="1px" borderColor="whiteAlpha.200">
-          <Heading size="md" color="cyan.400" mb={4}>主要検討項目</Heading>
-          <RichTextContent html={capability.detail12 || ""} />
-        </Box>
+        <RichTextSection
+          title="注意点・制限事項"
+          titleColor="red.400"
+          htmlContent={capability.detail11}
+          icon={MdOutlineWarning}
+          columns={1}
+          onItemClick={(item) => {
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdOutlineWarning,
+              color: "red",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackColor="red"
+        />
+
+        {/* 主要検討項目 */}
+        <RichTextSection
+          title="主要検討項目"
+          titleColor="purple.400"
+          htmlContent={capability.detail12}
+          icon={MdOutlineChecklist}
+          columns={1}
+          onItemClick={(item) => {
+            setModalContent({
+              title: item.title || item.text || '',
+              content: item.content || item.description || '',
+              icon: MdOutlineChecklist,
+              color: "purple",
+              isHtml: Boolean(item.content && item.content.includes('<'))
+            });
+            onOpen();
+          }}
+          fallbackColor="purple"
+        />
       </SimpleGrid>
 
       {/* まとめのセクション */}
@@ -1341,6 +878,14 @@ export default function ToolDetail() {
   const [capability, setCapability] = useState<AICapability | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalContent, setModalContent] = useState<{
+    title: string;
+    content: string;
+    icon?: IconType;
+    color?: string;
+    isHtml?: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const fetchCapability = async () => {
@@ -1412,7 +957,79 @@ export default function ToolDetail() {
       </Box>
 
       {/* 詳細コンテンツ */}
-      <DetailContent capability={capability} />
+      <DetailContent 
+        capability={capability} 
+        onItemClick={(item, type) => {
+          const iconMap = {
+            scenario: MdSubject,
+            effect: MdAutoAwesome
+          };
+          const colorMap = {
+            scenario: 'purple',
+            effect: 'blue'
+          };
+          
+          setModalContent({
+            title: item.title || '',
+            content: item.content || '',
+            icon: iconMap[type as keyof typeof iconMap],
+            color: colorMap[type as keyof typeof colorMap],
+            isHtml: Boolean(item.content && item.content.includes('<'))
+          });
+          onOpen();
+        }}
+      />
+
+      {/* モーダル */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent bg="rgba(10, 10, 26, 0.9)" borderWidth="1px" borderColor="cyan.400" boxShadow="0 0 30px rgba(0, 184, 212, 0.3)">
+          <ModalHeader color="white">
+            {modalContent && (
+              <HStack spacing={3}>
+                {modalContent.icon && (
+                  <Icon as={modalContent.icon} color={`${modalContent.color}.400`} boxSize={6} />
+                )}
+                <Text>{modalContent?.title}</Text>
+              </HStack>
+            )}
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody pb={6}>
+            {modalContent?.isHtml ? (
+              <Box
+                sx={{
+                  'h2, h3, strong': { 
+                    fontSize: 'lg', 
+                    fontWeight: 'bold', 
+                    mb: 3,
+                    color: 'cyan.400',
+                    display: 'block'
+                  },
+                  'p': { 
+                    mb: 4,
+                    color: 'gray.100',
+                    lineHeight: 1.8
+                  },
+                  'ul': { 
+                    pl: 8, 
+                    mb: 6,
+                    color: 'gray.100'
+                  },
+                  'li': { 
+                    mb: 3
+                  }
+                }}
+                dangerouslySetInnerHTML={{ __html: modalContent.content }}
+              />
+            ) : (
+              <Text color="gray.100" lineHeight="1.8">
+                {modalContent?.content}
+              </Text>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Container>
   );
 } 
