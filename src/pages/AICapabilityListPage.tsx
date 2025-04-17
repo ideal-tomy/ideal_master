@@ -759,7 +759,8 @@ const matchCapabilitiesToGroups = (capabilities: AICapability[], groups: AICapab
 
     return {
       ...group,
-      capabilities: matchedCapabilities
+      capabilities: matchedCapabilities.slice(0, 5), // 最初の5件だけを capabilities に格納
+      allCapabilities: matchedCapabilities // 全件は allCapabilities に格納
     };
   });
 
@@ -858,11 +859,14 @@ export default function AICapabilityListPage() {
   const [capabilities, setCapabilities] = useState<AICapability[]>([]);
   const [groupedCapabilities, setGroupedCapabilities] = useState(aiCapabilityGroups.map(group => ({
     ...group,
-    capabilities: []
+    capabilities: [],
+    allCapabilities: [] // 全件格納用の配列も追加
   })));
   const [unmatchedCapabilities, setUnmatchedCapabilities] = useState<AICapability[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // 展開状態を管理するための状態を追加
+  const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({});
 
   const handleRetry = () => {
     setLoading(true);
@@ -879,7 +883,8 @@ export default function AICapabilityListPage() {
       // 初期グループ化データを設定
       setGroupedCapabilities(aiCapabilityGroups.map(group => ({
         ...group,
-        capabilities: []
+        capabilities: [],
+        allCapabilities: [] // 全件格納用の配列も追加
       })));
 
       const response = await getCapabilities();
@@ -989,88 +994,110 @@ export default function AICapabilityListPage() {
                         <AccordionPanel pb={4} bg="rgba(0, 184, 212, 0.02)">
                           <VStack align="stretch" spacing={4}>
                             {group.capabilities && group.capabilities.length > 0 ? (
-                              group.capabilities.map(cap => {
-                                return (
-                                  <RouterLink 
-                                    key={cap.id}
-                                    to={`/tools/${cap.id}`}
-                                    style={{ textDecoration: 'none' }}
-                                  >
-                                    <Box 
-                                      p={4}
-                                      borderRadius="md"
-                                      bg="rgba(75, 0, 130, 0.2)"
-                                      height="110px"
-                                      display="flex"
-                                      flexDirection="column"
-                                      border="1px solid rgba(138, 43, 226, 0.2)"
-                                      transition="all 0.3s ease"
-                                      position="relative"
-                                      overflow="hidden"
-                                      _hover={{
-                                        bg: "rgba(75, 0, 130, 0.3)",
-                                        transform: "translateY(-2px)",
-                                        boxShadow: "0 4px 12px rgba(138, 43, 226, 0.15)",
-                                        borderColor: "rgba(138, 43, 226, 0.4)",
-                                        "&::after": {
-                                          content: '""',
-                                          position: "absolute",
-                                          top: "-50%",
-                                          left: "-50%",
-                                          width: "200%",
-                                          height: "200%",
-                                          background: "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 52%, transparent 55%)",
-                                          transform: "rotate(45deg)",
-                                          animation: "shine 1.5s ease-in-out",
-                                        }
-                                      }}
-                                      sx={{
-                                        "@keyframes shine": {
-                                          "0%": {
-                                            transform: "translateX(-100%) rotate(45deg)",
-                                          },
-                                          "100%": {
-                                            transform: "translateX(100%) rotate(45deg)",
-                                          }
-                                        }
-                                      }}
+                              <>
+                                {(expandedGroups[group.id] ? group.allCapabilities : group.capabilities).map(cap => {
+                                  return (
+                                    <RouterLink 
+                                      key={cap.id}
+                                      to={`/tools/${cap.id}`}
+                                      style={{ textDecoration: 'none' }}
                                     >
-                                      <HStack spacing={2} mb={3} alignItems="center">
-                                        <Text 
-                                          fontSize="sm" 
-                                          color="cyan.300"
-                                          fontWeight="bold"
-                                          noOfLines={1}
-                                          flex="1"
-                                        >
-                                          {cap.title}
-                                        </Text>
-                                        {cap.category && cap.category[0] && (
-                                          <Tag
-                                            size="sm"
-                                            variant="solid"
-                                            colorScheme="orange"
-                                            px={2}
-                                            py={1}
-                                            borderRadius="full"
-                                            flexShrink={0}
-                                          >
-                                            {getCategoryDisplayName(cap.category[0])}
-                                          </Tag>
-                                        )}
-                                      </HStack>
-                                      <Text 
-                                        fontSize="xs" 
-                                        color="gray.200"
-                                        lineHeight="1.4"
-                                        noOfLines={2}
+                                      <Box 
+                                        p={4}
+                                        borderRadius="md"
+                                        bg="rgba(75, 0, 130, 0.2)"
+                                        height="110px"
+                                        display="flex"
+                                        flexDirection="column"
+                                        border="1px solid rgba(138, 43, 226, 0.2)"
+                                        transition="all 0.3s ease"
+                                        position="relative"
+                                        overflow="hidden"
+                                        _hover={{
+                                          bg: "rgba(75, 0, 130, 0.3)",
+                                          transform: "translateY(-2px)",
+                                          boxShadow: "0 4px 12px rgba(138, 43, 226, 0.15)",
+                                          borderColor: "rgba(138, 43, 226, 0.4)",
+                                          "&::after": {
+                                            content: '""',
+                                            position: "absolute",
+                                            top: "-50%",
+                                            left: "-50%",
+                                            width: "200%",
+                                            height: "200%",
+                                            background: "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 52%, transparent 55%)",
+                                            transform: "rotate(45deg)",
+                                            animation: "shine 1.5s ease-in-out",
+                                          }
+                                        }}
+                                        sx={{
+                                          "@keyframes shine": {
+                                            "0%": {
+                                              transform: "translateX(-100%) rotate(45deg)",
+                                            },
+                                            "100%": {
+                                              transform: "translateX(100%) rotate(45deg)",
+                                            }
+                                          }
+                                        }}
                                       >
-                                        {cap.description}
-                                      </Text>
-                                    </Box>
-                                  </RouterLink>
-                                );
-                              })
+                                        <HStack spacing={2} mb={3} alignItems="center">
+                                          <Text 
+                                            fontSize="sm" 
+                                            color="cyan.300"
+                                            fontWeight="bold"
+                                            noOfLines={1}
+                                            flex="1"
+                                          >
+                                            {cap.title}
+                                          </Text>
+                                          {cap.category && cap.category[0] && (
+                                            <Tag
+                                              size="sm"
+                                              variant="solid"
+                                              colorScheme="orange"
+                                              px={2}
+                                              py={1}
+                                              borderRadius="full"
+                                              flexShrink={0}
+                                            >
+                                              {getCategoryDisplayName(cap.category[0])}
+                                            </Tag>
+                                          )}
+                                        </HStack>
+                                        <Text 
+                                          fontSize="xs" 
+                                          color="gray.200"
+                                          lineHeight="1.4"
+                                          noOfLines={2}
+                                        >
+                                          {cap.description}
+                                        </Text>
+                                      </Box>
+                                    </RouterLink>
+                                  );
+                                })}
+                                
+                                {group.allCapabilities && group.allCapabilities.length > 5 && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    colorScheme="cyan" 
+                                    w="full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedGroups(prev => ({
+                                        ...prev,
+                                        [group.id]: !prev[group.id]
+                                      }));
+                                    }}
+                                  >
+                                    {expandedGroups[group.id] 
+                                      ? "表示を減らす" 
+                                      : `もっと見る (あと${group.allCapabilities.length - 5}件)`}
+                                  </Button>
+                                )}
+                              </>
                             ) : (
                               <Text color="gray.400" textAlign="center" py={2}>
                                 該当する機能が見つかりませんでした
