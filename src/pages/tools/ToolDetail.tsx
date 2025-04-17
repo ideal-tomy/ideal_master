@@ -1057,43 +1057,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability }) => {
         </Box>
       </SimpleGrid>
 
-      {/* HTMLコンテンツを表示するセクション */}
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-        {/* 左側：見出しリスト */}
-        <Box
-          p={6}
-          bg="whiteAlpha.50"
-          rounded="lg"
-          borderWidth="1px"
-          borderColor="whiteAlpha.200"
-        >
-          <Heading size="md" color="cyan.400" mb={4}>目次</Heading>
-          <HeadingsList content={capability.detail || ''} />
-        </Box>
-        
-        {/* 右側：説明 */}
-        <Box
-          p={6}
-          bg="rgba(255, 255, 255, 0.05)"
-          backdropFilter="blur(10px)"
-          borderWidth="1px"
-          borderColor="whiteAlpha.200"
-          rounded="lg"
-          boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-        >
-          <VStack align="start" spacing={4}>
-            <Heading size="md" color="cyan.400">使い方</Heading>
-            <Text color="gray.100">
-              左側の目次から項目をクリックすると、詳細な内容がポップアップで表示されます。
-            </Text>
-            <HStack spacing={2} color="cyan.300">
-              <Icon as={MdArrowForward} />
-              <Text fontWeight="bold">クリックして詳細を確認</Text>
-            </HStack>
-          </VStack>
-        </Box>
-      </SimpleGrid>
-
       {/* ツールと導入のセクション */}
       <VStack spacing={6} w="full">
         {/* おすすめツール */}
