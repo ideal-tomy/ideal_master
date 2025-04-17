@@ -24,7 +24,7 @@ import {
   ListItem,
   Icon
 } from '@chakra-ui/react';
-import { MdBusinessCenter, MdWork, MdTaskAlt, MdSubject, MdAutoAwesome, MdConstruction, MdOutlineRocketLaunch, MdOutlineWarning, MdOutlineChecklist } from 'react-icons/md';
+import { MdBusinessCenter, MdWork, MdTaskAlt, MdSubject, MdAutoAwesome, MdConstruction, MdOutlineRocketLaunch, MdOutlineWarning, MdOutlineChecklist, MdArrowForward } from 'react-icons/md';
 import { FaStar, FaLightbulb, FaChartLine, FaBullseye } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { getCapabilityById } from '@/lib/api/capabilities';
@@ -702,70 +702,120 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }
       </Box>
 
       {/* 実装ステップ */}
-      <RichTextSection
-        title="実装ステップ"
-        titleColor="cyan.400"
-        htmlContent={capability.detail10}
-        icon={MdOutlineRocketLaunch}
-        columns={1}
-        onItemClick={(item) => {
-          setModalContent({
-            title: item.title || item.text || '',
-            content: item.content || item.description || '',
-            icon: MdOutlineRocketLaunch,
-            color: "cyan",
-            isHtml: Boolean(item.content && item.content.includes('<'))
-          });
-          onOpen();
-        }}
-        fallbackItems={[
-          {
-            id: "step-1",
-            level: 2,
-            text: "1. 要件定義",
-            content: "<p>製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。</p>",
-            title: "1. 要件定義",
-            description: "製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。",
-            color: "cyan"
-          },
-          {
-            id: "step-2",
-            level: 2,
-            text: "2. ツール選定",
-            content: "<p>目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。</p>",
-            title: "2. ツール選定",
-            description: "目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。",
-            color: "cyan"
-          },
-          {
-            id: "step-3",
-            level: 2,
-            text: "3. プロンプト作成",
-            content: "<p>AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。</p>",
-            title: "3. プロンプト作成",
-            description: "AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。",
-            color: "cyan"
-          },
-          {
-            id: "step-4",
-            level: 2,
-            text: "4. 生成内容の確認・編集",
-            content: "<p>AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。</p>",
-            title: "4. 生成内容の確認・編集",
-            description: "AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。",
-            color: "cyan"
-          },
-          {
-            id: "step-5",
-            level: 2,
-            text: "5. A/Bテスト・最適化",
-            content: "<p>複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。</p>",
-            title: "5. A/Bテスト・最適化",
-            description: "複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。",
-            color: "cyan"
-          }
-        ]}
-      />
+      <Box mb={8}>
+        <Heading size="lg" color="cyan.400" mb={6} display="flex" alignItems="center">
+          <Icon as={MdArrowForward} mr={3} boxSize={6} />
+          実装ステップ
+        </Heading>
+        <SimpleGrid columns={{ base: 1, md: 1 }} spacing={6}>
+          {(() => {
+            const stepItems = extractContentItems(capability.detail10 || "");
+            const hasSteps = stepItems.length > 0;
+            const stepsToShow = hasSteps ? stepItems : [
+              {
+                id: "step-1",
+                level: 2,
+                text: "1. 要件定義",
+                content: "<p>製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。</p>",
+                title: "1. 要件定義",
+                description: "製品説明の目的、対象読者、掲載プラットフォーム、必要な情報、トーン・スタイルを明確にします。",
+                color: "cyan"
+              },
+              {
+                id: "step-2",
+                level: 2,
+                text: "2. ツール選定",
+                content: "<p>目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。</p>",
+                title: "2. ツール選定",
+                description: "目的に合わせたAIツールを選択します。汎用性が必要ならOpenAI GPT-4、特化型ならCopy.aiやJasperなどが候補です。",
+                color: "cyan"
+              },
+              {
+                id: "step-3",
+                level: 2,
+                text: "3. プロンプト作成",
+                content: "<p>AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。</p>",
+                title: "3. プロンプト作成",
+                description: "AIに製品特徴、顧客メリット、ターゲットユーザー、差別化ポイントなどを具体的に指示します。",
+                color: "cyan"
+              },
+              {
+                id: "step-4",
+                level: 2,
+                text: "4. 生成内容の確認・編集",
+                content: "<p>AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。</p>",
+                title: "4. 生成内容の確認・編集",
+                description: "AIが生成した内容の正確性を確認し、必要に応じて編集。ブランドガイドラインとの一貫性も確保します。",
+                color: "cyan"
+              },
+              {
+                id: "step-5",
+                level: 2,
+                text: "5. A/Bテスト・最適化",
+                content: "<p>複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。</p>",
+                title: "5. A/Bテスト・最適化",
+                description: "複数のバージョンを作成してユーザー反応を測定。コンバージョン率やエンゲージメント指標に基づいて最適化します。",
+                color: "cyan"
+              }
+            ];
+
+            return stepsToShow.map((step, index) => (
+              <Box
+                key={index}
+                p={5}
+                bg="rgba(0, 184, 212, 0.08)"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="cyan.600"
+                cursor="pointer"
+                transition="all 0.3s"
+                position="relative"
+                _hover={{ transform: "translateY(-5px)", boxShadow: "0 10px 15px -3px rgba(0, 184, 212, 0.3)" }}
+                _before={{
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: 'md',
+                  pointerEvents: 'none',
+                  background: 'linear-gradient(45deg, transparent 0%, rgba(0, 184, 212, 0.3) 50%, transparent 100%)',
+                  backgroundSize: '200% 200%',
+                  animation: 'flashAnimation 2s infinite',
+                  opacity: 0.6
+                }}
+                sx={{
+                  '@keyframes flashAnimation': {
+                    '0%': { backgroundPosition: '200% 0' },
+                    '100%': { backgroundPosition: '-200% 0' }
+                  }
+                }}
+                onClick={() => {
+                  setModalContent({
+                    title: step.title || step.text || '',
+                    content: step.content || step.description || '',
+                    icon: MdArrowForward,
+                    color: "cyan",
+                    isHtml: Boolean(step.content && step.content.includes('<'))
+                  });
+                  onOpen();
+                }}
+              >
+                <VStack align="start" spacing={3}>
+                  <Heading size="md" color="cyan.400">
+                    {step.title || step.text}
+                  </Heading>
+                  <HStack pt={2}>
+                    <Icon as={MdArrowForward} color="cyan.400" />
+                    <Text fontSize="xs" color="cyan.400">詳細を見る</Text>
+                  </HStack>
+                </VStack>
+              </Box>
+            ));
+          })()}
+        </SimpleGrid>
+      </Box>
 
       {/* 注意点・制限事項 */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
