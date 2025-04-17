@@ -38,25 +38,9 @@ import { IconType } from 'react-icons';
 import { getCapabilityById } from '@/lib/api/capabilities';
 import { AICapability } from '@/types/capability';
 import { RelatedCapability } from '@/types/tool';
-import { FiTrendingUp } from 'react-icons/fi';
 
 // アニメーションスタイルの定義
-const animations = {
-  styles: {
-    global: {
-      "@keyframes pulse": {
-        "0%": { transform: "scale(1)" },
-        "50%": { transform: "scale(1.02)" },
-        "100%": { transform: "scale(1)" }
-      },
-      "@keyframes flash": {
-        "0%": { boxShadow: "0 0 0 0 rgba(255, 146, 3, 0.4)" },
-        "70%": { boxShadow: "0 0 0 10px rgba(255, 146, 3, 0)" },
-        "100%": { boxShadow: "0 0 0 0 rgba(255, 146, 3, 0)" }
-      }
-    }
-  }
-};
+const pulseShadow = "0px 0px 10px rgba(0, 184, 212, 0.3)";
 
 // アコーディオンアイテムのコンポーネント
 interface AccordionCustomItemProps {
@@ -351,10 +335,24 @@ const ScenarioItem: React.FC<{
     bg="whiteAlpha.100"
     rounded="md"
     cursor="pointer"
+    position="relative"
+    transition="all 0.3s ease"
+    overflow="hidden"
+    boxShadow={pulseShadow}
+    _before={{
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(45deg, rgba(0,184,212,0.1) 0%, rgba(0,184,212,0) 70%)',
+      opacity: 0.5,
+    }}
     _hover={{
-      bg: "whiteAlpha.200",
-      transform: "translateX(4px)",
-      transition: "all 0.2s"
+      bg: "rgba(0, 184, 212, 0.15)",
+      transform: "translateX(5px)",
+      boxShadow: "0 0 20px 5px rgba(0, 184, 212, 0.25)"
     }}
     onClick={onClick}
   >
@@ -386,10 +384,23 @@ const EffectItem: React.FC<{
     rounded="md"
     position="relative"
     cursor="pointer"
+    transition="all 0.3s ease"
+    overflow="hidden"
+    boxShadow={`0px 0px 10px rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.2)`}
+    _before={{
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '3px',
+      height: '100%',
+      background: `${color}.400`,
+      opacity: 0.8,
+    }}
     _hover={{
-      bg: "whiteAlpha.200",
-      transform: "translateX(4px)",
-      transition: "all 0.2s"
+      bg: `rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.15)`,
+      transform: "translateX(5px)",
+      boxShadow: `0 0 20px 5px rgba(${color === 'green' ? '72, 187, 120' : '237, 137, 54'}, 0.2)`
     }}
     onClick={onClick}
   >
@@ -522,16 +533,29 @@ const HeadingListItem2: React.FC<HeadingItemProps> = ({ title, headingType, onCl
     <ListItem 
       p={2} 
       cursor="pointer" 
-      _hover={{ bg: 'gray.100' }} 
       borderRadius="md"
       onClick={onClick}
+      position="relative"
+      transition="all 0.3s ease"
+      _hover={{ 
+        bg: 'rgba(0, 184, 212, 0.15)', 
+        transform: 'translateX(5px)',
+        boxShadow: '0 0 15px 2px rgba(0, 184, 212, 0.3)'
+      }}
+      sx={{
+        boxShadow: pulseShadow,
+      }}
     >
       <HStack>
         <Icon 
           as={headingType === 'h2' ? MdBusinessCenter : MdWork} 
-          color={headingType === 'h2' ? 'blue.500' : 'green.500'} 
+          color={headingType === 'h2' ? 'cyan.400' : 'cyan.300'} 
         />
-        <Text fontWeight={headingType === 'h2' ? 'bold' : 'medium'}>
+        <Text 
+          fontWeight={headingType === 'h2' ? 'bold' : 'medium'}
+          color="white"
+          _hover={{ color: 'cyan.200' }}
+        >
           {title}
         </Text>
       </HStack>
