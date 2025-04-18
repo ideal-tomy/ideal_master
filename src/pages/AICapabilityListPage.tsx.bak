@@ -7,42 +7,26 @@ import {
   VStack,
   HStack,
   Tag,
+  Link,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  SimpleGrid,
   Accordion,
   AccordionItem,
   AccordionButton,
   AccordionPanel,
+  AccordionIcon,
   Grid,
   Button,
   Spinner,
   IconButton,
-  Flex,
 } from '@chakra-ui/react';
-import { 
-  SearchIcon, 
-  CloseIcon, 
-  EditIcon, 
-  AtSignIcon as EmailIcon,
-  LinkIcon as CodeIcon,
-  TimeIcon as AutomateIcon,
-  ViewIcon as AnalyticsIcon,
-  StarIcon as SalesIcon,
-  PhoneIcon as SupportIcon,
-  AtSignIcon as TranslateIcon,
-  CopyIcon as SummarizeIcon,
-  ChatIcon as MicIcon,
-  SmallAddIcon as PeopleIcon,
-  SettingsIcon as FinanceIcon,
-  BellIcon as MarketingIcon,
-  ChevronDownIcon as VideoIcon,
-  DownloadIcon as ImageIcon,
-} from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
-import { getCapabilities } from '../lib/api/capabilities';
-import { AICapability } from '../types/capability';
+import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import { Link as RouterLink, useParams } from 'react-router-dom';
+import { getCapabilities, getCapabilityById } from '../lib/api/capabilities';
+import { AICapability, AICapabilityResponse } from '../types/capability';
 
 // categories.yamlの定義をベースにしたカテゴリ情報
 const CATEGORIES = {
@@ -766,6 +750,26 @@ interface MatchResult {
   matchedKeywords: string[];
 }
 
+// グループと詳細記事のマッピング関数を改善
+const matchCapabilitiesToGroups = (capabilities: AICapability[], groups: AICapabilityGroup[]) => {
+  const groupedCapabilities = groups.map(group => {
+    // キーワードベースでマッチング
+    const matchedCapabilities = capabilities.filter(cap => {
+      const matchResult = calculateMatchScore(cap, group);
+      // スコアが一定以上の場合にマッチとみなす
+      return matchResult.score >= 0.3; // 閾値は調整可能
+    });
+
+    return {
+      ...group,
+      capabilities: matchedCapabilities.slice(0, 5), // 最初の5件だけを capabilities に格納
+      allCapabilities: matchedCapabilities // 全件は allCapabilities に格納
+    };
+  });
+
+  return groupedCapabilities;
+};
+
 // 改善されたマッチングスコア計算関数
 const calculateMatchScore = (cap: AICapability, group: AICapabilityGroup): MatchResult => {
   let score = 0;
@@ -831,52 +835,12 @@ const calculateMatchScore = (cap: AICapability, group: AICapabilityGroup): Match
     });
   }
   
-  // 新しさに基づくボーナススコア（記事が30日以内に公開された場合）
-  if (cap.publishedAt) {
-    const publishDate = new Date(cap.publishedAt);
-    const currentDate = new Date();
-    const daysDifference = Math.floor((currentDate.getTime() - publishDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysDifference <= 14) {  // 2週間以内は大きなボーナス
-      score += 40;
-    } else if (daysDifference <= 30) {  // 1ヶ月以内は中程度のボーナス
-      score += 20;
-    }
-  }
-  
   // デバッグログ（必要に応じてコメントアウト）
   if (score > 0) {
     console.log(`マッチング "${cap.title}" -> "${group.title}" スコア: ${score}, キーワード: ${matchedKeywords.join(', ')}`);
   }
   
   return { score, matchedKeywords };
-};
-
-// グループと詳細記事のマッピング関数を改善
-const matchCapabilitiesToGroups = (capabilities: AICapability[], groups: AICapabilityGroup[]) => {
-  const groupedCapabilities = groups.map(group => {
-    // キーワードベースでマッチング
-    const matchedCapabilities = capabilities.filter(cap => {
-      const matchResult = calculateMatchScore(cap, group);
-      // スコアが一定以上の場合にマッチとみなす
-      return matchResult.score >= 0.3; // 閾値は調整可能
-    });
-
-    // スコアに基づいてソート（関連性と新しさの組み合わせでソート）
-    const sortedCapabilities = matchedCapabilities.sort((a, b) => {
-      const scoreA = calculateMatchScore(a, group).score;
-      const scoreB = calculateMatchScore(b, group).score;
-      return scoreB - scoreA; // 降順
-    });
-
-    return {
-      ...group,
-      capabilities: sortedCapabilities.slice(0, 5), // 最初の5件だけを capabilities に格納
-      allCapabilities: sortedCapabilities // 全件は allCapabilities に格納
-    };
-  });
-
-  return groupedCapabilities;
 };
 
 // 未マッチの記事を取得する関数（将来的なタイトル追加のため）
@@ -946,27 +910,29 @@ const calculateSearchScore = (group: AICapabilityGroup, query: string): number =
   return totalScore;
 };
 
-// 人気タグ定義（15項目）
-const POPULAR_TAGS = [
-  // 基本カテゴリ（10項目）
-  { label: "文章作成", keyword: "文章 作成 レポート", icon: <EditIcon boxSize={3} /> },
-  { label: "画像生成", keyword: "画像 生成 イラスト", icon: <ImageIcon boxSize={3} /> },
-  { label: "データ分析", keyword: "データ 分析 グラフ", icon: <AnalyticsIcon boxSize={3} /> },
-  { label: "音声認識", keyword: "音声 文字起こし 議事録", icon: <MicIcon boxSize={3} /> },
-  { label: "翻訳", keyword: "翻訳 多言語", icon: <TranslateIcon boxSize={3} /> },
-  { label: "コード生成", keyword: "プログラミング コード", icon: <CodeIcon boxSize={3} /> },
-  { label: "メール対応", keyword: "メール 返信", icon: <EmailIcon boxSize={3} /> },
-  { label: "要約", keyword: "要約 抽出", icon: <SummarizeIcon boxSize={3} /> },
-  { label: "動画編集", keyword: "動画 字幕", icon: <VideoIcon boxSize={3} /> },
-  { label: "業務効率化", keyword: "効率化 自動化", icon: <AutomateIcon boxSize={3} /> },
+// 検索実行関数
+const handleSearch = (query: string) => {
+  setSearchQuery(query);
   
-  // 業種別カテゴリ（5項目）
-  { label: "営業支援", keyword: "営業 提案書 顧客", icon: <SalesIcon boxSize={3} /> },
-  { label: "人事管理", keyword: "採用 人事 評価", icon: <PeopleIcon boxSize={3} /> },
-  { label: "財務分析", keyword: "財務 予算 会計", icon: <FinanceIcon boxSize={3} /> },
-  { label: "マーケティング", keyword: "マーケティング 広告", icon: <MarketingIcon boxSize={3} /> },
-  { label: "カスタマーサポート", keyword: "サポート 問い合わせ", icon: <SupportIcon boxSize={3} /> },
-];
+  if (!query.trim()) {
+    setIsFiltering(false);
+    return;
+  }
+  
+  // 検索スコアでグループをフィルタリング
+  const scored = groupedCapabilities.map(group => ({
+    group,
+    score: calculateSearchScore(group, query)
+  }));
+  
+  const filtered = scored
+    .filter(item => item.score >= 40) // 閾値は調整可能
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.group);
+  
+  setFilteredGroups(filtered);
+  setIsFiltering(true);
+};
 
 export default function AICapabilityListPage() {
   // 初期値を空配列に設定
@@ -983,11 +949,8 @@ export default function AICapabilityListPage() {
   const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({});
   // 検索関連の状態を追加
   const [searchQuery, setSearchQuery] = useState('');
-  const [inputValue, setInputValue] = useState(''); // 入力中の値を保持
   const [filteredGroups, setFilteredGroups] = useState<AICapabilityGroup[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  // 検索履歴の状態を追加
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const handleRetry = () => {
     setLoading(true);
@@ -1043,82 +1006,7 @@ export default function AICapabilityListPage() {
 
   useEffect(() => {
     fetchCapabilities();
-
-    // ローカルストレージから検索履歴を読み込む
-    const savedHistory = localStorage.getItem('searchHistory');
-    if (savedHistory) {
-      try {
-        const parsedHistory = JSON.parse(savedHistory);
-        if (Array.isArray(parsedHistory)) {
-          setSearchHistory(parsedHistory);
-        }
-      } catch (e) {
-        console.error('Failed to parse search history:', e);
-      }
-    }
   }, []);
-
-  // 入力値が変更された時の処理（検索は実行しない）
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  // 検索を実行する関数
-  const executeSearch = (query: string) => {
-    setSearchQuery(query);
-    
-    if (!query.trim()) {
-      setIsFiltering(false);
-      return;
-    }
-    
-    // 検索スコアでグループをフィルタリング
-    const scored = groupedCapabilities.map(group => ({
-      group,
-      score: calculateSearchScore(group, query)
-    }));
-    
-    const filtered = scored
-      .filter(item => item.score >= 40) // 閾値は調整可能
-      .sort((a, b) => b.score - a.score)
-      .map(item => item.group);
-    
-    setFilteredGroups(filtered);
-    setIsFiltering(true);
-
-    // 検索履歴に追加（重複を避ける）
-    if (query.trim() && !searchHistory.includes(query.trim())) {
-      const newHistory = [query.trim(), ...searchHistory].slice(0, 5); // 最大5件まで保存
-      setSearchHistory(newHistory);
-      // ローカルストレージに保存
-      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-    }
-  };
-
-  // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    executeSearch(inputValue);
-  };
-
-  // 検索のクリア
-  const clearSearch = () => {
-    setSearchQuery('');
-    setInputValue('');
-    setIsFiltering(false);
-  };
-
-  // 検索履歴から検索を実行
-  const searchFromHistory = (query: string) => {
-    setInputValue(query);
-    executeSearch(query);
-  };
-
-  // 検索履歴をクリア
-  const clearSearchHistory = () => {
-    setSearchHistory([]);
-    localStorage.removeItem('searchHistory');
-  };
 
   // レンダリング部分
   return (
@@ -1144,47 +1032,35 @@ export default function AICapabilityListPage() {
           </Box>
 
           {/* 検索UIコンポーネント - ヘッダー下に追加 */}
-          <Box mb={8} px={4}>
-            <form onSubmit={handleSubmit}>
-              <HStack spacing={2} maxW="800px" mx="auto">
-                <InputGroup size="lg">
-                  <InputLeftElement pointerEvents="none">
-                    <SearchIcon color="gray.400" />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="AIにやってほしいことを入力してください..."
-                    bg="whiteAlpha.50"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.400' }}
-                    _hover={{ borderColor: 'cyan.300' }}
-                    _focus={{ borderColor: 'cyan.400', boxShadow: '0 0 0 1px #00B8D4' }}
-                    value={inputValue}
-                    onChange={handleInputChange}
+          <Box mb={12} px={4}>
+            <InputGroup size="lg" maxW="800px" mx="auto">
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.400" />
+              </InputLeftElement>
+              <Input
+                placeholder="AIにやってほしいことを入力してください..."
+                bg="whiteAlpha.50"
+                borderColor="whiteAlpha.200"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+                _hover={{ borderColor: 'cyan.300' }}
+                _focus={{ borderColor: 'cyan.400', boxShadow: '0 0 0 1px #00B8D4' }}
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+              {searchQuery && (
+                <InputRightElement>
+                  <IconButton
+                    aria-label="検索をクリア"
+                    icon={<CloseIcon />}
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="whiteAlpha"
+                    onClick={() => handleSearch('')}
                   />
-                  {inputValue && (
-                    <InputRightElement>
-                      <IconButton
-                        aria-label="検索をクリア"
-                        icon={<CloseIcon />}
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="whiteAlpha"
-                        onClick={clearSearch}
-                      />
-                    </InputRightElement>
-                  )}
-                </InputGroup>
-                <Button 
-                  type="submit" 
-                  colorScheme="cyan" 
-                  size="lg"
-                  isDisabled={!inputValue.trim()}
-                >
-                  検索
-                </Button>
-              </HStack>
-            </form>
+                </InputRightElement>
+              )}
+            </InputGroup>
             
             {/* 検索結果カウント */}
             {isFiltering && (
@@ -1193,72 +1069,6 @@ export default function AICapabilityListPage() {
                   ? `${filteredGroups.length}件の候補が見つかりました` 
                   : '検索結果が見つかりませんでした'}
               </Text>
-            )}
-
-            {/* 人気カテゴリタグ */}
-            <Box mt={4} mb={8} mx="auto" maxW="800px">
-              <Text fontSize="sm" color="gray.400" mb={3}>人気のカテゴリ:</Text>
-              <Flex flexWrap="wrap" gap={2} justifyContent="center">
-                {POPULAR_TAGS.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    size="md"
-                    borderRadius="full"
-                    variant="subtle"
-                    colorScheme="purple"
-                    cursor="pointer"
-                    onClick={() => {
-                      setInputValue(tag.keyword);
-                      executeSearch(tag.keyword);
-                    }}
-                    _hover={{ 
-                      bg: "purple.600", 
-                      color: "white", 
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.15)"
-                    }}
-                    transition="all 0.2s"
-                    px={3}
-                    py={1.5}
-                    m={1}
-                  >
-                    {tag.icon && <Box as="span" mr={1.5}>{tag.icon}</Box>}
-                    {tag.label}
-                  </Tag>
-                ))}
-              </Flex>
-            </Box>
-
-            {/* 検索履歴表示 */}
-            {searchHistory.length > 0 && !isFiltering && (
-              <Box mt={4} maxW="800px" mx="auto">
-                <HStack spacing={2} mb={2} justifyContent="space-between">
-                  <Text fontSize="xs" color="gray.400">最近の検索:</Text>
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    colorScheme="whiteAlpha"
-                    onClick={clearSearchHistory}
-                  >
-                    履歴をクリア
-                  </Button>
-                </HStack>
-                <HStack spacing={2} flexWrap="wrap">
-                  {searchHistory.map((item, index) => (
-                    <Tag
-                      key={index}
-                      size="sm"
-                      variant="outline"
-                      colorScheme="cyan"
-                      cursor="pointer"
-                      onClick={() => searchFromHistory(item)}
-                      mb={2}
-                    >
-                      {item}
-                    </Tag>
-                  ))}
-                </HStack>
-              </Box>
             )}
           </Box>
 
