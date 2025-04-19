@@ -1371,19 +1371,6 @@ export default function AICapabilityListPage() {
                                           {cap.publishedAt && new Date() < new Date(new Date(cap.publishedAt).getTime() + 14 * 24 * 60 * 60 * 1000) && (
                                             <Tag size="sm" colorScheme="red" mr={1}>NEW</Tag>
                                           )}
-                                          {cap.category && cap.category[0] && (
-                                            <Tag
-                                              size="sm"
-                                              variant="solid"
-                                              colorScheme="orange"
-                                              px={2}
-                                              py={1}
-                                              borderRadius="full"
-                                              flexShrink={0}
-                                            >
-                                              {getCategoryDisplayName(cap.category[0])}
-                                            </Tag>
-                                          )}
                                         </HStack>
                                         <Text 
                                           fontSize="xs" 
