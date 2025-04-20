@@ -1288,20 +1288,37 @@ export default function AICapabilityListPage() {
                           _expanded={{ bg: 'transparent' }}
                         >
                           <Box 
-                            p={6} 
+                            px={5}     // 左右のパディングは維持
+                            pt={5}     // 上部パディングは維持
+                            pb={1}     // 下部パディングを小さく
                             width="100%" 
-                            height="140px"  // 固定の高さを設定
+                            height="125px"  // 高さをさらに縮小
                             display="flex"
                             flexDirection="column"
-                            justifyContent="space-between"
+                            justifyContent="flex-start"
                           >
-                            <Heading size="md" mb={3} color="cyan.400">
+                            <Heading 
+                              size="md" 
+                              mb={1}
+                              color="cyan.400"
+                              noOfLines={2}
+                              fontSize={{ base: "md", lg: "lg" }}
+                              sx={{
+                                fontSize: "clamp(14px, 1.1vw, 18px)",
+                                lineHeight: "1.3"
+                              }}
+                            >
                               {group.title}
                             </Heading>
                             <Text 
                               color="gray.300" 
                               fontSize="sm"
-                              noOfLines={2}  // 2行に制限
+                              noOfLines={2}
+                              lineHeight="1.4"
+                              mt={1}
+                              sx={{
+                                fontSize: "clamp(12px, 0.9vw, 14px)"
+                              }}
                             >
                               {group.description}
                             </Text>
