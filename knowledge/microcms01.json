@@ -1,0 +1,173 @@
+[
+    {
+      "fieldId": "title",
+      "name": "タイトル",
+      "type": "text"
+    },
+    {
+      "fieldId": "description",
+      "name": "概要文（一覧用）",
+      "type": "textArea"
+    },
+    {
+      "fieldId": "thumbnail",
+      "name": "サムネイル画像",
+      "type": "image"
+    },
+    {
+      "fieldId": "caseType",
+      "name": "事例カテゴリ",
+      "type": "select",
+      "selectItems": [
+        "AI活用",
+        "Webサイト制作",
+        "ブロックチェーン",
+        "英語コンサル",
+        "ゲーム制作",
+        "VR/メタバース",
+        "業務効率化"
+      ]
+    },
+    {
+      "fieldId": "coreTechnologies",
+      "name": "使用技術（領域）",
+      "type": "select",
+      "selectItems": [
+        "GPT",
+        "Stable Diffusion",
+        "Whisper",
+        "RAG",
+        "Claude",
+        "Cursor",
+        "WindSurf",
+        "EVM",
+        "Solidity",
+        "Unity",
+        "LangChain"
+      ],
+      "multiple": true
+    },
+    {
+      "fieldId": "frameworks",
+      "name": "使用技術（実装）",
+      "type": "select",
+      "selectItems": [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "JavaScript",
+        "Vite",
+        "Tailwind CSS",
+        "Chakra UI",
+        "GitHub",
+        "Vercel",
+        "Firebase",
+        "microCMS"
+      ],
+      "multiple": true
+    },
+    {
+      "fieldId": "purposeTags",
+      "name": "目的タグ",
+      "type": "select",
+      "selectItems": [
+        "業務効率化",
+        "クリエイティブ",
+        "時短",
+        "品質向上",
+        "エラー削減",
+        "教育・研修",
+        "営業支援",
+        "課題解決",
+        "コスト削減"
+      ],
+      "multiple": true
+    },
+    {
+      "fieldId": "industry",
+      "name": "対象業種",
+      "type": "select",
+      "selectItems": [
+        "医療",
+        "教育",
+        "IT",
+        "製造業",
+        "サービス業",
+        "行政",
+        "小売・EC",
+        "士業",
+        "建設・不動産"
+      ]
+    },
+    {
+      "fieldId": "roles",
+      "name": "関係職種",
+      "type": "select",
+      "selectItems": [
+        "エンジニア",
+        "プログラマー",
+        "マーケター",
+        "営業",
+        "人事",
+        "デザイナー",
+        "経営者"
+      ],
+      "multiple": true
+    },
+    {
+      "fieldId": "problems",
+      "name": "解決できる課題",
+      "type": "textArea"
+    },
+    {
+      "fieldId": "effects",
+      "name": "期待できる効果",
+      "type": "textArea"
+    },
+    {
+      "fieldId": "implementationSteps",
+      "name": "実装までの流れ",
+      "type": "textArea"
+    },
+    {
+      "fieldId": "demoType",
+      "name": "デモタイプ",
+      "type": "select",
+      "selectItems": [
+        "demoTool",
+        "demoVideo",
+        "articleOnly"
+      ]
+    },
+    {
+      "fieldId": "demoUrl",
+      "name": "デモURL（体験用）",
+      "type": "text"
+    },
+    {
+      "fieldId": "videoUrl",
+      "name": "動画URL（埋め込み）",
+      "type": "text"
+    },
+    {
+      "fieldId": "body",
+      "name": "本文（詳細説明）",
+      "type": "richEditor"
+    },
+    {
+      "fieldId": "gallery",
+      "name": "追加ギャラリー画像",
+      "type": "image",
+      "multiple": true
+    },
+    {
+      "fieldId": "relatedArticles",
+      "name": "関連記事（リレーション）",
+      "type": "reference",
+      "reference": {
+        "endpoint": "tools",
+        "isMultiple": true
+      }
+    }
+  ]
+  

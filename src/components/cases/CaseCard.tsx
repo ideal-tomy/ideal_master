@@ -1,22 +1,23 @@
 import React from 'react'
-import { Box, Text, HStack, Tag, Image } from '@chakra-ui/react'
+import { Box, Text, Tag, Image, VStack, Wrap, WrapItem, Badge, Heading } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
+import type { Case } from '@/types'
+// import type { MicroCMSImage } from 'microcms-js-sdk'
 
 interface CaseCardProps {
   id: string
   title: string
-  thumbnail: string
-  categories: string[]
-  technologies: string[]
+  description?: string
+  thumbnail?: any
+  frameworks?: string[]
+  purposeTags?: string[]
+  roles?: string[]
+  demoType?: 'demoTool' | 'demoVideo' | 'articleOnly'
 }
 
-const CaseCard: React.FC<CaseCardProps> = ({
-  id,
-  title,
-  thumbnail,
-  categories,
-  technologies
-}) => {
+const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, frameworks, purposeTags, roles, demoType }) => {
+  const hasDemo = demoType === 'demoTool' || demoType === 'demoVideo'
+
   return (
     <Box
       as={RouterLink}
@@ -24,26 +25,79 @@ const CaseCard: React.FC<CaseCardProps> = ({
       bg="rgba(10, 10, 26, 0.9)"
       borderRadius="xl"
       overflow="hidden"
-      _hover={{ transform: 'translateY(-4px)', transition: '0.2s' }}
+      _hover={{ transform: 'translateY(-4px)', transition: '0.2s', boxShadow: 'lg' }}
+      position="relative"
+      display="flex"
+      flexDirection="column"
     >
+      {hasDemo && (
+        <Badge
+          position="absolute"
+          top={2}
+          left={2}
+          colorScheme="teal"
+          zIndex={1}
+        >
+          デモあり
+        </Badge>
+      )}
+
       <Image 
-        src={thumbnail} 
+        src={thumbnail?.url}
         alt={title}
         w="100%"
         h="200px"
         objectFit="cover"
+        fallbackSrc="https://via.placeholder.com/300x200?text=No+Image"
       />
-      <Box p={4}>
-        {categories.map((category) => (
-          <Text key={category} color="cyan.400" mb={2}>{category}</Text>
-        ))}
-        <HStack spacing={2} mb={2} flexWrap="wrap">
-          {technologies.map((tech) => (
-            <Tag key={tech} size="sm">{tech}</Tag>
-          ))}
-        </HStack>
-        <Text color="white">{title}</Text>
-      </Box>
+      <VStack p={4} align="start" spacing={3} flexGrow={1}>
+        {Array.isArray(frameworks) && frameworks.length > 0 && (
+          <Wrap spacing={2}>
+            {frameworks.slice(0, 4).map((tech) => (
+              <WrapItem key={tech}>
+                <Tag size="sm" colorScheme="blue">{tech}</Tag>
+              </WrapItem>
+            ))}
+          </Wrap>
+        )}
+        {Array.isArray(purposeTags) && purposeTags.length > 0 && (
+          <Wrap spacing={2}>
+            {purposeTags.slice(0, 4).map((tag) => (
+              <WrapItem key={tag}>
+                <Tag size="sm" colorScheme="purple">{tag}</Tag>
+              </WrapItem>
+            ))}
+          </Wrap>
+        )}
+        {Array.isArray(roles) && roles.length > 0 && (
+          <Wrap spacing={2}>
+            {roles.slice(0, 3).map((role) => (
+              <WrapItem key={role}>
+                <Tag size="xs" colorScheme="gray">{role}</Tag>
+              </WrapItem>
+            ))}
+          </Wrap>
+        )}
+
+        <Heading
+          size="sm"
+          color="white"
+          noOfLines={2}
+          mt={2}
+        >
+          {title}
+        </Heading>
+        {description && (
+          <Text
+            color="gray.300"
+            fontSize="sm"
+            noOfLines={3}
+            flexGrow={1}
+          >
+            {description}
+          </Text>
+        )}
+      </VStack>
     </Box>
   )
 }

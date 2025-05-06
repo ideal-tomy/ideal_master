@@ -3,10 +3,11 @@ import { Box, Container, Text, Grid, VStack, Image, Tag, Wrap, WrapItem, Flex, B
 import { motion, useAnimation } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaArrowRight } from 'react-icons/fa'
-import { client } from '../../lib/microcms'
+import { getCases } from '@/lib/api/serverlessClient'
 import { Link as RouterLink } from 'react-router-dom'
 import PageHeader from '../common/PageHeader'
 import { Case, MicroCMSResponse } from '@/types'
+import CaseCard from '../cases/CaseCard'
 
 interface FeaturedCasesProps {
   isHomePage?: boolean;
@@ -16,7 +17,8 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
   const controls = useAnimation()
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true })
   const parallaxRef = useRef<HTMLDivElement>(null)
-  const [data, setData] = useState<MicroCMSResponse<Case> | null>(null)
+  const [casesData, setCasesData] = useState<Case[]>([])
+  const [loading, setLoading] = useState(true);
   
   // アニメーションの設定
   useEffect(() => {
@@ -55,33 +57,15 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
   
   useEffect(() => {
     const fetchCases = async () => {
+      setLoading(true);
       try {
-        const response = await client.get({ endpoint: 'cases' })
-        
-        // レスポンスの形式を確認し、適切な形式に変換
-        if (response && typeof response === 'object' && 'contents' in response) {
-          // MicroCMSの標準レスポンス形式の場合（{contents: [...]}）
-          setData(response as MicroCMSResponse<Case>)
-        } else {
-          // ダミーデータまたはセーフモード時のレスポンス処理
-          // MicroCMSResponse<Case>型に合わせてデータを整形
-          
-          // 単一オブジェクトの場合は配列に変換し、technologies配列がなければ空配列を設定
-          const caseItems = Array.isArray(response) ? response : [response];
-          const formattedItems = caseItems.map(item => ({
-            ...item,
-            technologies: item.technologies || [],
-          }));
-          
-          setData({
-            contents: formattedItems as Case[],
-            totalCount: formattedItems.length,
-            offset: 0,
-            limit: 10
-          })
-        }
+        const response = await getCases() as MicroCMSResponse<Case>;
+        setCasesData(response.contents);
       } catch (error) {
         console.error('Error fetching cases:', error)
+        setCasesData([]);
+      } finally {
+        setLoading(false);
       }
     }
     fetchCases()
@@ -142,7 +126,7 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
           
           {/* 事例カード */}
           <Box ref={parallaxRef} position="relative" zIndex="10" mb="80px" mt="40px">
-            <Grid 
+            <Grid
               templateColumns={{
                 base: "1fr",
                 md: "repeat(2, 1fr)",
@@ -150,76 +134,23 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
               }}
               gap={8}
             >
-              {data?.contents.map((item: Case) => (
-                <RouterLink 
-                  to={`/cases/${item.id}`} 
+              {/* ローディング表示 */}
+              {loading && <Text color="white">読み込み中...</Text>}
+              {/* データがない場合の表示 */}
+              {!loading && casesData.length === 0 && <Text color="white">事例がありません。</Text>}
+              {/* データがある場合に表示 */}
+              {!loading && casesData.map((item: any) => (
+                <CaseCard
                   key={item.id}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <Box
-                    borderRadius="lg"
-                    overflow="hidden"
-                    bg="rgba(255, 255, 255, 0.05)"
-                    transition="all 0.3s"
-                    _hover={{ transform: 'translateY(-4px)' }}
-                    h="100%"
-                  >
-                    <Image
-                      src={item.thumbnail.url}
-                      alt={item.title}
-                      objectFit="cover"
-                      w="100%"
-                      h="200px"
-                    />
-                    <VStack align="start" p={6} spacing={4}>
-                      <Heading 
-                        size="md" 
-                        color="white"
-                        noOfLines={2}
-                      >
-                        {item.title}
-                      </Heading>
-
-                      <Wrap spacing={2}>
-                        {item.categories?.map((category: string) => (
-                          <WrapItem key={category}>
-                            <Tag 
-                              size="sm" 
-                              colorScheme="purple"
-                              bg="rgba(159, 122, 234, 0.3)"
-                              color="white"
-                            >
-                              {category}
-                            </Tag>
-                          </WrapItem>
-                        ))}
-                      </Wrap>
-                      
-                      <Wrap spacing={2}>
-                        {item.technologies?.map((tech: string) => (
-                          <WrapItem key={tech}>
-                            <Tag 
-                              size="sm" 
-                              colorScheme="blue"
-                              bg="rgba(66, 153, 225, 0.3)"
-                              color="white"
-                            >
-                              {tech}
-                            </Tag>
-                          </WrapItem>
-                        ))}
-                      </Wrap>
-
-                      <Text 
-                        color="gray.100"
-                        fontSize="md"
-                        noOfLines={3}
-                      >
-                        {item.description}
-                      </Text>
-                    </VStack>
-                  </Box>
-                </RouterLink>
+                  id={item.id}
+                  title={item.title}
+                  description={item.description}
+                  thumbnail={item.thumbnail}
+                  frameworks={item.frameworks}
+                  purposeTags={item.purposeTags}
+                  roles={item.roles}
+                  demoType={item.demoType}
+                />
               ))}
             </Grid>
           </Box>
