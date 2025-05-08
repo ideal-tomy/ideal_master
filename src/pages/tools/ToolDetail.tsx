@@ -777,26 +777,9 @@ const DetailContent: React.FC<DetailContentProps> = ({ capability, onItemClick }
                 cursor="pointer"
                 transition="all 0.3s"
                 position="relative"
-                _hover={{ transform: "translateY(-5px)", boxShadow: "0 10px 15px -3px rgba(0, 184, 212, 0.3)" }}
-                _before={{
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: 'md',
-                  pointerEvents: 'none',
-                  background: 'linear-gradient(45deg, transparent 0%, rgba(255, 215, 0, 0.5) 50%, transparent 100%)',
-                  backgroundSize: '200% 200%',
-                  animation: 'flashAnimation 5s infinite',
-                  opacity: 0.7
-                }}
-                sx={{
-                  '@keyframes flashAnimation': {
-                    '0%': { backgroundPosition: '200% 0' },
-                    '100%': { backgroundPosition: '-200% 0' }
-                  }
+                _hover={{
+                  transform: "translateY(-5px)",
+                  boxShadow: "0 10px 15px -3px rgba(0, 184, 212, 0.3)"
                 }}
                 onClick={() => {
                   setModalContent({
