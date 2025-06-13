@@ -23,64 +23,62 @@
 ブランディング強化と信頼性の確立
 モバイルユーザー含む全デバイスでの最適な体験提供
 月間CV数目標: 問い合わせ50件以上]
-   - 技術要件：[2. 技術スタック（確定版）
+   - 技術要件：[2. 技術スタック（Next.js 14 移行後）
 2.1 フロントエンド
 
 コアフレームワーク: React 18.2.0
-ビルドツール: Vite 5.0.0
-TypeScript: 5.2.0
-状態管理: Redux Toolkit 2.0.1
-ルーティング: React Router 6.20.0
+ビルドツール: Next.js 14 (App Router, srcディレクトリ使用)
+TypeScript: 5.2.0 (Next.js プロジェクト設定に準拠)
+状態管理: Redux Toolkit 2.0.1 (維持、クライアントサイドプロバイダー経由)
+ルーティング: Next.js App Router
 スタイリング:
-
-Styled Components 6.1.1
-Tailwind CSS 3.4.0
-
+  Styled Components 6.1.1 (next.config.mjs で `compiler: { styledComponents: true }` 設定)
+  Tailwind CSS 3.4.0 (content パス更新)
 
 アニメーション:
-
-Framer Motion 10.16.4
-GSAP 3.12.3
-Three.js 0.159.0
-Lottie-React 2.4.0
-
+  Framer Motion 10.16.4
+  GSAP 3.12.3 (原則 `"use client"` コンポーネントで使用)
+  Three.js 0.159.0 (原則 `"use client"` コンポーネントで使用)
+  Lottie-React 2.4.0
 
 UI コンポーネント:
-
-Chakra UI 2.8.0
-React Icons 4.12.0
-
+  Chakra UI 2.8.0 (クライアントサイドプロバイダー経由)
+  React Icons 4.12.0
 
 フォーム管理:
-
-React Hook Form 7.48.2
-Yup 1.3.2
-
+  React Hook Form 7.48.2
+  Yup 1.3.2
 
 多言語対応: i18next 23.7.6
 
+最適化:
+  next/image (画像最適化)
+  next/font (フォント最適化)
+  next/dynamic (動的インポート、コンポーネント遅延読み込み)
+
 2.2 API・バックエンド連携
 
-API クライアント: Axios 1.6.2
-データフェッチング: React Query 5.8.4
+API クライアント:
+  fetch (Next.js 標準、サーバーコンポーネント/API Routes)
+  Axios 1.6.2 (クライアントコンポーネントでの限定的な使用)
+データフェッチング:
+  Next.js データフェッチ (サーバーコンポーネント、async/await)
+  React Query (TanStack Query) 5.8.4 (クライアントコンポーネントでの複雑なキャッシュ管理やミューテーションに限定して使用)
+API Routes: Next.js Route Handlers (`src/app/api/.../route.ts`)
 認証: JWT（JSON Web Token）
+ストリーミング: Vercel AI SDK (活用を検討)
 
 2.3 開発環境・ツール
 
-パッケージマネージャー: pnpm 8.10.0
+パッケージマネージャー: pnpm 8.10.0 (または Next.js プロジェクトに合わせた npm/yarn)
 コード管理: Git/GitHub
 コードリンター/フォーマッター:
-
-ESLint 8.54.0
-Prettier 3.1.0
-
+  ESLint (Next.js 推奨設定)
+  Prettier 3.1.0
 
 テスト:
-
-Vitest 0.34.6
-React Testing Library 14.1.2
-Cypress 13.6.0
-
+  Jest / React Testing Library (ユニット/結合テスト)
+  Cypress 13.6.0 (E2Eテスト)
 
 CI/CD: GitHub Actions
 
@@ -90,33 +88,29 @@ CI/CD: GitHub Actions
 CDN: Vercel Edge Network
 監視/エラー追跡: Sentry
 アナリティクス: Google Analytics 4]
-
-   - 実装手順：[具体的なステップ]
-   - リスク：[潜在的な問題点]
-   - 品質基準：[満たすべき基準]
    ```
 
-   3.1 全体サイトマップ
- (ホーム)
-├── /services/ (サービス一覧)
-│   ├── /services/ai-blockchain/ (AIブロックチェーン)
-│   ├── /services/metaverse/ (メタバース)
-│   ├── /services/web-development/ (ウェブ開発)
-│   ├── /services/app-development/ (アプリ開発)
-│   ├── /services/game-development/ (ゲーム開発)
-│   ├── /services/english-consulting/ (英会話コンサル)
-│   ├── /services/study-abroad/ (留学コンサル)
-│   └── /services/career-consulting/ (キャリアコンサル)
-├── /cases/ (事例一覧)
-│   └── /cases/[slug]/ (個別事例)
-├── /company/ (会社情報)
-│   ├── /company/about/ (会社概要)
-│   ├── /company/team/ (チーム紹介)
-│   └── /company/contact/ (問い合わせ)
-├── /blog/ (ブログ一覧)
-│   └── /blog/[slug]/ (個別記事)
-├── /privacy-policy/ (プライバシーポリシー)
-└── /terms/ (利用規約)
+   3.1 全体サイトマップ (Next.js App Router)
+ (ホーム: /)
+├── /services (サービス一覧)
+│   ├── /services/ai-blockchain (AIブロックチェーン)
+│   ├── /services/metaverse (メタバース)
+│   ├── /services/web-development (ウェブ開発)
+│   ├── /services/app-development (アプリ開発)
+│   ├── /services/game-development (ゲーム開発)
+│   ├── /services/english-consulting (英会話コンサル)
+│   ├── /services/study-abroad (留学コンサル)
+│   └── /services/career-consulting (キャリアコンサル)
+├── /cases (事例一覧)
+│   └── /cases/[slug] (個別事例)
+├── /company (会社情報)
+│   ├── /company/about (会社概要)
+│   ├── /company/team (チーム紹介)
+│   └── /company/contact (問い合わせ)
+├── /blog (ブログ一覧)
+│   └── /blog/[slug] (個別記事)
+├── /privacy-policy (プライバシーポリシー)
+└── /terms (利用規約)
 
 3.2 各ページ詳細
 3.2.1 ホームページ（/）

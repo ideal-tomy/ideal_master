@@ -4,6 +4,7 @@ import path from 'path'
 import type { ServerResponse, IncomingMessage } from 'http'
 import type { ProxyOptions } from 'vite'
 
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
