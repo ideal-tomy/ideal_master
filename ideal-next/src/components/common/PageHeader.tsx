@@ -1,8 +1,10 @@
+"use client"; // ← これを追加
+
 import React, { useEffect, useRef } from 'react';
 import { Box, Container, Heading, Text, Stack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
-import { generateStarTexture, generateNebulaTexture } from '../../utils/textureGenerator';
+import { generateStarTexture, generateNebulaTexture } from '@/utils/textureGenerator';
 
 interface PageHeaderProps {
   title: string;
@@ -62,6 +64,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   // 星を初期化する関数
   const initStars = () => {
+    console.log('[PageHeader] initStars: Start');
     if (!sceneRef.current) return;
 
     // 既存の星を削除
@@ -156,10 +159,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
     starsRef.current = new THREE.Points(geometry, shaderMaterial);
     sceneRef.current.add(starsRef.current);
+    console.log('[PageHeader] initStars: Stars initialized and added to scene.');
   };
 
   // 星雲を初期化する関数
   const initNebulas = () => {
+    console.log('[PageHeader] initNebulas: Start');
     if (!sceneRef.current) return;
 
     // 既存の星雲を削除
@@ -222,13 +227,18 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
     nebulasRef.current = group;
     sceneRef.current.add(nebulasRef.current);
+    console.log('[PageHeader] initNebulas: Nebulas initialized and added to scene.');
   };
 
   // アニメーションループ
   const animate = (time: number) => {
+    console.log('[PageHeader] animate: Frame requested, time:', time);
     frameIdRef.current = requestAnimationFrame(animate);
     
-    if (!cameraRef.current || !rendererRef.current || !sceneRef.current) return;
+    if (!cameraRef.current || !rendererRef.current || !sceneRef.current) {
+      console.log('[PageHeader] animate: Refs are null, returning. Camera:', cameraRef.current, 'Renderer:', rendererRef.current, 'Scene:', sceneRef.current);
+      return;
+    }
     
     // 時間の更新（シェーダー用）
     if (starsRef.current) {
@@ -251,6 +261,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     cameraRef.current.lookAt(0, 0, -1000);
     
     // レンダリング
+    console.log('[PageHeader] animate: Rendering frame.');
     rendererRef.current.render(sceneRef.current, cameraRef.current);
   };
 
@@ -269,6 +280,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   // 初期化
   useEffect(() => {
+    console.log('[PageHeader] useEffect: Start');
     // WebGLサポートチェック
     const isWebGLSupported = checkWebGLSupport();
     if (!isWebGLSupported) {
@@ -278,12 +290,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     
     // DOM要素が確実に準備できるようにするための短い遅延
     const initTimeout = setTimeout(() => {
-      if (!canvasRef.current) return;
+      if (!canvasRef.current) {
+        console.log('[PageHeader] useEffect: canvasRef.current is null, returning.');
+        return;
+      }
+      console.log('[PageHeader] useEffect: canvasRef.current:', canvasRef.current);
       
       // シーンの作成
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x000000, 0.0003);
+      // scene.fog = new THREE.FogExp2(0x000000, 0.0003); // フォグを一時的に無効化
       sceneRef.current = scene;
+      console.log('[PageHeader] useEffect: Scene initialized:', sceneRef.current);
       
       // カメラの作成
       const camera = new THREE.PerspectiveCamera(
@@ -294,6 +311,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       );
       camera.position.z = 500;
       cameraRef.current = camera;
+      console.log('[PageHeader] useEffect: Camera initialized:', cameraRef.current);
       
       // レンダラーの作成
       const renderer = new THREE.WebGLRenderer({
@@ -307,15 +325,22 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       );
       renderer.setPixelRatio(window.devicePixelRatio);
       rendererRef.current = renderer;
+      if (canvasRef.current) {
+        canvasRef.current.style.zIndex = '1'; // z-indexを前面に
+      }
+      console.log('[PageHeader] useEffect: Renderer initialized:', rendererRef.current);
       
       // 星と星雲の初期化
+      console.log('[PageHeader] useEffect: Calling initStars...');
       initStars();
+      console.log('[PageHeader] useEffect: Calling initNebulas...');
       initNebulas();
       
       // イベントリスナーの設定
       window.addEventListener('resize', handleResize);
       
       // アニメーションの開始
+      console.log('[PageHeader] useEffect: Starting animation loop...');
       frameIdRef.current = requestAnimationFrame(animate);
     }, 100);
     
@@ -342,11 +367,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       minHeight="300px"
       width="100%"
       overflow="hidden"
-      bg="spaceDark"
+      // bg="spaceDark" // グローバル背景との競合を避けるため一時コメントアウト
       data-testid="page-header"
       mb={10}
     >
-      {/* 宇宙背景 */}
       <canvas
         ref={canvasRef}
         style={{
@@ -355,25 +379,24 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           left: 0,
           width: '100%',
           height: '100%',
-          zIndex: -1
+          // zIndex: -1, // PageHeader内のコンテンツより後ろに配置
         }}
       />
-      
-      {/* コンテンツ */}
       <Container
         maxW="container.xl"
         height="100%"
-        position="relative"
-        zIndex={1}
+        position="relative" // テキストコンテンツを含むコンテナ
+        zIndex={1}          // テキストコンテンツをPageHeaderのcanvasより前面に
         display="flex"
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
+        textAlign="center"
+        px={{ base: 4, md: 6 }} // レスポンシブなパディング
       >
         <Stack
-          spacing={4}
-          textAlign="center"
-          w={{ base: '100%', md: '80%', lg: '70%' }}
+          spacing={{ base: 3, md: 4 }} // レスポンシブなスペーシング
+          w={{ base: '95%', md: '80%', lg: '70%' }}
           mx="auto"
           as={motion.div}
           variants={containerVariants}
@@ -383,42 +406,39 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           <motion.div variants={itemVariants}>
             <Heading
               as="h1"
-              fontSize={['3xl', '4xl', '5xl']}
-              bgGradient="linear(to-r, blue.400, cyan.400)"
-              bgClip="text"
-              letterSpacing="wider"
+              fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
               fontWeight="bold"
-              mb={subtitle ? 4 : 0}
-              filter="drop-shadow(0 0 8px rgba(66, 153, 225, 0.6))"
-              _hover={{
-                bgGradient: "linear(to-r, cyan.400, blue.400)",
-              }}
+              color="white" // タイトルを白に
+              letterSpacing="wider"
+              mb={subtitle || description ? { base: 3, md: 4 } : 0}
+              // グラデーションとフィルターを一旦削除。必要なら再追加・調整
             >
               {title}
             </Heading>
           </motion.div>
-          
+
           {subtitle && (
             <motion.div variants={itemVariants}>
               <Text
-                fontSize="lg"
-                color="whiteAlpha.900"
+                fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} // サブタイトルを少し大きく
+                color="gray.200" // サブタイトルをライトグレーに
                 maxW="800px"
                 mx="auto"
-                mt={4}
+                mt={{ base: 2, md: 3 }}
               >
                 {subtitle}
               </Text>
             </motion.div>
           )}
-          
+
           {description && (
             <motion.div variants={itemVariants}>
               <Text
                 fontSize={{ base: 'sm', md: 'md' }}
-                color="whiteAlpha.800"
+                color="gray.300" // 説明文をライトグレーに
                 maxW="container.md"
                 mx="auto"
+                mt={{ base: 2, md: 3 }}
               >
                 {description}
               </Text>

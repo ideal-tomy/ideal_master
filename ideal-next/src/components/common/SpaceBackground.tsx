@@ -1,7 +1,8 @@
+"use client";
 import React, { useEffect, useRef, useState } from 'react';
 import { Box } from '@chakra-ui/react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import FallbackSpaceBackground from './FallbackSpaceBackground';
 
 interface SpaceBackgroundProps {
@@ -67,9 +68,9 @@ const SpaceBackground: React.FC<SpaceBackgroundProps> = ({
     }
     scene.add(stars);
 
-    // オービットコントロールの設定
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enabled = false;
+    // オービットコントロールの設定 (一時的に無効化)
+    // const controls = new OrbitControls(camera, renderer.domElement);
+    // controls.enabled = false;
 
     // アニメーションループ
     const animate = () => {

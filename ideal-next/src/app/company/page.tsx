@@ -5,7 +5,7 @@ import NextLink from 'next/link'; // next/link をインポート
 import { Box, Container, Heading, Text, SimpleGrid, VStack, Stat, StatLabel, StatNumber, Button, Icon } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt, FaUsers, FaGlobe } from 'react-icons/fa';
-// import PageHeader from '@/components/common/PageHeader'; // TODO: PageHeaderコンポーネントの移行後に有効化
+import PageHeader from '@/components/common/PageHeader';
 
 // 会社情報ページコンポーネント
 const CompanyPage: React.FC = () => {
@@ -75,25 +75,13 @@ const CompanyPage: React.FC = () => {
   return (
     <Box minH="70vh"> {/* Ensure content is visible */}
       {/* ページヘッダー */}
-      {/* 
       <PageHeader 
         title={companyData.name}
         subtitle={companyData.description}
       /> 
-      */}
-      {/* TODO: 上記PageHeaderを有効化する際に、適切なマージンやパディングを調整 */}
-      <Box as="section" py={{ base: 10, md: 20 }} pt={{ base: 20, md: 28 }} position="relative" overflow="hidden"> {/* ptを追加してヘッダーと被らないように */}
+      <Box as="section" py={{ base: 10, md: 20 }} position="relative" overflow="hidden">
         <Container maxW="container.xl" position="relative" zIndex={1}>
           <VStack spacing={{ base: 10, md: 20 }} as={motion.div} variants={containerVariants} initial="hidden" animate="visible">
-            {/* 会社名と説明 (PageHeaderの代替) */}
-            <VStack spacing={4} textAlign="center" as={motion.div} variants={itemVariants}>
-              <Heading as="h1" size={{ base: "xl", md: "2xl" }} color="white">
-                {companyData.name}
-              </Heading>
-              <Text fontSize={{ base: "md", md: "lg" }} color="gray.300" maxW="container.md">
-                {companyData.description}
-              </Text>
-            </VStack>
 
             {/* 統計セクション */}
             <Box width="100%" as={motion.div} variants={itemVariants}>
