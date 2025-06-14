@@ -20,11 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" style={{ minHeight: '100vh', overflow: 'hidden' }}> {/* 日本語指定とスタイル */}
-      <body
-        className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
-        style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}
-      >
+    <html lang="ja">
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <StyledComponentsRegistry>
           <Providers>
             {/* すべてのページに適用される宇宙背景 */}
