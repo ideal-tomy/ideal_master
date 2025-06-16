@@ -43,7 +43,13 @@ const dummyClient = {
       offset: 0,
       limit: 10
     };
-  }
+  },
+  getList: async function({ endpoint, queries }: { endpoint: string; queries?: MicroCMSQueries }) {
+    console.log(`[Dummy] GET LIST request to ${endpoint}`, queries);
+    // In the dummy client, getList can be an alias for get without a contentId
+    // @ts-ignore
+    return this.get({ endpoint, queries });
+  },
 };
 
 // 実際のクライアント作成
@@ -73,6 +79,8 @@ export const testConnection = async () => {
     return response;
   } catch (error) {
     console.error('microCMS error:', error);
-    throw error;
+    // throw error; // アプリケーションの動作を止めないように再スローはコメントアウト
   }
 }; 
+
+// testConnection() // 不要な呼び出しをコメントアウト
