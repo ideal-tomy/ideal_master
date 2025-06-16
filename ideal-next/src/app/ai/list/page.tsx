@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Container, Heading, Text, Spinner, Button, Code, ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, Spinner, Button, Code, ChakraProvider, extendTheme, Alert, AlertIcon, VStack } from '@chakra-ui/react';
 import { client as microcmsClient } from '@/lib/microcms';
 import { AICapability, MicroCMSListResponse } from '@/types';
 import AICapabilitySection from '@/components/ai/AICapabilitySection';
@@ -48,182 +48,269 @@ const CATEGORY_INFO: Record<CategoryId, CategoryInfo> = {
   recruitment: { display_name: '採用・人材管理', challenge: '採用プロセスと人材管理を効率化したい' },
   training_support: { display_name: '研修・教育支援', challenge: '効果的な研修・教育プログラムを作成・実施したい' },
   performance_evaluation: { display_name: '評価・フィードバック', challenge: '公平で効果的な人事評価とフィードバックを実現したい' },
-  workflow_optimization: { display_name: '業務フロー最適化', challenge: '複雑な業務プロセスを見直し効率化したい' },
-  automation: { display_name: '業務自動化', challenge: '定型業務の自動化で工数削減と精度向上を実現したい' },
-  knowledge_management: { display_name: 'ナレッジ管理', challenge: '組織内の知識・情報を効率的に管理・活用したい' },
-  communication: { display_name: 'コミュニケーション改善', challenge: '社内外のコミュニケーションを円滑化したい' },
-  life_planning: { display_name: 'ライフプランニング', challenge: '個人の生活設計や将来計画をサポートしたい' },
-  health_care: { display_name: 'ヘルスケア・健康管理', challenge: '健康維持・管理を効率的にサポートしたい' },
-  learning_support: { display_name: '学習・自己啓発', challenge: '効果的な学習法と自己成長をサポートしたい' },
-  entertainment: { display_name: 'エンターテインメント', challenge: '新しい娯楽体験とコンテンツ消費を充実させたい' },
-  personal_finance: { display_name: '家計・資産管理', challenge: '個人の財務管理と資産運用を最適化したい' },
-  research_support: { display_name: '研究・開発支援', challenge: '研究開発プロセスを効率化し革新的な成果を生み出したい' },
-  legal_support: { display_name: '法務・コンプライアンス', challenge: '法的要件の遵守と法務業務の効率化を実現したい' },
-  risk_management: { display_name: 'リスク管理・セキュリティ', challenge: '組織のリスクを把握し適切な対策を実施したい' }
+  workflow_optimization: { display_name: '業務プロセス最適化', challenge: '業務フローの無駄を排除し生産性を向上させたい' },
+  automation: { display_name: '自動化・効率化', challenge: '繰り返し作業を自動化し人的リソースを有効活用したい' },
+  knowledge_management: { display_name: 'ナレッジ管理', challenge: '組織の知識を体系化し活用しやすくしたい' },
+  communication: { display_name: 'コミュニケーション改善', challenge: '組織内外のコミュニケーションを円滑にしたい' },
+  life_planning: { display_name: 'ライフプランニング', challenge: '個人の人生設計と目標達成をサポートしたい' },
+  health_care: { display_name: 'ヘルスケア', challenge: '健康管理と予防医療を効率化したい' },
+  learning_support: { display_name: '学習支援', challenge: '効果的な学習方法と教育コンテンツを提供したい' },
+  entertainment: { display_name: 'エンターテイメント', challenge: '魅力的な娯楽・レクリエーションコンテンツを創出したい' },
+  personal_finance: { display_name: '個人向け金融', challenge: '個人の資産管理と投資判断をサポートしたい' },
+  research_support: { display_name: '研究・調査支援', challenge: '研究活動の効率化と精度向上を実現したい' },
+  legal_support: { display_name: '法務・コンプライアンス', challenge: '法的リスクの管理とコンプライアンス強化を実現したい' },
+  risk_management: { display_name: 'リスク管理', challenge: '事業リスクの早期発見と対策立案を効率化したい' }
 };
 
-// 目的別グループ化 (Vite版から移行)
+// 目的グループの定義
 const OPTIMIZED_PURPOSE_GROUPS = [
   { title: 'コンテンツを作る', description: '文章・画像・動画などの作成と編集', categories: ['text_creation', 'image_generation', 'video_creation', 'design_support', 'content_planning'] },
   { title: '業務を効率化する', description: '日常業務の自動化と管理の最適化', categories: ['shift_management', 'document_creation', 'workflow_optimization', 'automation', 'knowledge_management'] },
   { title: '情報を分析・活用する', description: 'データから洞察を得て意思決定を支援', categories: ['data_analysis', 'market_research', 'marketing_analysis', 'research_support'] },
   { title: 'コミュニケーションを改善する', description: '人と人、組織間の対話をスムーズに', categories: ['meeting_support', 'communication', 'translation', 'social_media'] },
-  { title: '顧客・営業活動を強化する', description: '顧客体験と営業プロセスの質を高める', categories: ['customer_support', 'sales_support'] },
-  { title: '人材・組織を育てる', description: '採用から育成、評価までの人材マネジメント', categories: ['recruitment', 'training_support', 'performance_evaluation'] },
-  { title: '個人の生活を豊かにする', description: '学習、健康、娯楽、資産管理をサポート', categories: ['learning_support', 'entertainment', 'health_care', 'life_planning', 'personal_finance'] },
-  { title: 'リスク管理と安全を確保する', description: '法令遵守とセキュリティ対策', categories: ['legal_support', 'risk_management', 'code_generation'] }
+  { title: '人材・組織を強化する', description: '採用・研修・評価の質を向上させる', categories: ['recruitment', 'training_support', 'performance_evaluation', 'customer_support'] },
+  { title: 'ビジネスを拡大する', description: '営業・マーケティング・事業戦略を強化', categories: ['sales_support', 'marketing_analysis', 'content_planning', 'market_research'] },
+  { title: 'リスクを管理する', description: '法務・リスク・コンプライアンスの対策', categories: ['legal_support', 'risk_management', 'workflow_optimization'] },
+  { title: '個人の生活を向上させる', description: '個人向けの生活支援・学習・エンタメ', categories: ['life_planning', 'health_care', 'learning_support', 'entertainment', 'personal_finance'] }
 ];
 
-// カテゴリ間の関連性マッピング (Vite版から移行)
-const RELATED_CATEGORIES: Record<string, string[]> = {
-  'text_creation': ['content_planning', 'social_media', 'marketing_analysis'],
-  'image_generation': ['design_support', 'content_planning', 'social_media'],
-  'video_creation': ['content_planning', 'social_media'],
-  'design_support': ['image_generation', 'content_planning'],
-  'content_planning': ['text_creation', 'social_media', 'marketing_analysis'],
-  'shift_management': ['workflow_optimization', 'automation'],
-  'document_creation': ['text_creation', 'knowledge_management'],
-  'workflow_optimization': ['automation', 'knowledge_management'],
-  'automation': ['workflow_optimization', 'knowledge_management'],
-  'knowledge_management': ['document_creation', 'communication'],
-  'data_analysis': ['market_research', 'marketing_analysis', 'research_support'],
-  'market_research': ['data_analysis', 'marketing_analysis'],
-  'marketing_analysis': ['market_research', 'data_analysis', 'content_planning', 'social_media'],
-  'research_support': ['data_analysis', 'code_generation'],
-  'meeting_support': ['communication', 'knowledge_management'],
-  'communication': ['meeting_support', 'translation'],
-  'translation': ['communication', 'text_creation'],
-  'social_media': ['content_planning', 'marketing_analysis', 'text_creation'],
-  'customer_support': ['sales_support', 'communication'],
-  'sales_support': ['customer_support', 'marketing_analysis'],
-  'recruitment': ['training_support', 'performance_evaluation'],
-  'training_support': ['learning_support', 'recruitment', 'performance_evaluation'],
-  'performance_evaluation': ['recruitment', 'training_support'],
-  'learning_support': ['training_support', 'entertainment'],
-  'health_care': ['life_planning', 'personal_finance'],
-  'entertainment': ['learning_support'],
-  'life_planning': ['health_care', 'personal_finance'],
-  'personal_finance': ['life_planning'],
-  'legal_support': ['risk_management', 'document_creation'],
-  'risk_management': ['legal_support', 'code_generation'],
-  'code_generation': ['research_support', 'automation']
-};
-
-export default function AICapabilitiesListPage() {
+function AICapabilitiesListPage() {
   const [capabilities, setCapabilities] = useState<AICapability[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchCapabilities = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await microcmsClient.getList<AICapability>({
-        endpoint: 'capabilities',
-        queries: { limit: 100 } // 必要に応じてクエリを調整
-      });
-      if (data && data.contents && Array.isArray(data.contents)) {
-        setCapabilities(data.contents);
-      } else {
-        console.error('APIデータの形式が不正:', data);
-        setError('データの形式が不正です');
-      }
-    } catch (err) {
-      console.error("Failed to fetch capabilities:", err);
-      if (err instanceof Error) {
-        console.error("Error name:", err.name);
-        console.error("Error message:", err.message);
-      }
-      setError('データの取得に失敗しました。');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
-    fetchCapabilities();
-  }, []);
+    const fetchCapabilities = async () => {
+      try {
+        console.log('=== MicroCMS データ取得開始 ===');
+        setLoading(true);
+        setError(null);
+        setDebugInfo('データを取得中...');
 
-  const filterByCategory = useMemo(() => (category: string) => {
-    return capabilities.filter(cap => {
-      if (!cap.categories || !Array.isArray(cap.categories)) return false;
-      return cap.categories.some(catItem => {
-        const baseCategory = typeof catItem === 'string' ? catItem.split('（')[0].trim() : '';
-        if (baseCategory === category) return true;
-        if (typeof catItem === 'string' && catItem.startsWith(category + '_')) return true;
-        if (typeof catItem === 'string' && catItem.includes('（')) {
-          const japanesePart = catItem.split('（')[1].replace('）', '').trim();
-          return CATEGORY_INFO[category]?.display_name === japanesePart;
+        const response = await microcmsClient.get({ 
+          endpoint: 'capabilities',
+          queries: { limit: 100 }
+        });
+
+        console.log('=== MicroCMS レスポンス ===', response);
+        console.log('=== レスポンス詳細分析 ===');
+        
+        // レスポンスの構造を確認
+        if (response && response.contents && Array.isArray(response.contents)) {
+          console.log('正常なレスポンス形式を確認');
+          console.log('取得件数:', response.contents.length);
+          
+          // 最初の数件のデータ構造を詳しく確認
+          if (response.contents.length > 0) {
+            console.log('=== 最初のデータ構造 ===');
+            console.log('First item:', response.contents[0]);
+            console.log('First item keys:', Object.keys(response.contents[0]));
+            
+            // カテゴリフィールドの確認
+            const firstItem = response.contents[0];
+            console.log('Category field exists:', 'category' in firstItem);
+            console.log('Category value:', firstItem.category);
+            console.log('Category type:', typeof firstItem.category);
+            
+            // 他の可能性のあるフィールド名を確認
+            console.log('Categories field exists:', 'categories' in firstItem);
+            console.log('Categories value:', (firstItem as any).categories);
+            
+            // 全フィールドをチェック
+            Object.keys(firstItem).forEach(key => {
+              console.log(`Field "${key}":`, firstItem[key as keyof typeof firstItem]);
+            });
+
+            // アラートでも確認（デバッグ用）
+            // alert(`データ構造確認:\n取得件数: ${response.contents.length}\n最初のアイテムのキー: ${Object.keys(firstItem).join(', ')}\nカテゴリフィールド: ${firstItem.category}\nカテゴリタイプ: ${typeof firstItem.category}`);
+          }
+          
+          setCapabilities(response.contents);
+          setDebugInfo(`${response.contents.length}件のデータを取得しました`);
+        } else if (response && Array.isArray(response)) {
+          console.log('配列形式のレスポンス');
+          setCapabilities(response);
+          setDebugInfo(`${response.length}件のデータを取得しました（配列形式）`);
+        } else {
+          console.warn('予期しないレスポンス形式:', response);
+          setDebugInfo(`予期しないレスポンス形式: ${typeof response}`);
+          setCapabilities([]);
         }
-        return false;
+
+      } catch (err) {
+        console.error('MicroCMS データ取得エラー:', err);
+        setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
+        setDebugInfo(`エラー: ${err instanceof Error ? err.message : '不明なエラー'}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCapabilities();
+  }, []); // 空の依存配列で1回だけ実行
+
+  // グループ化されたcapabilitiesの計算
+  const groupedCapabilities = useMemo(() => {
+    if (!capabilities || capabilities.length === 0) return [];
+
+    console.log('=== グループ化処理開始 ===');
+    console.log('取得したcapabilities件数:', capabilities.length);
+
+    return OPTIMIZED_PURPOSE_GROUPS.map(group => {
+      const matchedCapabilities = capabilities.filter(cap => {
+        console.log(`=== フィルタリング中: ${cap.id || cap.title} ===`);
+        console.log('Available fields:', Object.keys(cap));
+        console.log('Category field:', cap.category);
+        console.log('Categories field:', (cap as any).categories);
+        
+        // カテゴリマッチングを複数のパターンで試行
+        let hasMatchingCategory = false;
+        
+        // パターン1: category フィールドが配列の場合
+        if (cap.category && Array.isArray(cap.category)) {
+          hasMatchingCategory = cap.category.some(catId => group.categories.includes(catId));
+          console.log('Pattern 1 (category array):', hasMatchingCategory, cap.category);
+        }
+        
+        // パターン2: category フィールドが文字列の場合
+        if (!hasMatchingCategory && cap.category && typeof cap.category === 'string') {
+          hasMatchingCategory = group.categories.includes(cap.category);
+          console.log('Pattern 2 (category string):', hasMatchingCategory, cap.category);
+        }
+        
+        // パターン3: categories フィールド（複数形）がある場合
+        if (!hasMatchingCategory && (cap as any).categories && Array.isArray((cap as any).categories)) {
+          hasMatchingCategory = (cap as any).categories.some((catId: string) => group.categories.includes(catId));
+          console.log('Pattern 3 (categories array):', hasMatchingCategory, (cap as any).categories);
+        }
+        
+        // パターン4: タグやその他のフィールドを確認
+        if (!hasMatchingCategory && (cap as any).tags && Array.isArray((cap as any).tags)) {
+          hasMatchingCategory = (cap as any).tags.some((tag: string) => group.categories.includes(tag));
+          console.log('Pattern 4 (tags array):', hasMatchingCategory, (cap as any).tags);
+        }
+        
+        console.log(`Final match result for ${cap.id || cap.title}:`, hasMatchingCategory);
+        return hasMatchingCategory;
       });
-    });
+
+      console.log(`グループ "${group.title}": ${matchedCapabilities.length}件`);
+      
+      return {
+        ...group,
+        capabilities: matchedCapabilities
+      };
+    }).filter(group => group.capabilities.length > 0);
   }, [capabilities]);
-
-  const getRelatedContentsByCategory = useMemo(() => (category: string) => {
-    const primaryMatches = filterByCategory(category);
-    let secondaryMatches: AICapability[] = [];
-
-    if (RELATED_CATEGORIES[category]) {
-      secondaryMatches = RELATED_CATEGORIES[category]
-        .flatMap(relatedCat => filterByCategory(relatedCat))
-        .filter(cap => !primaryMatches.some(p => p.id === cap.id));
-    }
-
-    const primaryCount = primaryMatches.length;
-    const secondaryLimit = primaryCount < 3 ? 4 : (primaryCount < 5 ? 3 : 2);
-    
-    return [...primaryMatches, ...secondaryMatches.slice(0, secondaryLimit)];
-  }, [capabilities, filterByCategory]);
 
   if (loading) {
     return (
-      <Box p={8} display="flex" justifyContent="center" alignItems="center" height="calc(100vh - 200px)">
-        <Spinner size="xl" color="cyan.400" thickness="4px" />
-      </Box>
+      <ChakraProvider>
+        <Container maxW="container.xl" py={8}>
+          <Box textAlign="center">
+            <Spinner size="xl" />
+            <Text mt={4}>AIでできることリストを読み込み中...</Text>
+            <Text mt={2} fontSize="sm" color="gray.600">{debugInfo}</Text>
+          </Box>
+        </Container>
+      </ChakraProvider>
     );
   }
 
   if (error) {
     return (
-      <Container centerContent py={10}>
-        <Heading as="h2" size="lg" mb={4} color="red.500">エラーが発生しました</Heading>
-        <Text mb={4}>{error}</Text>
-        <Code colorScheme="red" p={4} borderRadius="md" mb={4}>
-          {typeof error === 'string' ? error : JSON.stringify(error)}
-        </Code>
-        <Button colorScheme="teal" onClick={fetchCapabilities}>再試行</Button>
-      </Container>
+      <ChakraProvider>
+        <Container maxW="container.xl" py={8}>
+          <Alert status="error" mb={4}>
+            <AlertIcon />
+            エラーが発生しました: {error}
+          </Alert>
+          <Box>
+            <Text fontSize="sm" fontFamily="mono" whiteSpace="pre-wrap">
+              {debugInfo}
+            </Text>
+          </Box>
+        </Container>
+      </ChakraProvider>
     );
   }
 
   return (
-    <Box bg="gray.900" color="white" py={10}>
-      <Container maxW="container.xl">
-        <Heading as="h1" size="2xl" textAlign="center" mb={4} bgGradient="linear(to-r, primary.300, secondary.500)" bgClip="text">
-          AIで出来ることリスト
-        </Heading>
-        <Text fontSize="lg" textAlign="center" color="gray.400" mb={12}>
-          あなたのビジネスや日常の課題を解決するAIの活用法を見つけましょう。
-        </Text>
+    <ChakraProvider>
+      <Box minH="100vh" bg="gray.50">
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            <Box textAlign="center">
+              <Heading as="h1" size="2xl" mb={4} color="blue.600">
+                AI機能一覧
+              </Heading>
+              <Text fontSize="lg" color="gray.600">
+                最新のAI技術を活用したソリューション
+              </Text>
+            </Box>
 
-        {OPTIMIZED_PURPOSE_GROUPS.map(group => {
-          const contentsForGroup = group.categories.flatMap(catId => getRelatedContentsByCategory(catId));
-          // 重複を除去
-          const uniqueContents = Array.from(new Map(contentsForGroup.map(item => [item.id, item])).values());
-          
-          if (uniqueContents.length === 0) return null; // コンテンツがない場合はセクションを表示しない
+            {/* デバッグ情報表示 */}
+            {debugInfo && (
+              <Alert status="info">
+                <AlertIcon />
+                <Box>
+                  <Text fontWeight="bold">デバッグ情報: {debugInfo}</Text>
+                  {/* データ構造の詳細表示 */}
+                  {capabilities.length > 0 && (
+                    <Box mt={4} p={4} bg="gray.100" borderRadius="md">
+                      <Text fontWeight="bold" mb={2}>最初のデータ構造:</Text>
+                      <Text fontSize="sm" fontFamily="mono">
+                        取得件数: {capabilities.length}
+                      </Text>
+                      <Text fontSize="sm" fontFamily="mono">
+                        キー: {Object.keys(capabilities[0]).join(', ')}
+                      </Text>
+                      <Text fontSize="sm" fontFamily="mono">
+                        カテゴリフィールド: {JSON.stringify(capabilities[0].category)}
+                      </Text>
+                      <Text fontSize="sm" fontFamily="mono">
+                        全データ構造: {JSON.stringify(capabilities[0], null, 2).substring(0, 500)}...
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+              </Alert>
+            )}
 
-          return (
-            <AICapabilitySection
-              key={group.title}
-              title={group.title}
-              challenge={group.description}
-              contents={uniqueContents}
-            />
-          );
-        })}
-      </Container>
-    </Box>
+            <Box mb={8}>
+              <Heading as="h1" size="xl" mb={4}>
+                AIでできること一覧
+              </Heading>
+              <Text mb={4}>
+                {capabilities.length}件の機能が見つかりました。
+              </Text>
+              <Text fontSize="sm" color="gray.600" mb={4}>
+                デバッグ情報: {debugInfo}
+              </Text>
+            </Box>
+
+            {groupedCapabilities.map((group, index) => (
+              <Box key={index} mb={8}>
+                <AICapabilitySection
+                  title={group.title}
+                  challenge={group.description}
+                  contents={group.capabilities}
+                />
+              </Box>
+            ))}
+
+            {groupedCapabilities.length === 0 && (
+              <Alert status="info">
+                <AlertIcon />
+                表示できるデータがありません。
+              </Alert>
+            )}
+          </VStack>
+        </Container>
+      </Box>
+    </ChakraProvider>
   );
 }
+
+export default AICapabilitiesListPage;

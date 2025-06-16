@@ -6,9 +6,10 @@ export interface AICapability {
   category: string[];
   technologies: string[];
   thumbnail: {
-    url: string;
+    url?: string; // url をオプショナルに変更
   };
-  detail: string;
+  detail?: string;   // detail をオプショナルに変更
+
   detail01?: string;  // 開発難易度
   detail02?: string;  // 概要
   detail03?: string;  // 関連情報 左
@@ -31,16 +32,20 @@ export interface AICapability {
     id: string;
     title: string;
     thumbnail: {
-      url: string;
+      url?: string; // こちらも念のためオプショナルに
     };
   }[];
   difficultyLevel?: number; // 1-5の値を想定
   relatedCapabilities?: {
     id: string;
-    title: string;
-    description: string;
-    thumbnail: {
-      url: string;
+    // APIレスポンスに実際に存在するフィールドを元に定義
+    createdAt?: string; 
+    updatedAt?: string;
+    // 型定義にはあったがAPIレスポンスになかったフィールドはオプショナルに
+    title?: string; 
+    description?: string;
+    thumbnail?: { 
+      url?: string;
     };
   }[];
   createdAt: string;

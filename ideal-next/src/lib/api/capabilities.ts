@@ -1,10 +1,5 @@
 import { AICapabilityResponse, SingleAICapabilityResponse } from '../../types/capability';
-import { createClient } from 'microcms-js-sdk';
-
-const client = createClient({
-  serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
-  apiKey: import.meta.env.VITE_MICROCMS_API_KEY,
-});
+import { client } from '../microcms';
 
 export const getCapabilities = async () => {
   try {
