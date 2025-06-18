@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Text, Tag, Image, VStack, Wrap, WrapItem, Badge, Heading } from '@chakra-ui/react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import type { Case } from '@/types'
 import type { MicroCMSImage } from 'microcms-js-sdk';
 
@@ -20,17 +20,17 @@ const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, 
   const hasDemo = demoType === 'demoTool' || demoType === 'demoVideo'
 
   return (
-    <Box
-      as={RouterLink}
-      to={`/cases/${id}`}
-      bg="rgba(10, 10, 26, 0.9)"
-      borderRadius="xl"
-      overflow="hidden"
-      _hover={{ transform: 'translateY(-4px)', transition: '0.2s', boxShadow: 'lg' }}
-      position="relative"
-      display="flex"
-      flexDirection="column"
-    >
+    <Link to={`/cases/${id}`}>
+      <Box
+        as="div"
+        bg="rgba(10, 10, 26, 0.9)"
+        borderRadius="xl"
+        overflow="hidden"
+        _hover={{ transform: 'translateY(-4px)', transition: '0.2s', boxShadow: 'lg', textDecoration: 'none' }}
+        position="relative"
+        display="flex"
+        flexDirection="column"
+      >
       {hasDemo && (
         <Badge
           position="absolute"
@@ -104,7 +104,8 @@ const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, 
           </Text>
         )}
       </VStack>
-    </Box>
+      </Box>
+    </Link>
   )
 }
 

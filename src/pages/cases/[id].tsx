@@ -1,340 +1,239 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { 
-  Box, 
-  Container, 
-  Heading, 
-  Text, 
-  Image, 
-  Grid, 
+import { motion } from 'framer-motion';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  HStack,
   Tag,
+  Image,
+  Spinner,
+  Flex,
+  SimpleGrid,
+  AspectRatio,
+  useColorModeValue,
+  Divider,
+  Icon,
+  Grid,
+  GridItem,
+  Button,
   Wrap,
   WrapItem,
-  VStack,
-  Divider
 } from '@chakra-ui/react';
-import { getCaseById } from '../../lib/cases';
-import type { Case } from '../../types/case';
-import type { MicroCMSImage } from 'microcms-js-sdk';
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import { Link } from 'react-router-dom';
+import { FaIndustry, FaUserTie, FaLightbulb, FaTools } from 'react-icons/fa';
+import { getCaseById } from '@/lib/api/serverlessClient';
+import { Case } from '@/types/case';
+import PageHeader from '@/components/common/PageHeader';
 
-// カルーセルのカスタムスタイル
-const customStyles = `
-  .slick-slide {
-    padding: 0 10px;
-  }
-  .slick-track {
-    display: flex;
-    align-items: center;
-  }
-  .gallery-slider {
-    margin: 0 auto;
-    max-width: 800px;
-  }
-  .slick-prev, .slick-next {
-    display: none !important;
-  }
-`;
+interface Props {
+  caseData: Case;
+}
 
-export default function CaseDetail() {
-  const { id } = useParams();
+const fadeIn = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.8, ease: 'easeOut' as const } },
+};
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
+};
+
+const RichTextSection: React.FC<{ html: string; title: string }> = ({ html, title }) => (
+  <Box mb={8}>
+    <Heading as="h3" size="lg" mb={4} color="cyan.300" borderBottomWidth="2px" borderColor="cyan.400" pb={2}>
+      {title}
+    </Heading>
+    <Box
+      className="rich-text-content"
+      color="gray.300"
+      lineHeight="tall"
+      sx={{
+        'h1, h2, h3, h4, h5, h6': {
+          fontWeight: 'bold',
+          color: 'gray.100',
+          mt: 6,
+          mb: 3,
+        },
+        p: { mb: 4 },
+        ul: { ml: 6, mb: 4 },
+        ol: { ml: 6, mb: 4 },
+        a: { color: 'cyan.400', textDecoration: 'underline' },
+      }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  </Box>
+);
+
+const TagSection: React.FC<{ title: string; tags: string[] | undefined; icon: React.ElementType }> = ({ title, tags, icon }) => {
+  if (!tags || tags.length === 0 || (tags.length === 1 && !tags[0])) return null;
+  return (
+    <Box>
+      <HStack mb={3}>
+        <Icon as={icon} w={5} h={5} color="cyan.400" />
+        <Heading size="sm" color="gray.300" textTransform="uppercase">{title}</Heading>
+      </HStack>
+      <Wrap spacing={2}>
+        {tags.map((tag, index) => (
+          tag && <WrapItem key={index}>
+            <Tag size="md" variant="solid" colorScheme="gray">{tag}</Tag>
+          </WrapItem>
+        ))}
+      </Wrap>
+    </Box>
+  );
+};
+
+const CaseDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!id) return;
+    if (!id) return;
+
+    const fetchCaseData = async () => {
+      setLoading(true);
       try {
         const data = await getCaseById(id);
         setCaseData(data);
-      } catch (error) {
-        console.error('Error:', error);
+      } catch (err) {
+        setError('事例の読み込みに失敗しました。');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchCaseData();
   }, [id]);
 
-  const sliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 8000, // スクロール速度（ミリ秒）
-    slidesToShow: 2,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 0,
-    cssEase: "linear",
-    pauseOnHover: true,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        }
-      }
-    ]
-  };
+  const sectionBgColor = useColorModeValue('white', 'gray.900');
 
-  if (loading) return <Box>Loading...</Box>;
-  if (!caseData) return <Box>Not found</Box>;
+  if (loading) {
+    return (
+      <Flex justify="center" align="center" minH="100vh">
+        <Spinner size="xl" color="cyan.400" />
+      </Flex>
+    );
+  }
+
+  if (error) {
+    return <Text textAlign="center" py={20}>{error}</Text>;
+  }
+
+  if (!caseData) {
+    return <Text textAlign="center" py={20}>記事が見つかりませんでした。</Text>;
+  }
 
   return (
-    <Container maxW="1200px" py={12}>
-      <style>{customStyles}</style>
+    <motion.div initial="initial" animate="animate" variants={fadeIn}>
+      <PageHeader title={caseData.title} subtitle={caseData.caseType || ''} />
 
-      {/* ヘッダー */}
-      <Box mb={16} textAlign="center">
-        <Heading 
-          size="2xl" 
-          mb={6}
-          color="white"
-        >
-          {caseData.title}
-        </Heading>
-      </Box>
-
-      {/* 導入背景 */}
-      {caseData.problems && (
-        <Box mb={12}>
-          <Heading size="lg" mb={4} color="white">導入背景</Heading>
-          <Text color="gray.300" whiteSpace="pre-wrap">{caseData.problems}</Text>
-        </Box>
-      )}
-
-      {/* 期待される効果 */}
-      {caseData.effects && (
-        <Box mb={12}>
-          <Heading size="lg" mb={4} color="white">期待される効果</Heading>
-          <Text color="gray.300" whiteSpace="pre-wrap">{caseData.effects}</Text>
-        </Box>
-      )}
-
-      {/* カテゴリ */}
-      <Box mb={16} textAlign="center">
-        <Wrap spacing={2} mb={4} justify="center">
-          {caseData.caseType && (
-            <WrapItem>
-              <Tag size="md" colorScheme="cyan" variant="solid">{caseData.caseType}</Tag>
-            </WrapItem>
-          )}
-          {caseData.purposeTags?.map((tag: string) => (
-            <WrapItem key={tag}>
-              <Tag 
-                size="md" 
-                colorScheme="purple"
-                bg="rgba(255, 146, 3, 0.71)"
-                color="white"
-              >
-                {tag}
-              </Tag>
-            </WrapItem>
-          ))}
-        </Wrap>
-        
-        {/* 使用技術 */}
-        <Wrap spacing={2} mb={6} justify="center">
-          {caseData.coreTechnologies?.map((tech: string) => (
-            <WrapItem key={tech}>
-              <Tag 
-                size="md" 
-                colorScheme="blue"
-                bg="rgba(13, 255, 255, 0.66)"
-                color="white"
-              >
-                {tech}
-              </Tag>
-            </WrapItem>
-          ))}
-          {caseData.frameworks?.map((framework: string) => (
-            <WrapItem key={framework}>
-              <Tag 
-                size="md" 
-                colorScheme="green"
-                bg="rgba(13, 255, 130, 0.66)"
-                color="white"
-              >
-                {framework}
-              </Tag>
-            </WrapItem>
-          ))}
-        </Wrap>
-      </Box>
-
-      {/* 概要 */}
-      <Box maxW="800px" mx="auto" mb={16}>
-        <Text 
-          fontSize="xl" 
-          color="gray.100"
-          lineHeight="1.8"
-        >
-          {caseData.description}
-        </Text>
-      </Box>
-
-      {/* 詳細セクション */}
-      <Box maxW="800px" mx="auto" mb={24}>
-        <Heading 
-          size="xl" 
-          mb={8}
-          color="white"
-          textAlign="center"
-        >
-          詳細
-        </Heading>
-        <Box 
-          className="rich-text"
-          color="gray.100"
-          fontSize="lg"
-          lineHeight="1.8"
-          sx={{
-            'p': { mb: 6 },
-            'h2': { 
-              fontSize: '2xl', 
-              fontWeight: 'bold', 
-              mb: 4, 
-              mt: 8,
-              color: 'white' 
-            },
-            'ul': { pl: 8, mb: 6 },
-            'li': { mb: 3 },
-          }}
-          dangerouslySetInnerHTML={{ __html: caseData.body }}
-        />
-      </Box>
-
-      {/* デモセクション */}
-      {(caseData.demoType && caseData.demoType !== 'articleOnly') && (
-        <Box maxW="800px" mx="auto" mb={16} textAlign="center">
-          <Heading size="xl" mb={8} color="white">デモ</Heading>
-          {caseData.demoType === 'demoTool' && caseData.demoUrl && (
-            <Box as={Link} to={caseData.demoUrl} target="_blank" rel="noopener noreferrer" display="inline-block" p={4} bg="teal.500" color="white" borderRadius="md" _hover={{ bg: "teal.600" }}>
-              体験デモはこちら
-            </Box>
-          )}
-          {caseData.demoType === 'demoVideo' && caseData.videoUrl && (
-            <Box className="video-container" sx={{
-              position: 'relative',
-              paddingBottom: '56.25%', // 16:9 aspect ratio
-              height: 0,
-              overflow: 'hidden',
-              iframe: {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-              }
-            }}>
-              <iframe
-                src={caseData.videoUrl!.replace("watch?v=", "embed/")}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="紹介動画"
-              ></iframe>
-            </Box>
-          )}
-        </Box>
-      )}
-
-      {/* ギャラリー - タイトルなしでシンプルに */}
-      <Box 
-        mb={24}
-        mx="-24px"
-      >
-        <Box className="gallery-slider">
-          <Slider {...sliderSettings}>
-            {caseData.gallery?.map((img: MicroCMSImage, index: number) => (
-              <Box
-                key={index}
-                position="relative"
-                overflow="hidden"
-                cursor="pointer"
-                px={2}
-              >
+      <Container maxW="container.xl" py={12}>
+        <Grid templateColumns={{ base: '1fr', lg: '3fr 1fr' }} gap={{ base: 8, lg: 12 }}>
+          {/* Main Content */}
+          <VStack as={GridItem} spacing={10} align="stretch">
+            {caseData.thumbnail && (
+              <motion.div variants={fadeInUp}>
                 <Image
-                  src={img.url}
-                  alt={`Gallery ${index + 1}`}
+                  src={caseData.thumbnail.url}
+                  alt={caseData.title}
+                  borderRadius="xl"
+                  boxShadow="2xl"
+                  w="full"
+                  h={{ base: '300px', md: '500px' }}
                   objectFit="cover"
-                  h="200px"
-                  w="100%"
-                  borderRadius="lg"
-                  transition="all 0.3s"
-                  _hover={{ transform: 'scale(1.05)' }}
                 />
+              </motion.div>
+            )}
+
+            <motion.div variants={fadeInUp}>
+              <Box p={{ base: 6, md: 8 }} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+                <Heading as="h2" size="xl" mb={4} color="cyan.300">
+                  プロジェクト概要
+                </Heading>
+                <Text fontSize="lg" lineHeight="tall" color="gray.300">
+                  {caseData.description}
+                </Text>
               </Box>
-            ))}
-          </Slider>
-        </Box>
-      </Box>
+            </motion.div>
 
-      {/* シンプルな区切り線 */}
-      <Box 
-        w="100%" 
-        h="1px" 
-        bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
-        mb={24}
-      />
+            <motion.div variants={fadeInUp}>
+              <Box p={{ base: 6, md: 8 }} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+                {caseData.problems && <RichTextSection html={caseData.problems} title="背景・課題" />}
+                {caseData.effects && <RichTextSection html={caseData.effects} title="導入後の効果" />}
+                {caseData.implementationSteps && <RichTextSection html={caseData.implementationSteps} title="導入プロセス" />}
+                {caseData.body && <RichTextSection html={caseData.body} title="詳細" />}
+              </Box>
+            </motion.div>
 
-      {/* 関連事例セクション */}
-      {caseData.relatedCases && caseData.relatedCases.length > 0 && (
-        <Box>
-          <Heading 
-            size="xl" 
-            mb={8}
-            color="white"
-            textAlign="center"
-          >
-            関連事例
-          </Heading>
-          
-          <Grid 
-            templateColumns={{
-              base: "1fr",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)"
-            }}
-            gap={8}
-          >
-            {caseData.relatedCases.map((relatedCase: Case) => (
-              <Link 
-                to={`/cases/${relatedCase.id}`} 
-                key={relatedCase.id}
-              >
-                <Box
-                  borderRadius="lg"
-                  overflow="hidden"
-                  bg="rgba(255, 255, 255, 0.1)"
-                  transition="all 0.3s"
-                  _hover={{ transform: 'translateY(-4px)' }}
-                >
-                  <Image
-                    src={relatedCase.thumbnail.url}
-                    alt={relatedCase.title}
-                    w="100%"
-                    h="160px"
-                    objectFit="cover"
-                  />
-                  <VStack p={4} align="start">
-                    <Heading 
-                      size="sm" 
-                      color="white"
-                      noOfLines={2}
-                    >
-                      {relatedCase.title}
-                    </Heading>
-                  </VStack>
+            {caseData.videoUrl && (
+              <motion.div variants={fadeInUp}>
+                <Box p={{ base: 6, md: 8 }} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+                  <Heading as="h2" size="lg" mb={6} textAlign="center" color="cyan.300">
+                    紹介動画
+                  </Heading>
+                  <AspectRatio ratio={16 / 9} borderRadius="lg" overflow="hidden">
+                    <iframe
+                      src={caseData.videoUrl.replace('watch?v=', 'embed/')}
+                      title={`${caseData.title} video`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </AspectRatio>
                 </Box>
-              </Link>
-            ))}
-          </Grid>
-        </Box>
-      )}
-    </Container>
+              </motion.div>
+            )}
+
+            {caseData.gallery && caseData.gallery.length > 0 && (
+              <motion.div variants={fadeInUp}>
+                <Box p={{ base: 6, md: 8 }} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+                  <Heading as="h2" size="lg" mb={6} textAlign="center" color="cyan.300">
+                    ギャラリー
+                  </Heading>
+                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+                    {caseData.gallery.map((item, index) => (
+                      <Image
+                        key={index}
+                        src={item.url}
+                        alt={`Gallery image ${index + 1}`}
+                        borderRadius="md"
+                        boxShadow="md"
+                        transition="transform 0.2s"
+                        _hover={{ transform: 'scale(1.05)' }}
+                      />
+                    ))}
+                  </SimpleGrid>
+                </Box>
+              </motion.div>
+            )}
+          </VStack>
+
+          {/* Sidebar */}
+          <VStack as={GridItem} spacing={8} align="stretch" position={{ lg: 'sticky' }} top={{ lg: '100px' }}>
+            <Box p={6} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+              <VStack spacing={6} align="stretch">
+                <TagSection title="コア技術" tags={caseData.coreTechnologies} icon={FaTools} />
+                <Divider />
+                <TagSection title="フレームワーク等" tags={caseData.frameworks} icon={FaTools} />
+                <Divider />
+                <TagSection title="目的" tags={caseData.purposeTags} icon={FaLightbulb} />
+                <Divider />
+                <TagSection title="関連業種" tags={[caseData.industry].filter(Boolean) as string[]} icon={FaIndustry} />
+                <Divider />
+                <TagSection title="関連職種" tags={caseData.roles} icon={FaUserTie} />
+              </VStack>
+            </Box>
+          </VStack>
+        </Grid>
+      </Container>
+    </motion.div>
   );
-} 
+};
+
+export default CaseDetailPage;

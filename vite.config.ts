@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    define: {
+      'process.env': {},
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

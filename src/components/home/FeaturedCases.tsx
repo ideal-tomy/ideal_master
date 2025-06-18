@@ -4,7 +4,7 @@ import { motion, useAnimation } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaArrowRight } from 'react-icons/fa'
 import { getCases } from '@/lib/api/serverlessClient'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import PageHeader from '../common/PageHeader'
 import { Case, MicroCMSResponse } from '@/types'
 import CaseCard from '../cases/CaseCard'
@@ -158,15 +158,16 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
           {/* 「もっと見る」ボタン */}
           <motion.div variants={itemVariants}>
             <Flex justify="center">
-              <Button
-                as={RouterLink}
-                to="/cases"
-                variant="secondary"
-                size="lg"
-                rightIcon={<FaArrowRight />}
-              >
-                すべての事例を見る
-              </Button>
+              <Link to="/cases">
+                <Button
+                  as="a"
+                  variant="secondary"
+                  size="lg"
+                  rightIcon={<FaArrowRight />}
+                >
+                  すべての事例を見る
+                </Button>
+              </Link>
             </Flex>
           </motion.div>
         </motion.div>
