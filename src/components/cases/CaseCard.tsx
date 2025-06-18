@@ -2,20 +2,21 @@ import React from 'react'
 import { Box, Text, Tag, Image, VStack, Wrap, WrapItem, Badge, Heading } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
 import type { Case } from '@/types'
-// import type { MicroCMSImage } from 'microcms-js-sdk'
+import type { MicroCMSImage } from 'microcms-js-sdk';
 
 interface CaseCardProps {
-  id: string
-  title: string
-  description?: string
-  thumbnail?: any
-  frameworks?: string[]
-  purposeTags?: string[]
-  roles?: string[]
-  demoType?: 'demoTool' | 'demoVideo' | 'articleOnly'
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: MicroCMSImage;
+  caseType?: Case['caseType'];
+  frameworks?: string[];
+  purposeTags?: string[];
+  roles?: string[];
+  demoType?: 'demoTool' | 'demoVideo' | 'articleOnly';
 }
 
-const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, frameworks, purposeTags, roles, demoType }) => {
+const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, caseType, frameworks, purposeTags, roles, demoType }) => {
   const hasDemo = demoType === 'demoTool' || demoType === 'demoVideo'
 
   return (
@@ -51,6 +52,11 @@ const CaseCard: React.FC<CaseCardProps> = ({ id, title, description, thumbnail, 
         fallbackSrc="https://via.placeholder.com/300x200?text=No+Image"
       />
       <VStack p={4} align="start" spacing={3} flexGrow={1}>
+        {caseType && (
+          <Tag size="md" colorScheme="cyan" variant="solid" mb={1}>
+            {caseType}
+          </Tag>
+        )}
         {Array.isArray(frameworks) && frameworks.length > 0 && (
           <Wrap spacing={2}>
             {frameworks.slice(0, 4).map((tech) => (

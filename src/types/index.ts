@@ -19,19 +19,9 @@ export interface CompanyValue {
   color: string;
 }
 
-// 事例関連の型定義
-export interface Case {
-  id: string;
-  title: string;
-  description: string;
-  categories: string[];
-  technologies: string[];
-  thumbnail: {
-    url: string;
-  };
-}
-
 // APIレスポンスの型定義
+export type { Case } from './case';
+
 export interface MicroCMSResponse<T> {
   contents: T[];
   totalCount: number;

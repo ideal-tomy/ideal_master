@@ -21,5 +21,5 @@ export type Case = {
   videoUrl?: string;
   body: string; // 旧 detail (richEditor)
   gallery?: MicroCMSImage[];
-  relatedArticles?: any[]; // 関連ツール記事 (tools スキーマへの参照 - 一旦 any[] に変更)
+  relatedCases?: Case[]; // 関連事例 (Case スキーマへの参照)
 } & MicroCMSListContent; // MicroCMS の共通フィールド (createdAt など) を含める 

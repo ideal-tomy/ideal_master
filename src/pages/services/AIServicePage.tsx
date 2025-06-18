@@ -27,7 +27,7 @@ const AIServicePage: React.FC = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: "tween",
+        type: "tween" as const,
         duration: 0.5
       }
     }

@@ -88,7 +88,7 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
       y: 0,
       transition: {
         duration: 0.6,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
   }
@@ -139,7 +139,7 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
               {/* データがない場合の表示 */}
               {!loading && casesData.length === 0 && <Text color="white">事例がありません。</Text>}
               {/* データがある場合に表示 */}
-              {!loading && casesData.map((item: any) => (
+              {!loading && casesData.map((item: Case) => (
                 <CaseCard
                   key={item.id}
                   id={item.id}
