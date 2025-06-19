@@ -137,7 +137,7 @@ const components = {
   Tag: {
     variants: {
       subtle: {
-        bg: 'rgba(66, 153, 225, 0.3)',
+        bg: 'cyan.700', // タグの背景色を濃くする
         color: 'white',
       },
     },

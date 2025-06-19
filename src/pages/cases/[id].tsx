@@ -52,6 +52,7 @@ const RichTextSection: React.FC<{ html: string; title: string }> = ({ html, titl
       color="gray.300"
       lineHeight="tall"
       sx={{
+        whiteSpace: 'pre-line', // テキスト内の改行を反映させる
         'h1, h2, h3, h4, h5, h6': {
           fontWeight: 'bold',
           color: 'gray.100',
@@ -87,6 +88,17 @@ const TagSection: React.FC<{ title: string; tags: string[] | undefined; icon: Re
   );
 };
 
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+
+  if (match && match[2].length === 11) {
+    return `https://www.youtube.com/embed/${match[2]}`;
+  }
+  return null;
+};
+
 const CaseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [caseData, setCaseData] = useState<Case | null>(null);
@@ -100,7 +112,7 @@ const CaseDetailPage: React.FC = () => {
       setLoading(true);
       try {
         const data = await getCaseById(id);
-        setCaseData(data);
+        setCaseData(data as Case);
       } catch (err) {
         setError('事例の読み込みに失敗しました。');
         console.error(err);
@@ -112,7 +124,7 @@ const CaseDetailPage: React.FC = () => {
     fetchCaseData();
   }, [id]);
 
-  const sectionBgColor = useColorModeValue('white', 'gray.900');
+  const sectionBgColor = useColorModeValue('gray.50', 'navy.800'); // 背景色をテーマに合わせて調整
 
   if (loading) {
     return (
@@ -172,23 +184,7 @@ const CaseDetailPage: React.FC = () => {
               </Box>
             </motion.div>
 
-            {caseData.videoUrl && (
-              <motion.div variants={fadeInUp}>
-                <Box p={{ base: 6, md: 8 }} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
-                  <Heading as="h2" size="lg" mb={6} textAlign="center" color="cyan.300">
-                    紹介動画
-                  </Heading>
-                  <AspectRatio ratio={16 / 9} borderRadius="lg" overflow="hidden">
-                    <iframe
-                      src={caseData.videoUrl.replace('watch?v=', 'embed/')}
-                      title={`${caseData.title} video`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </AspectRatio>
-                </Box>
-              </motion.div>
-            )}
+
 
             {caseData.gallery && caseData.gallery.length > 0 && (
               <motion.div variants={fadeInUp}>
@@ -216,19 +212,66 @@ const CaseDetailPage: React.FC = () => {
 
           {/* Sidebar */}
           <VStack as={GridItem} spacing={8} align="stretch" position={{ lg: 'sticky' }} top={{ lg: '100px' }}>
+            {/* Sidebar Video Embed Section */}
+            {caseData.videoUrl && (() => {
+              const embedUrl = getYouTubeEmbedUrl(caseData.videoUrl);
+              if (!embedUrl) return null;
+              return (
+                <Box p={6} bg={sectionBgColor} borderRadius="lg" boxShadow="lg" mb={0}> {/* mb={0} to reduce space if demo button is not there */}
+                  <Heading as="h3" size="md" mb={4} textAlign="center" color="cyan.300">
+                    紹介動画
+                  </Heading>
+                  <AspectRatio ratio={16 / 9} borderRadius="lg" overflow="hidden">
+                    <iframe
+                      src={embedUrl}
+                      title={`${caseData.title} video - sidebar`}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </AspectRatio>
+                </Box>
+              );
+            })()}
+
+            {/* Demo Link Card */}
+            {caseData.demoUrl && (
+              <Box p={6} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
+                <VStack spacing={4} align="stretch">
+                  <Button
+                    as="a"
+                    href={caseData.demoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    colorScheme="teal"
+                    variant="solid"
+                    size="lg"
+                    width="full"
+                  >
+                    デモを見る
+                  </Button>
+                </VStack>
+              </Box>
+            )}
+
+            {/* Tag Sections Card */}
+            {(caseData.coreTechnologies?.length || caseData.frameworks?.length || caseData.purposeTags?.length || caseData.industry || caseData.roles?.length) && (
             <Box p={6} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
               <VStack spacing={6} align="stretch">
+                {/* Tag Sections */}
                 <TagSection title="コア技術" tags={caseData.coreTechnologies} icon={FaTools} />
-                <Divider />
+                {(caseData.coreTechnologies?.length > 0 && (caseData.frameworks?.length > 0 || caseData.purposeTags?.length > 0 || caseData.industry || caseData.roles?.length > 0)) && <Divider />}
                 <TagSection title="フレームワーク等" tags={caseData.frameworks} icon={FaTools} />
-                <Divider />
+                {(caseData.frameworks?.length > 0 && (caseData.purposeTags?.length > 0 || caseData.industry || caseData.roles?.length > 0)) && <Divider />}
                 <TagSection title="目的" tags={caseData.purposeTags} icon={FaLightbulb} />
-                <Divider />
+                {(caseData.purposeTags?.length > 0 && (caseData.industry || caseData.roles?.length > 0)) && <Divider />}
                 <TagSection title="関連業種" tags={[caseData.industry].filter(Boolean) as string[]} icon={FaIndustry} />
-                <Divider />
+                {(caseData.industry && caseData.roles?.length > 0) && <Divider />}
                 <TagSection title="関連職種" tags={caseData.roles} icon={FaUserTie} />
               </VStack>
             </Box>
+            )}
           </VStack>
         </Grid>
       </Container>
