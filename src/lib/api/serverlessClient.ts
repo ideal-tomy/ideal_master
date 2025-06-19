@@ -154,11 +154,11 @@ export const getCaseById = async (id: string) => {
       'relatedArticles.thumbnail' // tools スキーマに thumbnail がある前提
     ].join(',');
 
-    // 詳細取得APIのエンドポイント `/cases/{id}` を使用し、fieldsパラメータを追加
-    const endpoint = `/cases/${id}`;
-    const params = { fields };
+    // 詳細取得APIのエンドポイント `/cases` を使用し、idとfieldsをクエリパラメータとして渡す
+    const endpoint = '/cases';
+    const params = { id, fields };
 
-    const data = await fetchFromAPI(endpoint, params); // fetchFromAPI を修正後のエンドポイントとパラメータで呼び出す
+    const data = await fetchFromAPI(endpoint, params);
     if (DEBUG) console.log('getCaseById result:', data);
     return data;
   }
