@@ -136,9 +136,17 @@ const components = {
   },
   Tag: {
     variants: {
-      subtle: {
-        bg: 'cyan.700', // タグの背景色を濃くする
-        color: 'white',
+      tech: {
+        container: {
+          bg: 'rgba(0, 184, 212, 0.15)', // #00B8D426
+          color: '#76E4F7',
+        },
+      },
+      business: {
+        container: {
+          bg: 'rgba(255, 146, 3, 0.7)', // #FF9203B3
+          color: '#FFFFFF',
+        },
       },
     },
   },

@@ -69,7 +69,7 @@ const RichTextSection: React.FC<{ html: string; title: string }> = ({ html, titl
   </Box>
 );
 
-const TagSection: React.FC<{ title: string; tags: string[] | undefined; icon: React.ElementType }> = ({ title, tags, icon }) => {
+const TagSection: React.FC<{ title: string; tags: string[] | undefined; icon: React.ElementType; variant: 'tech' | 'business' }> = ({ title, tags, icon, variant }) => {
   if (!tags || tags.length === 0 || (tags.length === 1 && !tags[0])) return null;
   return (
     <Box>
@@ -80,7 +80,7 @@ const TagSection: React.FC<{ title: string; tags: string[] | undefined; icon: Re
       <Wrap spacing={2}>
         {tags.map((tag, index) => (
           tag && <WrapItem key={index}>
-            <Tag size="md" variant="solid" colorScheme="gray">{tag}</Tag>
+            <Tag size="md" variant={variant}>{tag}</Tag>
           </WrapItem>
         ))}
       </Wrap>
@@ -124,7 +124,7 @@ const CaseDetailPage: React.FC = () => {
     fetchCaseData();
   }, [id]);
 
-  const sectionBgColor = useColorModeValue('gray.50', 'navy.800'); // 背景色をテーマに合わせて調整
+  const sectionBgColor = 'navy.800'; // 背景色をダークテーマの色に固定
 
   if (loading) {
     return (
@@ -260,15 +260,15 @@ const CaseDetailPage: React.FC = () => {
             <Box p={6} bg={sectionBgColor} borderRadius="lg" boxShadow="lg">
               <VStack spacing={6} align="stretch">
                 {/* Tag Sections */}
-                <TagSection title="コア技術" tags={caseData.coreTechnologies} icon={FaTools} />
+                <TagSection title="コア技術" tags={caseData.coreTechnologies} icon={FaTools} variant="tech" />
                 {(caseData.coreTechnologies?.length > 0 && (caseData.frameworks?.length > 0 || caseData.purposeTags?.length > 0 || caseData.industry || caseData.roles?.length > 0)) && <Divider />}
-                <TagSection title="フレームワーク等" tags={caseData.frameworks} icon={FaTools} />
+                <TagSection title="フレームワーク等" tags={caseData.frameworks} icon={FaTools} variant="tech" />
                 {(caseData.frameworks?.length > 0 && (caseData.purposeTags?.length > 0 || caseData.industry || caseData.roles?.length > 0)) && <Divider />}
-                <TagSection title="目的" tags={caseData.purposeTags} icon={FaLightbulb} />
+                <TagSection title="目的" tags={caseData.purposeTags} icon={FaLightbulb} variant="business" />
                 {(caseData.purposeTags?.length > 0 && (caseData.industry || caseData.roles?.length > 0)) && <Divider />}
-                <TagSection title="関連業種" tags={[caseData.industry].filter(Boolean) as string[]} icon={FaIndustry} />
+                <TagSection title="関連業種" tags={[caseData.industry].filter(Boolean) as string[]} icon={FaIndustry} variant="business" />
                 {(caseData.industry && caseData.roles?.length > 0) && <Divider />}
-                <TagSection title="関連職種" tags={caseData.roles} icon={FaUserTie} />
+                <TagSection title="関連職種" tags={caseData.roles} icon={FaUserTie} variant="business" />
               </VStack>
             </Box>
             )}
