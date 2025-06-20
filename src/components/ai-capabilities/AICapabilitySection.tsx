@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Heading, Text, VStack, Image, useBreakpointValue } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Box, Heading, Text, useBreakpointValue, HStack } from '@chakra-ui/react';
+import AICapabilityCard from './AICapabilityCard'; // 新しいカードコンポーネントをインポート
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -32,24 +32,30 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   // スライダー設定を条件分岐
   const sliderSettings = {
     dots: false,
-    infinite: contents.length > 1,  // カードが1枚の場合はinfiniteをfalseに
-    autoplay: contents.length > 1,  // カードが1枚の場合はautoplayもfalseに
+    infinite: contents.length > 1,
+    autoplay: contents.length > 1,
     pauseOnHover: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: 5, // 表示件数を増やす
     slidesToScroll: 1,
     autoplaySpeed: 3000,
     responsive: [
       {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 4, // 表示件数を調整
+        }
+      },
+      {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 3.5, // 表示件数を調整
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 2.5, // 表示件数を調整
         }
       },
       {
@@ -64,7 +70,8 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
 
   return (
     <Box
-      py={isMobile ? 4 : 12}
+      pt={3} // padding-topを3に
+      pb={0} // padding-bottomを削除
       px={isMobile ? 4 : 12}
       position="relative"
       _before={{
@@ -81,23 +88,26 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
       }}
     >
       {/* ヘッダー部分 */}
-      <Box mb={isMobile ? 4 : 8}>
+      <HStack
+        alignItems="baseline"
+        spacing={4}
+        mb={6} // margin-bottomを調整
+      >
         <Heading 
           as="h2" 
-          size={isMobile ? "md" : "lg"}
+          size={isMobile ? "sm" : "md"} // フォントサイズを小さく
           bgGradient="linear(to-r, cyan.400, blue.500)"
           bgClip="text"
-          mb={2}
         >
           {title}
         </Heading>
         <Text 
-          fontSize={isMobile ? "sm" : "md"}
+          fontSize={isMobile ? "xs" : "sm"} // フォントサイズを小さく
           color="gray.300"
         >
           {challenge}
         </Text>
-      </Box>
+      </HStack>
 
       {/* カード表示部分 */}
       {contents && contents.length > 0 ? (
@@ -105,67 +115,8 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
           <style>{customStyles}</style>
           <Slider {...sliderSettings}>
             {contents.map((content) => (
-              <Box key={content.id} px={2}>
-                <Link to={`/tools/${content.id}`}>
-                  <Box
-                    bg="rgba(0, 184, 212, 0.05)"
-                    borderRadius="lg"
-                    overflow="hidden"
-                    h="0"
-                    pb="100%"
-                    w="100%"
-                    maxW="240px"
-                    mx="auto"
-                    position="relative"
-                  >
-                    <Box
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      right="0"
-                      bottom="0"
-                      display="flex"
-                      flexDirection="column"
-                    >
-                      <Box 
-                        position="relative"
-                        w="100%"
-                        h="58%"
-                      >
-                        <Image
-                          src={content.thumbnail?.url}
-                          alt={content.title}
-                          objectFit="cover"
-                          w="100%"
-                          h="100%"
-                          fallbackSrc="/placeholder-image.png"
-                        />
-                      </Box>
-                      <VStack 
-                        align="start" 
-                        p="5%"
-                        spacing="2%"
-                        h="42%"
-                      >
-                        <Heading 
-                          size="sm" 
-                          color="white"
-                          noOfLines={2}
-                          fontSize="clamp(12px, 5.8%, 14px)"
-                        >
-                          {content.title}
-                        </Heading>
-                        <Text 
-                          fontSize="clamp(11px, 5.4%, 13px)"
-                          color="gray.300"
-                          noOfLines={2}
-                        >
-                          {content.description}
-                        </Text>
-                      </VStack>
-                    </Box>
-                  </Box>
-                </Link>
+              <Box key={content.id} px={2}> {/* px={2} はスライド間の余白として維持 */}
+                <AICapabilityCard capability={content} />
               </Box>
             ))}
           </Slider>
