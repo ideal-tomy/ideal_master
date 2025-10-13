@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Container, Text, useToast, Heading } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
-import { generateStarTexture, generateNebulaTexture } from '../../utils/textureGenerator';
-import { GradientText } from '../common/GradientText';
+import { generateStarTexture, generateNebulaTexture } from '@/utils/textureGenerator'; // エイリアスパスに変更
+import { GradientText } from '@/components/common/GradientText'; // エイリアスパスに変更
 
 interface HeroProps {
   subtitle?: string;
@@ -64,7 +64,6 @@ const Hero: React.FC<HeroProps> = ({
         setIsTypingComplete(true);
         
         // タイピング完了後、テキストサイズを徐々に大きくする
-        // 5秒間で100ステップに分割
         const totalDuration = 5000; // 5秒
         const steps = 100; // ステップ数
         const interval = totalDuration / steps; // 各ステップの間隔
@@ -113,7 +112,6 @@ const Hero: React.FC<HeroProps> = ({
   const initStars = () => {
     if (!sceneRef.current) return;
 
-    // 既存の星を削除
     if (starsRef.current) {
       sceneRef.current.remove(starsRef.current);
     }
@@ -124,7 +122,6 @@ const Hero: React.FC<HeroProps> = ({
     const sizes = new Float32Array(numStars);
 
     for (let i = 0; i < numStars; i++) {
-      // 位置
       const x = THREE.MathUtils.randFloatSpread(4000);
       const y = THREE.MathUtils.randFloatSpread(4000);
       const z = THREE.MathUtils.randFloat(-4000, 0);
@@ -133,26 +130,21 @@ const Hero: React.FC<HeroProps> = ({
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
 
-      // サイズ
       sizes[i] = THREE.MathUtils.randFloat(1, 4);
 
-      // 色
       const colorType = Math.random() * 10;
       let r, g, b;
 
       if (colorType < 6) {
-        // 白系（少し青みがかった白）
         const brightness = THREE.MathUtils.randFloat(0.8, 1.0);
         r = brightness;
         g = brightness;
         b = brightness + THREE.MathUtils.randFloat(0, 0.08);
       } else if (colorType < 8) {
-        // 青系
         r = 0.7 + THREE.MathUtils.randFloat(0, 0.3);
         g = 0.7 + THREE.MathUtils.randFloat(0, 0.3);
         b = 1.0;
       } else {
-        // 黄色系
         r = 1.0;
         g = 0.85 + THREE.MathUtils.randFloat(0, 0.15);
         b = 0.4 + THREE.MathUtils.randFloat(0, 0.4);
@@ -163,13 +155,11 @@ const Hero: React.FC<HeroProps> = ({
       colors[i * 3 + 2] = b;
     }
 
-    // ジオメトリの作成
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-    // シェーダーマテリアルの作成
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
@@ -185,7 +175,6 @@ const Hero: React.FC<HeroProps> = ({
           vColor = color;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           
-          // きらめき効果
           float twinkle = sin(time * 5.0 + position.x * 0.05 + position.y * 0.05 + position.z * 0.05) * 0.5 + 0.5;
           gl_PointSize = size * (300.0 / -mvPosition.z) * (0.7 + 0.3 * twinkle);
           gl_Position = projectionMatrix * mvPosition;
@@ -204,70 +193,51 @@ const Hero: React.FC<HeroProps> = ({
       transparent: true
     });
 
-    // 星のポイントを作成
     const stars = new THREE.Points(geometry, material);
     starsRef.current = stars;
     sceneRef.current.add(stars);
   };
 
-  // 星雲を初期化する関数
   const initNebulas = () => {
     if (!sceneRef.current) return;
 
-    // 既存の星雲を削除
     if (nebulasRef.current) {
       sceneRef.current.remove(nebulasRef.current);
     }
 
     const group = new THREE.Group();
-
-    // 星雲の数
     const numNebulas = 5;
 
-    // 星雲を生成
     for (let i = 0; i < numNebulas; i++) {
-      // 位置
       const x = THREE.MathUtils.randFloatSpread(2000);
       const y = THREE.MathUtils.randFloatSpread(2000);
       const z = THREE.MathUtils.randFloat(-3000, -500);
-
-      // サイズ
       const size = THREE.MathUtils.randFloat(400, 800);
-
-      // 色
       let color;
       const colorType = Math.random();
       if (colorType < 0.33) {
-        // 青系
         color = new THREE.Color(0.2, 0.4, 0.8);
       } else if (colorType < 0.66) {
-        // 紫系
         color = new THREE.Color(0.5, 0.2, 0.8);
       } else {
-        // 黄色系
         color = new THREE.Color(0.8, 0.6, 0.2);
       }
-
-      // 不透明度
       const alpha = THREE.MathUtils.randFloat(0.2, 0.4);
 
-      // 星雲の外側部分
       const outerMaterial = new THREE.SpriteMaterial({
         map: generateNebulaTexture(256, color, 0.2),
         blending: THREE.AdditiveBlending,
         transparent: true,
         opacity: alpha,
-        rotation: Math.random() * Math.PI * 2 // 初期回転をランダムに設定
+        rotation: Math.random() * Math.PI * 2
       });
 
       const outerNebula = new THREE.Sprite(outerMaterial);
       outerNebula.position.set(x, y, z + 50);
       outerNebula.scale.set(size * 1.5, size * 1.5, 1);
       outerNebula.userData = { rotationSpeed: Math.random() * 0.001 - 0.0005 };
-
       group.add(outerNebula);
 
-      // 星雲の内部に複数の雲を追加
       for (let j = 0; j < 5; j++) {
         const offsetX = THREE.MathUtils.randFloatSpread(size * 0.3);
         const offsetY = THREE.MathUtils.randFloatSpread(size * 0.3);
@@ -280,14 +250,13 @@ const Hero: React.FC<HeroProps> = ({
           blending: THREE.AdditiveBlending,
           transparent: true,
           opacity: alpha * 0.7 + alphaOffset,
-          rotation: Math.random() * Math.PI * 2 // 初期回転をランダムに設定
+          rotation: Math.random() * Math.PI * 2
         });
 
         const cloud = new THREE.Sprite(cloudMaterial);
         cloud.position.set(x + offsetX, y + offsetY, z + offsetZ);
         cloud.scale.set(cloudSize, cloudSize, 1);
         cloud.userData = { rotationSpeed: Math.random() * 0.003 - 0.0015 };
-
         group.add(cloud);
       }
     }
@@ -296,51 +265,41 @@ const Hero: React.FC<HeroProps> = ({
     sceneRef.current.add(nebulasRef.current);
   };
 
-  // アニメーションループ
   const animate = (time: number) => {
     frameIdRef.current = requestAnimationFrame(animate);
 
     if (!sceneRef.current || !cameraRef.current || !rendererRef.current) return;
 
-    // 時間の更新
-    const t = time * 0.001; // ミリ秒を秒に変換
+    const t = time * 0.001;
 
-    // 星のきらめき効果を更新
     if (starsRef.current && starsRef.current.material instanceof THREE.ShaderMaterial) {
       starsRef.current.material.uniforms.time.value = t;
 
-      // 星を少しずつ手前に移動
       const positions = starsRef.current.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < positions.length; i += 3) {
-        positions[i + 2] += 1; // Z座標を増加（手前に移動）
+        positions[i + 2] += 1;
 
-        // 手前に来すぎたら再初期化
         if (positions[i + 2] > 500) {
-          positions[i] = THREE.MathUtils.randFloatSpread(4000); // X
-          positions[i + 1] = THREE.MathUtils.randFloatSpread(4000); // Y
-          positions[i + 2] = -4000; // Z（奥に配置）
+          positions[i] = THREE.MathUtils.randFloatSpread(4000);
+          positions[i + 1] = THREE.MathUtils.randFloatSpread(4000);
+          positions[i + 2] = -4000;
         }
       }
       starsRef.current.geometry.attributes.position.needsUpdate = true;
     }
 
-    // 星雲の回転を更新
     if (nebulasRef.current) {
       nebulasRef.current.children.forEach((child) => {
         if (child instanceof THREE.Sprite) {
-          // 回転速度を適用
           child.material.rotation += child.userData.rotationSpeed;
           
-          // 星雲をスケール変換（拡大・縮小）
           const scaleOffset = Math.sin(t * 0.5 + child.userData.rotationSpeed * 10) * 0.05;
           const baseScale = child.userData.baseScale || child.scale.x;
           
-          // 基準スケールを保持
           if (!child.userData.baseScale) {
             child.userData.baseScale = child.scale.x;
           }
           
-          // スケールを変換
           child.scale.set(
             baseScale * (1 + scaleOffset),
             baseScale * (1 + scaleOffset),
@@ -353,9 +312,7 @@ const Hero: React.FC<HeroProps> = ({
     rendererRef.current.render(sceneRef.current, cameraRef.current);
   };
 
-  // 初期化
   useEffect(() => {
-    // WebGLサポートチェック
     const isWebGLSupported = checkWebGLSupport();
     setWebGLSupported(isWebGLSupported);
 
@@ -370,15 +327,12 @@ const Hero: React.FC<HeroProps> = ({
       return;
     }
 
-    // DOMが確実に準備できるようにするための短い遅延
     const initTimeout = setTimeout(() => {
       if (!canvasRef.current) return;
 
-      // シーンの作成
       const scene = new THREE.Scene();
       sceneRef.current = scene;
 
-      // カメラの作成
       const camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -386,11 +340,9 @@ const Hero: React.FC<HeroProps> = ({
         10000
       );
       camera.position.z = 500;
-      // カメラの視点を設定
       camera.lookAt(0, 0, -1000);
       cameraRef.current = camera;
 
-      // レンダラーの作成
       const renderer = new THREE.WebGLRenderer({
         canvas: canvasRef.current,
         alpha: true,
@@ -400,18 +352,14 @@ const Hero: React.FC<HeroProps> = ({
       renderer.setPixelRatio(window.devicePixelRatio);
       rendererRef.current = renderer;
 
-      // 星と星雲の初期化
       initStars();
       initNebulas();
 
-      // イベントリスナーの設定
       window.addEventListener('resize', handleResize);
 
-      // アニメーションの開始
       frameIdRef.current = requestAnimationFrame(animate);
     }, 100);
 
-    // クリーンアップ
     return () => {
       clearTimeout(initTimeout);
       window.removeEventListener('resize', handleResize);

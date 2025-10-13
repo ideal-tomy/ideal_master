@@ -1,22 +1,25 @@
 import { createClient, MicroCMSQueries } from 'microcms-js-sdk';
 
-// セーフモードの設定（実際のAPIをテスト）
+// セーフモードの設定 (クライアントサイドでも使えるように NEXT_PUBLIC_ を使用)
 const isSafeMode = process.env.NEXT_PUBLIC_SAFE_MODE === 'true';
 
-// APIキーと環境変数の確認（デバッグ用）
-console.log('--- MicroCMS設定確認 ---');
-console.log('API Key exists:', !!process.env.NEXT_PUBLIC_MICROCMS_API_KEY);
-console.log('API Key (first 10 chars):', process.env.NEXT_PUBLIC_MICROCMS_API_KEY?.substring(0, 10));
-console.log('Service Domain exists:', !!process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN);
-console.log('Service Domain:', process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN);
-console.log('Safe Mode:', isSafeMode);
+// APIキーとサービスドメイン (サーバーサイドでのみ使用)
+const apiKey = process.env.MICROCMS_API_KEY;
+const serviceDomain = process.env.MICROCMS_SERVICE_DOMAIN;
 
-// セーフモードでのダミークライアント（Viteプロジェクトと同じ）
+// 環境変数の確認（デバッグ用）
+// このログはサーバーサイドのコンソール（ターミナル）に表示されます
+console.log('--- Next.js MicroCMS-Client-Setup ---');
+console.log('Service Domain Loaded:', !!serviceDomain);
+console.log('API Key Loaded:', !!apiKey);
+console.log('Safe Mode:', isSafeMode);
+console.log('------------------------------------');
+
+// セーフモードでのダミークライアント
 const dummyClient = {
   get: async ({ endpoint, contentId, queries }: { endpoint: string; contentId?: string; queries?: MicroCMSQueries }) => {
     console.log(`[Dummy] GET request to ${endpoint}${contentId ? `/${contentId}` : ''}`, queries);
     
-    // contentIdが指定されている場合は単一のコンテンツを返す
     if (contentId) {
       return {
         id: contentId,
@@ -30,111 +33,57 @@ const dummyClient = {
       };
     }
     
-    // 一覧を返す場合は標準的なMicroCMSのレスポンス形式に合わせる
     return {
-      contents: Array.from({ length: 10 }, (_, i) => ({
+      contents: Array.from({ length: 5 }, (_, i) => ({
         id: `dummy-${endpoint}-${i + 1}`,
         title: `Dummy ${endpoint} Title ${i + 1}`,
-        description: `This is a dummy ${endpoint} content ${i + 1}.`,
-        category: ['text_creation', 'image_generation', 'data_analysis'][i % 3],
-        technologies: ['AI', 'Machine Learning', 'NLP'],
+        description: `This is a dummy ${endpoint} content.`,
+        categories: ['dummy-category-1', 'dummy-category-2'],
         thumbnail: { url: 'https://placehold.jp/150x150.png' },
-        detail: `Detailed content for ${endpoint} ${i + 1}`,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        publishedAt: new Date().toISOString(),
-        revisedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString()
       })),
-      totalCount: 10,
+      totalCount: 5,
       offset: 0,
       limit: 10
     };
   }
 };
 
-// 実際のクライアント作成（Viteプロジェクトと同じ設定）
+// 実際のクライアント作成
 const createRealClient = () => {
-  if (!process.env.NEXT_PUBLIC_MICROCMS_API_KEY || !process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN) {
-    console.error('MicroCMS環境変数が設定されていません');
-    console.error('API Key:', process.env.NEXT_PUBLIC_MICROCMS_API_KEY ? 'あり' : 'なし');
-    console.error('Service Domain:', process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN ? 'あり' : 'なし');
-    throw new Error('MicroCMS環境変数が設定されていません');
+  if (!apiKey || !serviceDomain) {
+    console.error('MicroCMS API Key or Service Domain is missing. Check your environment variables (.env.local).');
+    // エラーをスローする代わりに、アプリケーションがクラッシュしないようにする
+    // ただし、API通信は失敗する
+    return {
+        get: async () => {
+            console.error("MicroCMS client is not configured.");
+            // MicroCMSの期待する戻り値の形式に合わせて空のデータを返す
+            return { contents: [], totalCount: 0, offset: 0, limit: 0 };
+        }
+    };
   }
 
-  console.log('実際のMicroCMSクライアントを作成中...');
-  console.log('Service Domain:', process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN);
-  console.log('API Key (first 10 chars):', process.env.NEXT_PUBLIC_MICROCMS_API_KEY.substring(0, 10));
-
-  const realClient = createClient({
-    serviceDomain: process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN,
-    apiKey: process.env.NEXT_PUBLIC_MICROCMS_API_KEY,
+  return createClient({
+    serviceDomain: serviceDomain,
+    apiKey: apiKey
   });
-
-  console.log('MicroCMSクライアント作成完了');
-  return realClient;
-};
-
-// 拡張されたクライアント（エラーハンドリング付き）
-const createEnhancedClient = () => {
-  const baseClient = createRealClient();
-  
-  return {
-    get: async (params: { endpoint: string; contentId?: string; queries?: MicroCMSQueries }) => {
-      try {
-        console.log('=== MicroCMS API呼び出し開始 ===');
-        console.log('Endpoint:', params.endpoint);
-        console.log('ContentId:', params.contentId);
-        console.log('Queries:', params.queries);
-        
-        const result = await baseClient.get(params);
-        
-        console.log('=== MicroCMS API呼び出し成功 ===');
-        console.log('Response type:', typeof result);
-        console.log('Response keys:', Object.keys(result || {}));
-        if (result && typeof result === 'object' && 'contents' in result) {
-          console.log('Contents count:', (result as any).contents?.length);
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('=== MicroCMS API呼び出しエラー ===');
-        console.error('Error type:', typeof error);
-        console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
-        console.error('Error message:', error instanceof Error ? error.message : String(error));
-        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-        
-        // ネットワークエラーの詳細を確認
-        if (error instanceof Error) {
-          console.error('Error details:', {
-            name: error.name,
-            message: error.message,
-            cause: (error as any).cause,
-            status: (error as any).status,
-            statusText: (error as any).statusText
-          });
-        }
-        
-        throw error;
-      }
-    }
-  };
 };
 
 // セーフモードに応じてクライアントを選択
-export const client = isSafeMode ? dummyClient : createEnhancedClient();
+export const client = isSafeMode ? dummyClient : createRealClient();
 
-// 接続テスト用の関数（Viteプロジェクトと同じ）
-const testConnection = async () => {
+// 接続テスト用の関数
+export const testConnection = async () => {
   try {
-    console.log('MicroCMS接続テストを開始...');
-    const result = await client.get({ endpoint: 'capabilities', queries: { limit: 1 } });
-    console.log('MicroCMS接続テスト成功:', result);
+    const response = await client.get({
+      endpoint: 'cases'
+    });
+    console.log('microCMS connection test response:', response);
+    return response;
   } catch (error) {
-    console.error('MicroCMS接続テストエラー:', error);
+    console.error('microCMS connection test error:', error);
+    throw error;
   }
 };
-
-// 開発環境でのみ接続テストを実行
-if (process.env.NODE_ENV === 'development' && !isSafeMode) {
-  testConnection();
-}

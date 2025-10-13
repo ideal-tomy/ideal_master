@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Box, Container, Heading, SimpleGrid, Text, Flex, Icon, HStack, Tag, Button } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FaCode, FaLightbulb, FaArrowRight, FaBuilding, FaUsers, FaTools } from 'react-icons/fa';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // next/navigationからuseRouterをインポート
 
 /**
  * 企業が悩む2大テーマを解決するセクションコンポーネント
  */
 const TwoPillarsSection: React.FC = () => {
-  const router = useRouter();
+  const router = useRouter(); // useRouterフックを使用
 
   // アニメーション設定
   const containerVariants = {
@@ -87,7 +87,7 @@ const TwoPillarsSection: React.FC = () => {
               transition: "all 0.3s ease"
             }}
             cursor="pointer"
-            onClick={() => router.push('/services')}
+            onClick={() => router.push('/services')} // router.pushを使用
           >
             <Flex align="center" mb={6}>
               <Icon as={FaCode} w={10} h={10} color="cyan.400" mr={4} />
@@ -132,7 +132,7 @@ const TwoPillarsSection: React.FC = () => {
               size="md"
               onClick={(e) => {
                 e.stopPropagation();
-                router.push('/services');
+                router.push('/services'); // router.pushを使用
               }}
             >
               サービス詳細へ
@@ -155,7 +155,7 @@ const TwoPillarsSection: React.FC = () => {
               transition: "all 0.3s ease"
             }}
             cursor="pointer"
-            onClick={() => router.push('/services/english-consulting')}
+            onClick={() => router.push('/services/english-consulting')} // router.pushを使用
           >
             <Flex align="center" mb={6}>
               <Icon as={FaLightbulb} w={10} h={10} color="purple.400" mr={4} />
@@ -199,7 +199,7 @@ const TwoPillarsSection: React.FC = () => {
               size="md"
               onClick={(e) => {
                 e.stopPropagation();
-                router.push('/services/english-consulting');
+                router.push('/services/english-consulting'); // router.pushを使用
               }}
             >
               サービス詳細へ

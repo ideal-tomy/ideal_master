@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useRef, useState } from 'react'
-import { Box, Container, Heading, Text, Flex, Avatar, Icon, useBreakpointValue } from '@chakra-ui/react'
-import { motion, useAnimation } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import { FaQuoteLeft, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa'
+import React, { useRef, useState } from 'react';
+import { Box, Container, Heading, Text, Flex, Avatar, Icon, useBreakpointValue } from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { FaQuoteLeft, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 
 // お客様の声データ
 const testimonials = [
@@ -35,39 +35,35 @@ const testimonials = [
     avatar: '/src/assets/images/avatar-placeholder-3.jpg',
     rating: 5,
   },
-]
+];
 
 const Testimonials: React.FC = () => {
-  const controls = useAnimation()
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true })
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
   
-  // レスポンシブ設定
-  const slidesToShow = useBreakpointValue({ base: 1, md: 2, lg: 3 }) || 1
+  const slidesToShow = useBreakpointValue({ base: 1, md: 2, lg: 3 }) || 1;
   
-  // アニメーションの設定
   React.useEffect(() => {
     if (inView) {
-      controls.start('visible')
+      controls.start('visible');
     }
-  }, [controls, inView])
+  }, [controls, inView]);
   
-  // 前のスライドへ
   const prevSlide = () => {
     setCurrentIndex((prev) => {
-      const newIndex = prev - 1
-      return newIndex < 0 ? testimonials.length - slidesToShow : newIndex
-    })
-  }
+      const newIndex = prev - 1;
+      return newIndex < 0 ? testimonials.length - slidesToShow : newIndex;
+    });
+  };
   
-  // 次のスライドへ
   const nextSlide = () => {
     setCurrentIndex((prev) => {
-      const newIndex = prev + 1
-      return newIndex > testimonials.length - slidesToShow ? 0 : newIndex
-    })
-  }
+      const newIndex = prev + 1;
+      return newIndex > testimonials.length - slidesToShow ? 0 : newIndex;
+    });
+  };
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,7 +73,7 @@ const Testimonials: React.FC = () => {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
   
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -89,7 +85,7 @@ const Testimonials: React.FC = () => {
         ease: 'easeOut',
       },
     },
-  }
+  };
   
   return (
     <Box
@@ -105,7 +101,6 @@ const Testimonials: React.FC = () => {
           initial="hidden"
           animate={controls}
         >
-          {/* セクションヘッダー */}
           <Flex direction="column" align="center" textAlign="center" mb={16}>
             <motion.div variants={itemVariants}>
               <Heading
@@ -133,9 +128,7 @@ const Testimonials: React.FC = () => {
             </motion.div>
           </Flex>
           
-          {/* カルーセル */}
           <Box position="relative" px={{ base: 4, md: 12 }}>
-            {/* 前へボタン */}
             <Flex
               position="absolute"
               left={{ base: 0, md: 0 }}
@@ -157,7 +150,6 @@ const Testimonials: React.FC = () => {
               <Icon as={FaChevronLeft} boxSize={4} />
             </Flex>
             
-            {/* カルーセルコンテナ */}
             <Box
               ref={carouselRef}
               overflow="hidden"
@@ -196,7 +188,6 @@ const Testimonials: React.FC = () => {
                           borderColor: 'neonBlue',
                         }}
                       >
-                        {/* 引用符アイコン */}
                         <Icon
                           as={FaQuoteLeft}
                           position="absolute"
@@ -207,7 +198,6 @@ const Testimonials: React.FC = () => {
                           zIndex="1"
                         />
                         
-                        {/* 評価 */}
                         <Flex mb={6} zIndex="1" position="relative">
                           {[...Array(5)].map((_, i) => (
                             <Icon
@@ -220,7 +210,6 @@ const Testimonials: React.FC = () => {
                           ))}
                         </Flex>
                         
-                        {/* 引用文 */}
                         <Text
                           color="gray.300"
                           fontSize="md"
@@ -231,7 +220,6 @@ const Testimonials: React.FC = () => {
                           {testimonial.quote}
                         </Text>
                         
-                        {/* プロフィール */}
                         <Flex align="center" position="relative" zIndex="1">
                           <Avatar
                             size="md"
@@ -256,7 +244,6 @@ const Testimonials: React.FC = () => {
               </Flex>
             </Box>
             
-            {/* 次へボタン */}
             <Flex
               position="absolute"
               right={{ base: 0, md: 0 }}
@@ -279,7 +266,6 @@ const Testimonials: React.FC = () => {
             </Flex>
           </Box>
           
-          {/* インジケーター */}
           <Flex justify="center" mt={8}>
             {[...Array(Math.ceil(testimonials.length / slidesToShow))].map((_, index) => (
               <Box
@@ -298,7 +284,7 @@ const Testimonials: React.FC = () => {
         </motion.div>
       </Container>
     </Box>
-  )
+  );
 }
 
-export default Testimonials
+export default Testimonials;

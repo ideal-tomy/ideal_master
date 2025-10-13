@@ -1,94 +1,58 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from 'react'
-import { Box, Container, Text, Grid, VStack, Image, Tag, Wrap, WrapItem, Flex, Button, Heading, Link } from '@chakra-ui/react'
-import { motion, useAnimation } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import { FaArrowRight } from 'react-icons/fa'
-import { client } from '../../lib/microcms'
-import NextLink from 'next/link'
-import PageHeader from '../common/PageHeader'
-import { Case, MicroCMSResponse } from '@/types'
+import React, { useEffect, useRef } from 'react';
+import { Box, Container, Text, Grid, VStack, Image, Tag, Wrap, WrapItem, Flex, Button, Heading } from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { FaArrowRight } from 'react-icons/fa';
+import Link from 'next/link';
+import PageHeader from '@/components/common/PageHeader';
+import { Case } from '@/types';
 
+// Propsの型定義を更新
 interface FeaturedCasesProps {
   isHomePage?: boolean;
+  cases: Case[]; // 親からcasesデータを受け取る
 }
 
-const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => {
-  const controls = useAnimation()
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true })
-  const parallaxRef = useRef<HTMLDivElement>(null)
-  const [data, setData] = useState<MicroCMSResponse<Case> | null>(null)
+const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false, cases }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const parallaxRef = useRef<HTMLDivElement>(null);
   
   // アニメーションの設定
   useEffect(() => {
     if (inView) {
-      controls.start('visible')
+      controls.start('visible');
     }
-  }, [controls, inView])
+  }, [controls, inView]);
   
   // パララックス効果
   useEffect(() => {
     const handleScroll = () => {
-      if (!parallaxRef.current) return
-      const elements = parallaxRef.current.querySelectorAll('.parallax-item')
+      if (!parallaxRef.current) return;
+      const elements = parallaxRef.current.querySelectorAll('.parallax-item');
       
       elements.forEach((element, index) => {
-        const speed = index % 2 === 0 ? 0.05 : -0.05 // 速度を0.1から0.05に減らして、より自然な動きに
-        const yPos = window.scrollY * speed
-        const htmlElement = element as HTMLElement
-        const currentTransform = htmlElement.style.transform || ''
+        const speed = index % 2 === 0 ? 0.05 : -0.05;
+        const yPos = window.scrollY * speed;
+        const htmlElement = element as HTMLElement;
+        const currentTransform = htmlElement.style.transform || '';
         
-        // transform属性全体を上書きするのではなく、transformプロパティのみを更新
-        // 既存のtransformスタイルを保持
         if (currentTransform.includes('translateY')) {
-          // 既存のtranslateYを更新
-          htmlElement.style.transform = currentTransform.replace(/translateY\([^)]*\)/, `translateY(${yPos}px)`) + ' translateZ(0)'
+          htmlElement.style.transform = currentTransform.replace(/translateY\([^)]*\)/, `translateY(${yPos}px)`) + ' translateZ(0)';
         } else {
-          // translateYがなければ追加
-          htmlElement.style.transform = `${currentTransform} translateY(${yPos}px) translateZ(0)`
+          htmlElement.style.transform = `${currentTransform} translateY(${yPos}px) translateZ(0)`;
         }
-      })
-    }
+      });
+    };
     
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
-  useEffect(() => {
-    const fetchCases = async () => {
-      try {
-        const response = await client.get({ endpoint: 'cases' })
-        
-        // レスポンスの形式を確認し、適切な形式に変換
-        if (response && typeof response === 'object' && 'contents' in response) {
-          // MicroCMSの標準レスポンス形式の場合（{contents: [...]}）
-          setData(response as MicroCMSResponse<Case>)
-        } else {
-          // ダミーデータまたはセーフモード時のレスポンス処理
-          // MicroCMSResponse<Case>型に合わせてデータを整形
-          
-          // 単一オブジェクトの場合は配列に変換し、technologies配列がなければ空配列を設定
-          const caseItems = Array.isArray(response) ? response : [response];
-          const formattedItems = caseItems.map(item => ({
-            ...item,
-            technologies: item.technologies || [],
-          }));
-          
-          setData({
-            contents: formattedItems as Case[],
-            totalCount: formattedItems.length,
-            offset: 0,
-            limit: 10
-          })
-        }
-      } catch (error) {
-        console.error('Error fetching cases:', error)
-      }
-    }
-    fetchCases()
-  }, [])
-  
+  // データ取得のuseEffectとuseStateを削除
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -97,7 +61,7 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
         staggerChildren: 0.2,
       },
     },
-  }
+  };
   
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -109,11 +73,10 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
         ease: 'easeOut',
       },
     },
-  }
+  };
   
   return (
     <Box bg="deepBlue">
-      {/* 事例紹介ページの場合のみPageHeaderを表示 */}
       {!isHomePage && (
         <PageHeader 
           title="事例紹介" 
@@ -128,7 +91,6 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
           initial="hidden"
           animate={controls}
         >
-          {/* セクションヘッダー */}
           <Flex direction="column" align="center" textAlign="center" mb={16}>
             <motion.div variants={itemVariants}>
               <Text
@@ -142,7 +104,6 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
             </motion.div>
           </Flex>
           
-          {/* 事例カード */}
           <Box ref={parallaxRef} position="relative" zIndex="10" mb="80px" mt="40px">
             <Grid 
               templateColumns={{
@@ -152,12 +113,12 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
               }}
               gap={8}
             >
-              {data?.contents.map((item: Case) => (
+              {/* Propsで受け取ったcasesを直接mapする */}
+              {cases?.map((item: Case) => (
                 <Link 
-                  as={NextLink} 
                   href={`/cases/${item.id}`} 
                   key={item.id}
-                  _hover={{ textDecoration: 'none' }}
+                  style={{ textDecoration: 'none' }}
                 >
                   <Box
                     borderRadius="lg"
@@ -227,11 +188,10 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
             </Grid>
           </Box>
           
-          {/* 「もっと見る」ボタン */}
           <motion.div variants={itemVariants}>
             <Flex justify="center">
               <Button
-                as={NextLink}
+                as={Link}
                 href="/cases"
                 variant="secondary"
                 size="lg"
@@ -244,7 +204,7 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false }) => 
         </motion.div>
       </Container>
     </Box>
-  )
+  );
 }
 
-export default FeaturedCases
+export default FeaturedCases;

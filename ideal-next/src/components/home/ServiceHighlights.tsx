@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React from 'react'
-import { Box, Container, Heading, SimpleGrid, Text, VStack, Icon, Link } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
-import NextLink from 'next/link'
-import { FaRobot, FaLink, FaVrCardboard, FaLaptopCode, FaGamepad, FaMobileAlt, FaComments, FaGlobeAsia, FaBriefcase, FaNetworkWired } from 'react-icons/fa'
+import React from 'react';
+import { Box, Container, Heading, SimpleGrid, Text, VStack, Icon, Link as ChakraLink } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import Link from 'next/link'; // Next.jsのLinkをインポート
+import { FaRobot, FaLink, FaVrCardboard, FaLaptopCode, FaGamepad, FaMobileAlt, FaComments, FaGlobeAsia, FaBriefcase, FaNetworkWired } from 'react-icons/fa';
 
 // サービス情報の定義
 const services = [
@@ -78,10 +78,9 @@ const services = [
     icon: FaBriefcase,
     color: '#f44336',
   },
-]
+];
 
 const ServiceHighlights: React.FC = () => {
-  // アニメーション設定
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -90,7 +89,7 @@ const ServiceHighlights: React.FC = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -101,7 +100,7 @@ const ServiceHighlights: React.FC = () => {
         duration: 0.5,
       },
     },
-  }
+  };
 
   return (
     <Box
@@ -118,7 +117,6 @@ const ServiceHighlights: React.FC = () => {
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-          {/* セクションヘッダー */}
           <VStack spacing={4} mb={16} textAlign="center">
             <motion.div variants={itemVariants}>
               <Heading
@@ -145,70 +143,66 @@ const ServiceHighlights: React.FC = () => {
             </motion.div>
           </VStack>
 
-          {/* サービスカードグリッド */}
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={10} mt="40px" mb="80px" position="relative" zIndex="10">
             {services.map((service) => (
               <motion.div key={service.id} variants={itemVariants} style={{ position: 'relative', zIndex: 10 }}>
-                <Link
-                  as={NextLink}
-                  href={`/services/${service.id}`}
-                  _hover={{ textDecoration: 'none' }}
-                >
-                  <Box
-                    className="card"
-                    height="100%"
-                    p={6}
-                    borderRadius="lg"
-                    bg="rgba(10, 10, 26, 0.8)"
-                    backdropFilter="blur(10px)"
-                    borderWidth="1px"
-                    borderColor="rgba(0, 184, 212, 0.2)"
-                    transition="all 0.3s ease"
-                    _hover={{
-                      transform: 'translateY(-5px)',
-                      boxShadow: '0 10px 30px -10px rgba(0, 184, 212, 0.3)',
-                      borderColor: 'neonBlue',
-                    }}
-                    position="relative"
-                    overflow="hidden"
-                  >
-                    {/* 背景のグロー効果 */}
+                <Link href={`/services/${service.id}`} passHref legacyBehavior>
+                  <ChakraLink _hover={{ textDecoration: 'none' }}>
                     <Box
-                      position="absolute"
-                      top="-50px"
-                      right="-50px"
-                      width="100px"
-                      height="100px"
-                      borderRadius="full"
-                      bg={service.color}
-                      opacity="0.1"
-                      filter="blur(30px)"
+                      className="card"
+                      height="100%"
+                      p={6}
+                      borderRadius="lg"
+                      bg="rgba(10, 10, 26, 0.8)"
+                      backdropFilter="blur(10px)"
+                      borderWidth="1px"
+                      borderColor="rgba(0, 184, 212, 0.2)"
                       transition="all 0.3s ease"
-                      _groupHover={{ opacity: '0.2', width: '120px', height: '120px' }}
-                    />
-
-                    <VStack spacing={4} align="flex-start">
+                      _hover={{
+                        transform: 'translateY(-5px)',
+                        boxShadow: '0 10px 30px -10px rgba(0, 184, 212, 0.3)',
+                        borderColor: 'neonBlue',
+                      }}
+                      position="relative"
+                      overflow="hidden"
+                    >
                       <Box
-                        p={3}
-                        borderRadius="lg"
-                        bg={`${service.color}15`}
-                        color={service.color}
-                      >
-                        <Icon as={service.icon} boxSize={6} />
-                      </Box>
-                      <Heading
-                        as="h3"
-                        fontSize="xl"
-                        fontWeight="bold"
-                        color="white"
-                      >
-                        {service.title}
-                      </Heading>
-                      <Text color="gray.400" fontSize="sm">
-                        {service.description}
-                      </Text>
-                    </VStack>
-                  </Box>
+                        position="absolute"
+                        top="-50px"
+                        right="-50px"
+                        width="100px"
+                        height="100px"
+                        borderRadius="full"
+                        bg={service.color}
+                        opacity="0.1"
+                        filter="blur(30px)"
+                        transition="all 0.3s ease"
+                        _groupHover={{ opacity: '0.2', width: '120px', height: '120px' }}
+                      />
+
+                      <VStack spacing={4} align="flex-start">
+                        <Box
+                          p={3}
+                          borderRadius="lg"
+                          bg={`${service.color}15`}
+                          color={service.color}
+                        >
+                          <Icon as={service.icon} boxSize={6} />
+                        </Box>
+                        <Heading
+                          as="h3"
+                          fontSize="xl"
+                          fontWeight="bold"
+                          color="white"
+                        >
+                          {service.title}
+                        </Heading>
+                        <Text color="gray.400" fontSize="sm">
+                          {service.description}
+                        </Text>
+                      </VStack>
+                    </Box>
+                  </ChakraLink>
                 </Link>
               </motion.div>
             ))}
@@ -216,7 +210,7 @@ const ServiceHighlights: React.FC = () => {
         </motion.div>
       </Container>
     </Box>
-  )
+  );
 }
 
-export default ServiceHighlights
+export default ServiceHighlights;

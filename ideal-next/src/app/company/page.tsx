@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import React from 'react';
-import NextLink from 'next/link'; // next/link をインポート
-import { Box, Container, Heading, Text, SimpleGrid, VStack, Stat, StatLabel, StatNumber, Button, Icon } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, SimpleGrid, VStack, HStack, Stat, StatLabel, StatNumber, Button, Icon } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import Link from 'next/link'; // react-router-domからnext/linkに変更
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt, FaUsers, FaGlobe } from 'react-icons/fa';
-import PageHeader from '@/components/common/PageHeader';
+import PageHeader from '@/components/common/PageHeader'; // インポートパスをエイリアスに変更
 
 // 会社情報ページコンポーネント
 const CompanyPage: React.FC = () => {
@@ -59,10 +59,10 @@ const CompanyPage: React.FC = () => {
     founded: '2024年',
     employees: '13人',
     clients: '37社',
-    address: '東京都渋谷区神宮前X-X-X', // placeholder
-    phone: '03-XXXX-XXXX', // placeholder
-    email: 'info@ideal-company.com', // placeholder
-    // image: 'https://via.placeholder.com/1200x600?text=IDEAL+Company' // PageHeaderで使用していた可能性
+    address: '東京都渋谷区神宮前X-X-X',
+    phone: '03-XXXX-XXXX',
+    email: 'info@ideal-company.com',
+    image: 'https://via.placeholder.com/1200x600?text=IDEAL+Company'
   };
 
   // 統計データ
@@ -73,16 +73,16 @@ const CompanyPage: React.FC = () => {
   ];
 
   return (
-    <Box minH="70vh"> {/* Ensure content is visible */}
+    <>
       {/* ページヘッダー */}
       <PageHeader 
         title={companyData.name}
         subtitle={companyData.description}
-      /> 
-      <Box as="section" py={{ base: 10, md: 20 }} position="relative" overflow="hidden">
+      />
+      
+      <Box as="section" py={20} position="relative" overflow="hidden">
         <Container maxW="container.xl" position="relative" zIndex={1}>
-          <VStack spacing={{ base: 10, md: 20 }} as={motion.div} variants={containerVariants} initial="hidden" animate="visible">
-
+          <VStack spacing={20} as={motion.div} variants={containerVariants} initial="hidden" animate="visible">
             {/* 統計セクション */}
             <Box width="100%" as={motion.div} variants={itemVariants}>
               <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
@@ -188,8 +188,8 @@ const CompanyPage: React.FC = () => {
                 専門チームが丁寧にご対応いたします。
               </Text>
               <Button 
-                as={NextLink} // NextLink を使用
-                href="/contact" // to を href に変更
+                as={Link} 
+                href="/contact" // toからhrefに変更
                 variant="primary" 
                 size="lg" 
                 px={10} 
@@ -202,9 +202,8 @@ const CompanyPage: React.FC = () => {
           </VStack>
         </Container>
       </Box>
-    </Box>
+    </>
   );
-};
+}
 
 export default CompanyPage;
-

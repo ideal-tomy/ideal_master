@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import React, { useEffect } from 'react'
-import { Box, Container, Heading, Text, Button, Flex, useBreakpointValue } from '@chakra-ui/react'
-import { motion, useAnimation } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import NextLink from 'next/link'
-import { FaArrowRight } from 'react-icons/fa'
+import React, { useEffect } from 'react';
+import { Box, Container, Heading, Text, Button, Flex, useBreakpointValue } from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import Link from 'next/link'; // react-router-domからnext/linkに変更
+import { FaArrowRight } from 'react-icons/fa';
 
 const ContactCTA: React.FC = () => {
-  const controls = useAnimation()
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true })
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   
   // アニメーションの設定
   useEffect(() => {
     if (inView) {
-      controls.start('visible')
+      controls.start('visible');
     }
-  }, [controls, inView])
+  }, [controls, inView]);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -26,7 +26,7 @@ const ContactCTA: React.FC = () => {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
   
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -38,10 +38,10 @@ const ContactCTA: React.FC = () => {
         ease: 'easeOut',
       },
     },
-  }
+  };
   
   // レスポンシブ設定
-  const buttonSize = useBreakpointValue({ base: 'md', md: 'lg' })
+  const buttonSize = useBreakpointValue({ base: 'md', md: 'lg' });
   
   return (
     <Box
@@ -118,8 +118,8 @@ const ContactCTA: React.FC = () => {
               
               <motion.div variants={itemVariants}>
                 <Button
-                  as={NextLink}
-                  href="/contact"
+                  as={Link}
+                  href="/contact" // toからhrefに変更
                   variant="primary"
                   size={buttonSize}
                   rightIcon={<FaArrowRight />}
@@ -142,7 +142,7 @@ const ContactCTA: React.FC = () => {
         </motion.div>
       </Container>
     </Box>
-  )
+  );
 }
 
-export default ContactCTA
+export default ContactCTA;
