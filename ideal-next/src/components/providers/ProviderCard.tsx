@@ -1,4 +1,5 @@
-import { Box, VStack, HStack, Image, Text, Badge, Flex } from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Badge, Flex } from '@chakra-ui/react';
+import Image from 'next/image';
 import { Link } from 'react-router-dom';
 import { ProviderCard as ProviderCardType } from '../../types/provider';
 
@@ -23,13 +24,15 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
       >
         <VStack align="stretch" spacing={4}>
           <HStack spacing={4}>
-            <Image
-              src={provider.logo}
-              alt={provider.name}
-              boxSize="60px"
-              objectFit="contain"
-              fallbackSrc="https://via.placeholder.com/60"
-            />
+            <Box position="relative" width="60px" height="60px">
+              <Image
+                src={provider.logo}
+                alt={provider.name}
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="60px"
+              />
+            </Box>
             <VStack align="start" spacing={1}>
               <Text fontSize="lg" fontWeight="bold">
                 {provider.name}

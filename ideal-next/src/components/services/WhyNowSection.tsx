@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Flex, SimpleGrid, Heading, Text, Icon, UnorderedList, ListItem, Center } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FaLightbulb, FaExclamationCircle } from 'react-icons/fa';
-import GradientTitle from './GradientTitle';
+import { UnifiedGradientText } from '@/components/common/UnifiedGradientText';
 
 interface ReasonItem {
   icon?: React.ElementType;
@@ -40,7 +40,9 @@ const WhyNowSection: React.FC<WhyNowSectionProps> = ({
 }) => {
   return (
     <Box width="100%" as={motion.div} variants={itemVariants}>
-      <GradientTitle title={title} isHighlighted={true} fontSize={{ base: "3xl", md: "5xl" }} mb={8} />
+      <UnifiedGradientText variant="highlighted" fontSize={{ base: "3xl", md: "5xl" }} mb={8}>
+        {title}
+      </UnifiedGradientText>
       
       <Box 
         p={{ base: 6, md: 10 }} 

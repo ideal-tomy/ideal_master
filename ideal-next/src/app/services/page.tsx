@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Box, Container, Heading, Text, SimpleGrid, VStack, Button } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import Link from 'next/link'; // react-router-domからnext/linkに変更
-import PageHeader from '@/components/common/PageHeader'; // パスを調整
+import Link from 'next/link';
+import PageHeader from '@/components/common/PageHeader';
 
 // サービス一覧ページのコンポーネント
 const ServicesPage: React.FC = () => {
@@ -31,13 +31,19 @@ const ServicesPage: React.FC = () => {
     }
   };
 
-  // サービス一覧（プレースホルダー）
+  // サービス一覧
   const services = [
     {
-      id: 'ai-blockchain', // Next.jsのルーティングに合わせて変更 (例)
-      title: 'AIブロックチェーン',
-      description: '最先端のAIとブロックチェーン技術を融合させ、企画開発からコンサルティングまで提供します。',
-      icon: '🤖🔗' // アイコンを統合または変更
+      id: 'ai',
+      title: 'AI',
+      description: '最先端のAI技術を活用した企画開発、活用提案からコンサルティングまで提供します。',
+      icon: '🤖'
+    },
+    {
+      id: 'blockchain',
+      title: 'ブロックチェーン',
+      description: 'ブロックチェーン技術導入によって実現する透明性の高いシステム活用を提案、開発します。',
+      icon: '🔗'
     },
     {
       id: 'metaverse',
@@ -63,14 +69,12 @@ const ServicesPage: React.FC = () => {
       description: 'オリジナルアプリゲームから、没入感あふれるゲーム体験を提供するゲーム開発サービス。',
       icon: '🎮'
     },
-    // NFTはサイトマップにないので一旦コメントアウト、または個別サービスとして追加検討
-    // {
-    //   id: 'nft-development', // idを修正
-    //   path: '/services/nft-development',
-    //   title: 'NFT開発',
-    //   description: 'デジタル資産の新たな価値を創造する、次世代のソリューション',
-    //   icon: '🎨'
-    // },
+    {
+      id: 'nft',
+      title: 'NFT開発',
+      description: 'デジタル資産の新たな価値を創造する、次世代のソリューション',
+      icon: '🎨'
+    },
     {
       id: 'english-consulting',
       title: '英会話コンサル',
@@ -111,15 +115,15 @@ const ServicesPage: React.FC = () => {
                   variants={itemVariants}
                   p={8}
                   borderWidth="1px"
-                  borderColor="neonBlue" // Chakra UIのテーマにneonBlueが定義されているか確認
+                  borderColor="neonBlue"
                   borderRadius="lg"
-                  bg="rgba(10, 10, 26, 0.8)" // テーマカラーを使用することを検討
+                  bg="rgba(10, 10, 26, 0.8)"
                   backdropFilter="blur(10px)"
-                  boxShadow="0 0 20px rgba(0, 184, 212, 0.2)" // テーマの影スタイルを使用することを検討
+                  boxShadow="0 0 20px rgba(0, 184, 212, 0.2)"
                   transition="all 0.3s"
                   _hover={{
                     transform: 'translateY(-5px)',
-                    boxShadow: '0 0 30px rgba(0, 184, 212, 0.4)' // テーマの影スタイルを使用することを検討
+                    boxShadow: '0 0 30px rgba(0, 184, 212, 0.4)'
                   }}
                 >
                   <Text fontSize="4xl" mb={4}>{service.icon}</Text>
@@ -131,8 +135,8 @@ const ServicesPage: React.FC = () => {
                   </Text>
                   <Button
                     as={Link}
-                    href={`/services/${service.id}`} // next/linkのhrefに変更
-                    variant="secondary" // Chakra UIのテーマにvariant='secondary'が定義されているか確認
+                    href={`/services/${service.id}`}
+                    variant="secondary"
                     size="md"
                     rightIcon={<span>→</span>}
                   >
@@ -148,11 +152,11 @@ const ServicesPage: React.FC = () => {
               variants={itemVariants}
               p={10}
               borderRadius="xl"
-              bg="rgba(26, 43, 94, 0.5)" // テーマカラーを使用することを検討
+              bg="rgba(26, 43, 94, 0.5)"
               backdropFilter="blur(8px)"
-              boxShadow="0 0 30px rgba(0, 184, 212, 0.3)" // テーマの影スタイルを使用することを検討
+              boxShadow="0 0 30px rgba(0, 184, 212, 0.3)"
               borderWidth="1px"
-              borderColor="neonBlue" // Chakra UIのテーマにneonBlueが定義されているか確認
+              borderColor="neonBlue"
               width="100%"
               textAlign="center"
             >
@@ -164,8 +168,8 @@ const ServicesPage: React.FC = () => {
               </Text>
               <Button
                 as={Link}
-                href="/company/contact" // next/linkのhrefに変更、サイトマップに合わせて調整
-                variant="accent" // Chakra UIのテーマにvariant='accent'が定義されているか確認
+                href="/contact"
+                variant="accent"
                 size="lg"
                 px={8}
                 py={6}
@@ -179,6 +183,6 @@ const ServicesPage: React.FC = () => {
       </Box>
     </>
   );
-};
+}
 
 export default ServicesPage;

@@ -1,4 +1,5 @@
 import { createClient, MicroCMSQueries } from 'microcms-js-sdk';
+import { cache } from 'react';
 
 // セーフモードの設定 (クライアントサイドでも使えるように NEXT_PUBLIC_ を使用)
 const isSafeMode = process.env.NEXT_PUBLIC_SAFE_MODE === 'true';
@@ -67,12 +68,24 @@ const createRealClient = () => {
 
   return createClient({
     serviceDomain: serviceDomain,
-    apiKey: apiKey
+    apiKey: apiKey,
+    // customFetch を追加して Next.js のキャッシュ機能を有効にする
+    customFetch: (input, init) => {
+      // もし init に cache オプションが指定されていなければ、
+      // デフォルトで 'force-cache' を使うようにする
+      const cachedInit = { ...init, cache: init?.cache ?? 'force-cache' };
+      return fetch(input, cachedInit);
+    },
   });
 };
 
 // セーフモードに応じてクライアントを選択
 export const client = isSafeMode ? dummyClient : createRealClient();
+
+// データ取得関数を `cache` でラップする
+export const cachedGet = cache(async (args: { endpoint: string; contentId?: string; queries?: MicroCMSQueries }) => {
+  return client.get(args);
+});
 
 // 接続テスト用の関数
 export const testConnection = async () => {

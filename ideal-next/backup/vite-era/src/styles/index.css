@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-deep-blue: #1a2b5e;
+  --color-deep-purple: #2e1a5e;
+  --color-gold: #d4af37;
+  --color-silver: #c0c0c0;
+  --color-neon-blue: #00b8d4;
+  --color-neon-purple: #9c27b0;
+  --color-space-dark: #0a0a1a;
+  --color-space-light: #1a1a4a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-space-gradient min-h-screen font-sans text-white;
+    overflow-x: hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl font-bold;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+  
+  p {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+  
+  code {
+    @apply font-mono text-neon-blue;
+  }
+
+  /* カーソル点滅アニメーション */
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-6 py-3 rounded-md font-semibold transition-all duration-300 inline-block;
+  }
+  
+  .btn-primary {
+    @apply btn bg-deep-blue hover:bg-deep-purple text-white border border-neon-blue hover:shadow-neon;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-transparent border border-neon-blue text-white hover:bg-deep-purple hover:shadow-neon;
+  }
+  
+  .btn-accent {
+    @apply btn bg-neon-blue hover:bg-neon-purple text-white;
+  }
+  
+  .card {
+    @apply bg-space-dark/80 backdrop-blur-md rounded-lg p-6 border border-deep-blue hover:border-neon-blue transition-all duration-300;
+  }
+  
+  .section {
+    @apply py-16 md:py-24;
+  }
+  
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple;
+  }
+}
+
+/* 宇宙的な背景の星のアニメーション */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -10;
+}
+
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: twinkle var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-space-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-deep-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon-blue);
+}
+
+/* グラデーション境界線 */
+.gradient-border {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 0.1rem;
+  background: linear-gradient(45deg, var(--color-neon-blue), var(--color-neon-purple));
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--color-space-dark);
+  border-radius: 0.4rem;
+  z-index: -1;
+}
+
+/* パーティクルコンテナ */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* ローディングアニメーション */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background: var(--color-space-dark);
+}
+
+.loading-circle {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 184, 212, 0.3);
+  border-top: 4px solid var(--color-neon-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.fade-in-delay-1 {
+  animation: fadeIn 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.fade-in-delay-2 {
+  animation: fadeIn 0.6s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.fade-in-delay-3 {
+  animation: fadeIn 0.6s ease-out 0.6s forwards;
+  opacity: 0;
+}

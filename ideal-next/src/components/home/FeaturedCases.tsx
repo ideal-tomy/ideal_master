@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Box, Container, Text, Grid, VStack, Image, Tag, Wrap, WrapItem, Flex, Button, Heading } from '@chakra-ui/react';
+import { Box, Container, Text, Grid, VStack, Tag, Wrap, WrapItem, Flex, Button, Heading } from '@chakra-ui/react';
+import Image from 'next/image';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaArrowRight } from 'react-icons/fa';
@@ -128,13 +129,15 @@ const FeaturedCases: React.FC<FeaturedCasesProps> = ({ isHomePage = false, cases
                     _hover={{ transform: 'translateY(-4px)' }}
                     h="100%"
                   >
-                    <Image
-                      src={item.thumbnail.url}
-                      alt={item.title}
-                      objectFit="cover"
-                      w="100%"
-                      h="200px"
-                    />
+                    <Box position="relative" width="100%" height="200px">
+                      <Image
+                        src={item.thumbnail.url}
+                        alt={item.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </Box>
                     <VStack align="start" p={6} spacing={4}>
                       <Heading 
                         size="md" 

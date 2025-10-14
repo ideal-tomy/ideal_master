@@ -4,14 +4,9 @@ import React, { useEffect, useRef } from 'react'
 import { Box, Container, Heading, Text, SimpleGrid, Flex, Stat, StatLabel, StatNumber, StatHelpText } from '@chakra-ui/react'
 import { motion, useAnimation } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { CompanyValue } from '@/types'
 
-// GSAPプラグインの登録
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+// GSAPとScrollTriggerを削除してパフォーマンス最適化
 
 // 会社の価値提案データ
 const companyValues: CompanyValue[] = [
@@ -58,41 +53,7 @@ const CompanyValues: React.FC = () => {
     }
   }, [controls, inView])
   
-  // GSAP数値カウントアップアニメーション
-  useEffect(() => {
-    if (!statsRef.current) return
-    
-    const statElements = statsRef.current.querySelectorAll('.stat-number')
-    
-    statElements.forEach((element) => {
-      const target = element as HTMLElement
-      const value = parseInt(target.getAttribute('data-value') || '0', 10)
-      const suffix = target.getAttribute('data-suffix') || ''
-      
-      gsap.fromTo(
-        target,
-        { innerText: '0' },
-        {
-          innerText: value,
-          duration: 2,
-          ease: 'power2.out',
-          snap: { innerText: 1 },
-          stagger: 0.2,
-          scrollTrigger: {
-            trigger: target,
-            start: 'top 80%',
-          },
-          onUpdate: function() {
-            target.innerText = Math.ceil(parseFloat(target.innerText)) + suffix
-          },
-        }
-      )
-    })
-    
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
-    }
-  }, [])
+  // GSAPを削除してパフォーマンス最適化
   
   const containerVariants = {
     hidden: { opacity: 0 },

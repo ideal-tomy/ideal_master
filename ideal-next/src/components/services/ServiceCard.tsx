@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Box, Heading, Text, Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,9 +22,16 @@ const servicePathMap: Record<string, string> = {
   'career': 'career-consulting'
 };
 
-export const ServiceCard: React.FC<ServiceCardProps> = ({ id, title, description, icon }) => {
+export const ServiceCard: React.FC<ServiceCardProps> = memo(({ id, title, description, icon }) => {
   const navigate = useNavigate();
-  const path = servicePathMap[id] || id;
+  
+  // パス計算をメモ化
+  const path = useMemo(() => servicePathMap[id] || id, [id]);
+  
+  // ナビゲーション関数をメモ化
+  const handleClick = useCallback(() => {
+    navigate(`/services/${path}`);
+  }, [navigate, path]);
   
   return (
     <Box
@@ -49,7 +56,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ id, title, description
         {description}
       </Text>
       <Button
-        onClick={() => navigate(`/services/${path}`)}
+        onClick={handleClick}
         variant="secondary"
         size="md"
       >
@@ -57,4 +64,4 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ id, title, description
       </Button>
     </Box>
   );
-}; 
+}); 

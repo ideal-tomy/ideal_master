@@ -1,6 +1,7 @@
-import React from 'react';
-import { Box, Heading, Text, VStack, Image, useBreakpointValue } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import React, { memo, useMemo } from 'react';
+import { Box, Heading, Text, VStack, useBreakpointValue } from '@chakra-ui/react';
+import Image from 'next/image';
+import NextLink from 'next/link';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -28,39 +29,41 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   console.log(`=== Rendering ${title} ===`);
   console.log('Contents count:', contents.length);
   console.log('Contents:', contents.map(c => c.title));
+  
+  // エラーハンドリング
+  if (!contents || contents.length === 0) {
+    console.log(`=== No contents for ${title} ===`);
+    return (
+      <Box mb={8}>
+        <Heading size="lg" mb={4} color="cyan.300">{title}</Heading>
+        <Text color="gray.400" textAlign="center">
+          このカテゴリのコンテンツはまだありません
+        </Text>
+      </Box>
+    );
+  }
 
-  // スライダー設定を条件分岐
-  const sliderSettings = {
+  // スライダー設定をメモ化（パフォーマンス最適化）
+  const sliderSettings = useMemo(() => ({
     dots: false,
     infinite: contents.length > 1,  // カードが1枚の場合はinfiniteをfalseに
-    autoplay: contents.length > 1,  // カードが1枚の場合はautoplayもfalseに
-    pauseOnHover: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: isMobile ? 1 : Math.min(contents.length, 4),
     slidesToScroll: 1,
+    autoplay: contents.length > 1, // カードが1枚の場合はautoplayをfalseに
     autoplaySpeed: 3000,
     responsive: [
       {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-        }
-      },
-      {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
-        }
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1.5,
-          arrows: false,
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: contents.length > 1,
+          autoplay: contents.length > 1
         }
       }
     ]
-  };
+  }), [contents.length, isMobile]);
 
   return (
     <Box
@@ -87,13 +90,17 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
           size={isMobile ? "md" : "lg"}
           bgGradient="linear(to-r, cyan.400, blue.500)"
           bgClip="text"
-          mb={2}
+          textAlign="center"
+          mb={4}
         >
           {title}
         </Heading>
         <Text 
+          color="gray.300" 
+          textAlign="center" 
           fontSize={isMobile ? "sm" : "md"}
-          color="gray.300"
+          maxW="600px"
+          mx="auto"
         >
           {challenge}
         </Text>
@@ -106,8 +113,9 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
           <Slider {...sliderSettings}>
             {contents.map((content) => (
               <Box key={content.id} px={2}>
-                <Link to={`/tools/${content.id}`}>
+                <NextLink href={`/ai/capabilities/${content.id}`} passHref legacyBehavior>
                   <Box
+                    as="a"
                     bg="rgba(0, 184, 212, 0.05)"
                     borderRadius="lg"
                     overflow="hidden"
@@ -117,55 +125,43 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
                     maxW="240px"
                     mx="auto"
                     position="relative"
+                    _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
+                    transition="all 0.2s ease-in-out"
                   >
-                    <Box
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      right="0"
-                      bottom="0"
-                      display="flex"
-                      flexDirection="column"
+                    <Box 
+                      position="relative"
+                      w="100%"
+                      h="58%"
                     >
-                      <Box 
-                        position="relative"
-                        w="100%"
-                        h="58%"
-                      >
-                        <Image
-                          src={content.thumbnail?.url}
-                          alt={content.title}
-                          objectFit="cover"
-                          w="100%"
-                          h="100%"
-                          fallbackSrc="/placeholder-image.png"
-                        />
-                      </Box>
-                      <VStack 
-                        align="start" 
-                        p="5%"
-                        spacing="2%"
-                        h="42%"
-                      >
-                        <Heading 
-                          size="sm" 
-                          color="white"
-                          noOfLines={2}
-                          fontSize="clamp(12px, 5.8%, 14px)"
-                        >
-                          {content.title}
-                        </Heading>
-                        <Text 
-                          fontSize="clamp(11px, 5.4%, 13px)"
-                          color="gray.300"
-                          noOfLines={2}
-                        >
-                          {content.description}
-                        </Text>
-                      </VStack>
+                      <Image
+                        src={content.thumbnail?.url || 'https://placehold.jp/240x240/0ea5e9/ffffff?text=No+Image'}
+                        alt={content.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      />
                     </Box>
+                    <VStack 
+                      align="start"
+                      spacing={2}
+                      p={4}
+                      h="42%"
+                      justify="center"
+                    >
+                      <Heading size="sm" color="cyan.300" noOfLines={2}>
+                        {content.title}
+                      </Heading>
+                      <Text 
+                        color="gray.300" 
+                        fontSize="xs" 
+                        noOfLines={3}
+                        lineHeight="1.4"
+                      >
+                        {content.description}
+                      </Text>
+                    </VStack>
                   </Box>
-                </Link>
+                </NextLink>
               </Box>
             ))}
           </Slider>
@@ -179,4 +175,5 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   );
 };
 
-export default AICapabilitySection; 
+// React.memoでメモ化（propsが変更された時のみ再レンダリング）
+export default memo(AICapabilitySection);

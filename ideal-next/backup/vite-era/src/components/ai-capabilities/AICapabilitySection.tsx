@@ -1,12 +1,10 @@
-"use client";
-
 import React from 'react';
 import { Box, Heading, Text, VStack, Image, useBreakpointValue } from '@chakra-ui/react';
-import NextLink from 'next/link'; // Renamed from Link to NextLink to avoid conflict with Chakra's Link
+import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { AICapability } from '@/types'; // Adjusted import path
+import { AICapability } from '@/types';
 
 interface AICapabilitySectionProps {
   title: string;
@@ -14,10 +12,10 @@ interface AICapabilitySectionProps {
   contents: AICapability[];
 }
 
-// カルーセルのカスタムスタイル (元コードのままだが、必要に応じて調整)
+// カルーセルのカスタムスタイル
 const customStyles = `
   .slick-slide {
-    padding: 0 0px; // Consider adjusting if spacing issues arise
+    padding: 0 0px;
   }
 `;
 
@@ -27,14 +25,15 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   contents
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
-  // console.log(`=== Rendering ${title} ===`);
-  // console.log('Contents count:', contents.length);
-  // console.log('Contents:', contents.map(c => c.title));
+  console.log(`=== Rendering ${title} ===`);
+  console.log('Contents count:', contents.length);
+  console.log('Contents:', contents.map(c => c.title));
 
+  // スライダー設定を条件分岐
   const sliderSettings = {
     dots: false,
-    infinite: contents.length > (isMobile ? 1.5 : 4), // Adjust based on slidesToShow
-    autoplay: contents.length > (isMobile ? 1.5 : 4),
+    infinite: contents.length > 1,  // カードが1枚の場合はinfiniteをfalseに
+    autoplay: contents.length > 1,  // カードが1枚の場合はautoplayもfalseに
     pauseOnHover: true,
     speed: 500,
     slidesToShow: 4,
@@ -45,16 +44,12 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
         breakpoint: 1024,
         settings: {
           slidesToShow: 3,
-          infinite: contents.length > 3,
-          autoplay: contents.length > 3,
         }
       },
       {
         breakpoint: 768,
         settings: {
           slidesToShow: 2,
-          infinite: contents.length > 2,
-          autoplay: contents.length > 2,
         }
       },
       {
@@ -62,8 +57,6 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
         settings: {
           slidesToShow: 1.5,
           arrows: false,
-          infinite: contents.length > 1.5,
-          autoplay: contents.length > 1.5,
         }
       }
     ]
@@ -72,7 +65,7 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   return (
     <Box
       py={isMobile ? 4 : 12}
-      px={isMobile ? 4 : 12} // Consider global padding consistency
+      px={isMobile ? 4 : 12}
       position="relative"
       _before={{
         content: '""',
@@ -87,6 +80,7 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
         zIndex: -1,
       }}
     >
+      {/* ヘッダー部分 */}
       <Box mb={isMobile ? 4 : 8}>
         <Heading 
           as="h2" 
@@ -105,26 +99,24 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
         </Text>
       </Box>
 
+      {/* カード表示部分 */}
       {contents && contents.length > 0 ? (
         <Box maxW="1200px" mx="auto" overflow="hidden">
           <style>{customStyles}</style>
           <Slider {...sliderSettings}>
             {contents.map((content) => (
               <Box key={content.id} px={2}>
-                <NextLink href={`/ai/capabilities/${content.id}`} passHref legacyBehavior>
+                <Link to={`/tools/${content.id}`}>
                   <Box
-                    as="a" // Make the Box an anchor tag for NextLink
                     bg="rgba(0, 184, 212, 0.05)"
                     borderRadius="lg"
                     overflow="hidden"
                     h="0"
-                    pb="100%" // Aspect ratio for the card box
+                    pb="100%"
                     w="100%"
-                    maxW="240px" // Max width of a card
+                    maxW="240px"
                     mx="auto"
                     position="relative"
-                    _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
-                    transition="all 0.2s ease-in-out"
                   >
                     <Box
                       position="absolute"
@@ -138,45 +130,42 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
                       <Box 
                         position="relative"
                         w="100%"
-                        h="58%" // Image part of the card
+                        h="58%"
                       >
                         <Image
-                          src={content.thumbnail?.url || '/placeholder-image.png'} // Added fallback directly
+                          src={content.thumbnail?.url}
                           alt={content.title}
                           objectFit="cover"
                           w="100%"
                           h="100%"
-                          fallbackSrc="/placeholder-image.png" // Chakra's fallback
+                          fallbackSrc="/placeholder-image.png"
                         />
                       </Box>
                       <VStack 
                         align="start" 
-                        p="5%" // Padding for text content
+                        p="5%"
                         spacing="2%"
-                        h="42%" // Text part of the card
-                        justifyContent="space-between" // Distribute space for title and description
+                        h="42%"
                       >
                         <Heading 
                           size="sm" 
                           color="white"
                           noOfLines={2}
-                          fontSize="clamp(12px, 5.8%, 14px)" // Responsive font size
-                          lineHeight="short"
+                          fontSize="clamp(12px, 5.8%, 14px)"
                         >
                           {content.title}
                         </Heading>
                         <Text 
-                          fontSize="clamp(11px, 5.4%, 13px)" // Responsive font size
+                          fontSize="clamp(11px, 5.4%, 13px)"
                           color="gray.300"
                           noOfLines={2}
-                          lineHeight="short"
                         >
                           {content.description}
                         </Text>
                       </VStack>
                     </Box>
                   </Box>
-                </NextLink>
+                </Link>
               </Box>
             ))}
           </Slider>
@@ -190,4 +179,4 @@ const AICapabilitySection: React.FC<AICapabilitySectionProps> = ({
   );
 };
 
-export default AICapabilitySection;
+export default AICapabilitySection; 

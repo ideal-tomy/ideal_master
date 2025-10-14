@@ -11,6 +11,10 @@ export type Case = {
   publishedAt: string;
   company: string;
   technologies: string[];
+  categories?: Array<{
+    id: string;
+    name: string;
+  }>;
   gallery: {
     url: string;
     width: number;
